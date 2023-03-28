@@ -1,0 +1,24 @@
+{
+  "name": "atlasaiteam",
+  "version": "1.0.0",
+  "description": "Node server for ATLAS-AI Team",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yaswant2403/atlasaiteam.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yaswant2403/atlasaiteam/issues"
+  },
+  "homepage": "https://github.com/yaswant2403/atlasaiteam#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "openai": "^3.2.1"
+  }
+}
