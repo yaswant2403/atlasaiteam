@@ -1,0 +1,9 @@
+body {
+    background-color: darkslateblue;
+    text-align: center;
+    color: white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
