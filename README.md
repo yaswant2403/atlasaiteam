@@ -5,6 +5,8 @@ Node, Vite, NPM, Code Editor(VSCode preferably)
 
 Tutorials Used:
 
+ChatGPT for Bootstrap
+
 OpenAPI Documentation:
 https://platform.openai.com/docs/guides/chat/introduction
 https://platform.openai.com/tokenizer
