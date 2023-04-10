@@ -32,7 +32,9 @@ const handleSubmit = async (e) => {
   // creating new div element to display response
   const displayResponse = document.createElement('div');
   // Sending user prompt to backend
-  const chatResponse = await fetch('http://localhost:5000',{
+  // local: http://localhost:5000
+  // cPanel: http://openapi.atlasaiteam.web.illinois.edu/
+  const chatResponse = await fetch('http://openapi.atlasaiteam.web.illinois.edu/',{
     method: 'POST', // from server.js
     headers: {
       'Content-Type': 'application/json'
