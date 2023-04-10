@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="stylesheet" href="style.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatGPT Greeting Card Generator</title>
+    <title>ChatGPT Message Generator</title>
     <!-- BootStrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -16,6 +16,24 @@
       <h1>Enter the Details of your Greeting Card</h1>
       <!-- <p>If you have multiple subjects, please enter them separated by commas.</p> -->
       <form id="greeting-details">
+        <div class="form-group">
+          <label for="format">Format:</label>
+          <select class="form-control" id="format">
+            <option value="greeting">Greeting Card</option>
+            <option value="letter">Letter</option>
+            <option value="email">Email</option>
+            <option value="note">Note</option>
+            <option value="custom">Custom</option>
+          </select>
+          <div id="custom-input" style="display: none;">
+            <label for="custom-format">Custom Format</label>
+            <input 
+              type="text" 
+              class="form-control"
+              id="custom-format-input"
+              placeholder="Enter custom format of your message (Ex: Text Message):"/>
+          </div>
+        </div>
         <div class="form-group">
           <label for="from-input">From:</label>
           <input 

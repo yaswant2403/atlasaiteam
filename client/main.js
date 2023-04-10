@@ -1,13 +1,29 @@
 const form = document.querySelector('#greeting-details')
 const responseDiv = document.querySelector('#response')
 
+const formatSelect = document.querySelector('format');
+const customInput = document.getElementById("custom-input");
+
+formatSelect.addEventListener('change', function () {
+  if (formatSelect.value == "custom") {
+    customInput.style.display = 'block';
+  } else {
+    customInput.style.display = 'none';
+  }
+});
+
 // function to handle when user submits form
 const handleSubmit = async (e) => {
   e.preventDefault(); // prevents browser from reloading the page
+  const format = document.querySelector('#format').value;
+  let customFormat = "";
+  if (format == 'custom' && customFormat) {
+    customFormat = document.querySelector('#custom-format-input').value;
+  }
   const sender = document.querySelector('#from').value;
   const receiver = document.querySelector('#to').value;
   const subject = document.querySelector('#subject').value;
-  const prompt = "Generate a greeting card to " + receiver + " from " 
+  const prompt = "Generate a " + customFormat + " to " + receiver + " from " 
   + sender + " with the subject of \"" + subject + "\" that's a maximum of three sentences.";
   console.log("How the prompt is in frontend: " + prompt);
   
