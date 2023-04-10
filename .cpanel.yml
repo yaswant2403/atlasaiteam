@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/atlasaiteam/public_html/
+    - /bin/cp client/main.js $DEPLOYPATH
+    - /bin/cp client/*.html $DEPLOYPATH
+    - /bin/cp client/style.css $DEPLOYPATH
+    - /bin/cp -R assets $DEPLOYPATH
