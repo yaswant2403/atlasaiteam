@@ -1,7 +1,7 @@
 const form = document.querySelector('#greeting-details')
 const responseDiv = document.querySelector('#response')
 
-const formatSelect = document.querySelector('format');
+const formatSelect = document.querySelector('#format');
 const customInput = document.getElementById("custom-input");
 
 formatSelect.addEventListener('change', function () {
@@ -16,15 +16,17 @@ formatSelect.addEventListener('change', function () {
 const handleSubmit = async (e) => {
   e.preventDefault(); // prevents browser from reloading the page
   const format = document.querySelector('#format').value;
-  let customFormat = "";
+  let customFormat = format;
   if (format == 'custom' && customFormat) {
     customFormat = document.querySelector('#custom-format-input').value;
+    console.log(customFormat)
   }
   const sender = document.querySelector('#from').value;
   const receiver = document.querySelector('#to').value;
   const subject = document.querySelector('#subject').value;
+  const length = document.querySelector('#length').value + " sentences";
   const prompt = "Generate a " + customFormat + " to " + receiver + " from " 
-  + sender + " with the subject of \"" + subject + "\" that's a maximum of three sentences.";
+  + sender + " with the subject of \"" + subject + "\" that is " + length +".";
   console.log("How the prompt is in frontend: " + prompt);
   
   // creating new div element to display response
