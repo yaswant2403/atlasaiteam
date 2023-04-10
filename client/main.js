@@ -31,6 +31,11 @@ const handleSubmit = async (e) => {
   
   // creating new div element to display response
   const displayResponse = document.createElement('div');
+
+  // getting GIF Image and displaying it 
+  const loadingGIF = document.querySelector('#loadingGIF');
+  loadingGIF.style.display = 'block';
+
   // Sending user prompt to backend
   // local: http://localhost:5000
   // cPanel: http://openapi.atlasaiteam.web.illinois.edu/
@@ -46,6 +51,7 @@ const handleSubmit = async (e) => {
   
   // Grabbing response from backend
   if (chatResponse.ok) {
+    loadingGIF.style.display = "none";
     const data = await chatResponse.json();
     const finalResponse = data.bot.trim();
     console.log("How the response is in frontend: " + finalResponse);
@@ -57,7 +63,7 @@ const handleSubmit = async (e) => {
       <p>Your Prompt: ${prompt}</p>
       <h1>ChatGPT Response</h1>
       <p>${finalResponse}</p>
-    `
+      `
     responseDiv.innerHTML = ''; //clear responseDiv before appending new response
     responseDiv.appendChild(displayResponse);
   } else {
@@ -65,7 +71,8 @@ const handleSubmit = async (e) => {
     displayResponse.innerHTML = `
       <p>Something went wrong!</p>
       <p>${err}</p>
-    `
+      `
+    loadingGIF.style.display = "none";
     responseDiv.innerHTML = ''; //clear responseDiv before appending new response
     responseDiv.appendChild(displayResponse);
   }
