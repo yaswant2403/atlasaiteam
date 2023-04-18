@@ -42,8 +42,8 @@ const handleSubmit = async (e) => {
 
   // Sending user prompt to backend
   // local: http://localhost:5000
-  // cPanel: http://openapi.atlasaiteam.web.illinois.edu/
-  const chatResponse = await fetch('http://openapi.atlasaiteam.web.illinois.edu/',{
+  // cPanel: https://openapi.atlasaiteam.web.illinois.edu/
+  const chatResponse = await fetch('https://openapi.atlasaiteam.web.illinois.edu/',{
     method: 'POST', // from server.js
     headers: {
       'Content-Type': 'application/json'
