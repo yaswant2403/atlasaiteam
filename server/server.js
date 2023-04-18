@@ -47,22 +47,47 @@ app.get('/', function (req, res) {
  */
 app.post('/', async(req, res) => {
     try {
-        const prompt = req.body.prompt; // we will send backend an object with a body with prompt variable
-        console.log("How the prompt is defined in backend: " + prompt);
-        const messages = [
+        const message_prompt = req.body.message_prompt; // we will send backend an object with a body with prompt variable
+        const image_prompt = req.body.image_prompt; // we will send backend an object with a body with prompt variable
+        console.log("How the prompt is defined in backend: " + message_prompt + "\n " + image_prompt);
+        const p_messages = [
             {"role": "system", "content": "You will be writing short greeting cards based on user needs."},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": message_prompt}
         ];
+        // message response
         const response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: messages,
+            messages: p_messages,
             temperature: 0.1,
         });
-        console.log("This is from the backend: "+ response.data.choices[0].message.content);
+        console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
+        // asking ChatGPT for a Dall-E Prompt
+        const i_messages = [
+            {"role": "system", "content": "You will be generating good DALL-E prompts that will generate images that correspond with the user's prompts."},
+            {"role": "user", "content": image_prompt}
+        ];
+        const dallE_response = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: i_messages,
+            temperature: 0.1,
+        });
+        // grab dallE_prompt
+        const dallE_prompt = dallE_response.data.choices[0].message.content;
+        // console.log(dallE_prompt);
+        
+        // send the DALL-E Prompt to DALL-E
+        const image = await openai.createImage({
+            prompt: dallE_prompt,
+            n: 1,
+            size: "256x256"
+        });
+        // prints the image of the image url
+        console.log(image.data.data[0].url);
         // sending response back to frontend
         res.status(200).send({
             // bot: "Connection successful!"
-            bot: response.data.choices[0].message.content
+            bot: response.data.choices[0].message.content,
+            image_bot: image.data.data[0].url
         })
     } catch (error) {
         console.log(error);

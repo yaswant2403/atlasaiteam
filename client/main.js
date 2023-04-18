@@ -25,13 +25,17 @@ const handleSubmit = async (e) => {
   const receiver = document.querySelector('#to').value;
   const subject = document.querySelector('#subject').value;
   const length = document.querySelector('#length').value + " sentences";
-  const prompt = "Generate a " + customFormat + " to " + receiver + " from " 
+  const message_prompt = "Generate a " + customFormat + " to " + receiver + " from " 
   + sender + " with the subject of \"" + subject + "\" that is " + length +".";
-  console.log("How the prompt is in frontend: " + prompt);
+  const image_prompt = "Write a DALL-E prompt to generate an image about " + subject // can have additional details once include input is made
+  + ". Your only response should be the DALL-E prompt without any quotations such that if I copy the response, I should be able" + 
+  " to paste it directly into the DALL-E prompt box."; 
+  console.log("How the prompt is in frontend: " + message_prompt);
+  console.log("Image prompt: " + image_prompt);
   
-  // creating new div element to display response
+  // creating new div element to display response and clearing responseDiv
   const displayResponse = document.createElement('div');
-
+  responseDiv.innerHTML = '';
   // getting GIF Image and displaying it 
   const loadingGIF = document.querySelector('#loadingGIF');
   loadingGIF.style.display = 'block';
@@ -39,13 +43,14 @@ const handleSubmit = async (e) => {
   // Sending user prompt to backend
   // local: http://localhost:5000
   // cPanel: http://openapi.atlasaiteam.web.illinois.edu/
-  const chatResponse = await fetch('https://openapi.atlasaiteam.web.illinois.edu/',{
+  const chatResponse = await fetch('http://openapi.atlasaiteam.web.illinois.edu/',{
     method: 'POST', // from server.js
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      prompt: prompt
+      message_prompt: message_prompt,
+      image_prompt: image_prompt
     }) 
   })
 
@@ -54,15 +59,17 @@ const handleSubmit = async (e) => {
     loadingGIF.style.display = "none";
     const data = await chatResponse.json();
     const finalResponse = data.bot.trim();
+    const finalImageUrl = data.image_bot;
     console.log("How the response is in frontend: " + finalResponse);
     // Creates a new element to display the results
     displayResponse.innerHTML = `
       <p>From: ${sender}</p>
       <p>To: ${receiver}</p>
       <p>Subject: ${subject}</p>
-      <p>Your Prompt: ${prompt}</p>
+      <p>Your Prompt: ${message_prompt}</p>
       <h1>ChatGPT Response</h1>
       <p>${finalResponse}</p>
+      <img src="${finalImageUrl}" class="mx-auto">
       `
     responseDiv.innerHTML = ''; //clear responseDiv before appending new response
     responseDiv.appendChild(displayResponse);
