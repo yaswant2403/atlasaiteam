@@ -37,7 +37,9 @@ cd client
 npm install
 npm run dev
 // You should see something like this:
-<img width="318" alt="Screen Shot 2023-04-17 at 11 07 27 PM" src="https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png">
+```
+![Application Running](https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png)
+```bash
 // Click on the localhost link to see the frontend of the website!
 
 # Launching the backend
