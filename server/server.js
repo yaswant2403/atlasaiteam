@@ -92,7 +92,7 @@ app.post('/', async(req, res) => {
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send({error});
+        res.status(500).send("DALL-E Cannot Generate An Image! Check your include (Make sure not to include any public figures or inappropriate content.)");
     }
 })
 
