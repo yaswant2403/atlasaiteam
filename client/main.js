@@ -25,10 +25,11 @@ const handleSubmit = async (e) => {
   const receiver = document.querySelector('#to').value;
   const subject = document.querySelector('#subject').value;
   const length = document.querySelector('#length').value + " sentences";
+  const include = document.querySelector('#include').value.trim();
   const message_prompt = "Generate a " + customFormat + " to " + receiver + " from " 
   + sender + " with the subject of \"" + subject + "\" that is " + length +".";
   const image_prompt = "Write a DALL-E prompt to generate an image about " + subject // can have additional details once include input is made
-  + ". Your only response should be the DALL-E prompt without any quotations such that if I copy the response, I should be able" + 
+  + " and include " + include + ". " + "Your only response should be the DALL-E prompt without any quotations such that if I copy the response, I should be able" + 
   " to paste it directly into the DALL-E prompt box."; 
   console.log("How the prompt is in frontend: " + message_prompt);
   console.log("Image prompt: " + image_prompt);
