@@ -67,6 +67,7 @@ const handleSubmit = async (e) => {
       <p>From: ${sender}</p>
       <p>To: ${receiver}</p>
       <p>Subject: ${subject}</p>
+      <p>Image Keywords: ${include}</p>
       <p>Your Prompt: ${message_prompt}</p>
       <h1>ChatGPT Response</h1>
       <p>${finalResponse}</p>
