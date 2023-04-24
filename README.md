@@ -31,8 +31,9 @@ npm -v
 # Install the Necessary Packages
 npm i vite
 npm i cors dotenv express nodemon openai
-
-# Launch the frontend
+```
+#### Launch the frontend
+```bash
 cd client
 npm install
 npm run dev
@@ -41,12 +42,12 @@ npm run dev
 ![Application Running](https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png)
 ```bash
 // Click on the localhost link to see the frontend of the website!
-
-# Launching the backend
+```
+#### Launching the backend
+```bash
 // Open a new terminal
 cd server
 npm run server
-
 ```
 At this point, the environment setup is complete. You have both the frontend and the backend running locally, and you should be able to generate responses based on different user inputs.
 
