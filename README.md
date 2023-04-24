@@ -32,7 +32,7 @@ npm -v
 npm i vite
 npm i cors dotenv express nodemon openai
 ```
-#### Launch the frontend
+#### Launch the Frontend
 ```bash
 cd client
 npm install
@@ -40,10 +40,9 @@ npm run dev
 // You should see something like this:
 ```
 ![Application Running](https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png)
-
 Click on the localhost link to see the frontend of the website!
 
-#### Launching the backend
+#### Launching the Backend
 ```bash
 // Open a new terminal
 cd server
