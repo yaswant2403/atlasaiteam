@@ -9,8 +9,8 @@ This project is a full-stack web appliction that uses OpenAI's gpt-3.5-turbo API
 ├───client
 │   ├───assets
 │   ├───index.html
-│   |───main.js
-│   |───style.css
+│   ├───main.js
+│   ├───style.css
 ├───server
 │   └───server.js
 ```
