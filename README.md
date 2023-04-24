@@ -40,6 +40,7 @@ npm run dev
 // You should see something like this:
 ```
 ![Application Running](https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png)
+
 Click on the localhost link to see the frontend of the website!
 
 #### Launching the Backend
