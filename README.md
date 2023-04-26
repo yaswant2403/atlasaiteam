@@ -1,4 +1,4 @@
-# ChatGPT Message/Image Generator
+# QuikScribe - Message/Image Generator
 ## Done by ATLAS AI Team of Spring 2023
 
 This project is a full-stack web appliction that uses OpenAI's gpt-3.5-turbo API along with NodeJS, HTML and CSS. The user enters information about the type of message they would like, and using those inputs, we send ChatGPT a prompt that generates a response which we display to the user on the frontend. Along with the message, we use ChatGPT to generate a DALL-E prompt, and send that prompt to DALL-E to create an image corresponding with the message.
