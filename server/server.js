@@ -131,7 +131,8 @@ app.post('/', async(req, res) => {
             })    
         } else {
             res.status(500).send({
-                bot: "ChatGPT may be down or the API Key used has run out of credits. Please contact the staff on the About Section!"
+                bot: "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
+                 If you still receive this error, contact the staff on the About Section!"
             })
         }
     }

@@ -43,9 +43,14 @@ const handleSubmit = async (e) => {
     // creating new div element to display response and clearing responseDiv
     const displayResponse = document.createElement('div');
     responseDiv.innerHTML = '';
+    responseDiv.style.marginTop = "0";
+    responseDiv.style.border = "none";
+    responseDiv.style.borderRadius = "0";
     // getting GIF Image and displaying it 
     const loadingGIF = document.querySelector('#loadingGIF');
     loadingGIF.style.display = 'block';
+    loadingGIF.style.border = "2px solid #c1baba";
+    loadingGIF.style.borderRadius = "10px";
 
     // Sending user prompt to backend
     // local: http://localhost:5000
@@ -63,65 +68,102 @@ const handleSubmit = async (e) => {
 
     // Grabbing response from backend
     if (chatResponse.ok) {
-      loadingGIF.style.display = "none";
       const data = await chatResponse.json();
       const finalResponse = data.bot.trim();
       const finalImageUrl = data.image_bot;
       console.log("How the response is in frontend: " + finalResponse);
       if (finalResponse.includes("violates OpenAI's usage policies") || finalImageUrl.includes("violates OpenAI's usage policies")) {
+        //Creates new HTML to display the results
         displayResponse.innerHTML = `
-        <p>From: ${sender}</p>
-        <p>To: ${receiver}</p>
-        <p>Subject: ${subject}</p>
-        <p>Image Keywords: ${include}</p>
-        <p>Your Prompt: ${message_prompt}</p>
-        <h1>Message:</h1>
-        <p>${finalResponse}</p>
-        <h1>Image:</h1>
-        <p>${finalImageUrl}</p>
+          <div class="card-header">
+            <h1>Message and Image</h1>
+          </div>
+          <div class="card-body text-primary">
+            <h3 style="color:black">Your Prompt: ${message_prompt}</h3>
+            <h3 style="color:black">Image Keywords: ${include}</h3>
+            <div class="row">
+              <div class="col">
+                <h3 style="color:black">Message:</h3>
+                <p style="color:rgb(5, 88, 37)">${finalResponse}</p>
+              </div>
+              <div class="col">
+                <h3 style="color:black">Image:</h3>
+                <p style="color:rgb(153, 31, 3)">${finalImageUrl}</p>
+              </div>
+            </div>
+          </div>
         `
       } else {
-        //Creates a new element to display the results
         displayResponse.innerHTML = `
-          <p>From: ${sender}</p>
-          <p>To: ${receiver}</p>
-          <p>Subject: ${subject}</p>
-          <p>Image Keywords: ${include}</p>
-          <p>Your Prompt: ${message_prompt}</p>
-          <h1>ChatGPT Response</h1>
-          <p>${finalResponse}</p>
-          <img src="${finalImageUrl}" class="mx-auto">
-          `
+          <div class="card-header">
+            <h1>Message and Image</h1>
+          </div>
+          <div class="card-body text-primary">
+            <h3 style="color:black">Your Prompt: ${message_prompt}</h3>
+            <h3 style="color:black">Image Keywords: ${include}</h3>
+            <div class="row">
+              <div class="col">
+                <h3 style="color:black">Message:</h3>
+                <p style="color:rgb(5, 88, 37)">${finalResponse}</p>
+              </div>
+              <div class="col">
+                <h3 style="color:black">Image:</h3>
+                <img src="${finalImageUrl}" class="mx-auto">
+              </div>
+            </div>
+          </div>
+        `
       }
-      responseDiv.innerHTML = ''; //clear responseDiv before appending new response
-      responseDiv.appendChild(displayResponse);
     } else {
       const err = await chatResponse.json();
       const message = err.bot.trim();
       // Means ChatGPT is down or API Key has run out of credits
       if (message.includes("About Section!")) {
         displayResponse.innerHTML = `
-        <p>Something went wrong!</p>
-        <p>${message}</p>
-        `
+          <div class="card-header">
+            <h1>Message and Image</h1>
+          </div>
+          <div class="card-body text-primary">
+            <h3 style="color:black">Your Prompt: ${message_prompt}</h3>
+            <h3 style="color:black">Image Keywords: ${include}</h3>
+            <div class="row">
+              <div class="col">
+                <h3 style="color:black">Error Message:</h3>
+                <p style="color:rgb(153, 31, 3)">${message}</p>
+              </div>
+            </div>
+          </div>
+          `
       } else { // Image can't be generated, but the message can so we display that
         const image_err = err.image_bot.trim();
         displayResponse.innerHTML = `
-        <p>From: ${sender}</p>
-        <p>To: ${receiver}</p>
-        <p>Subject: ${subject}</p>
-        <p>Image Keywords: ${include}</p>
-        <p>Your Prompt: ${message_prompt}</p>
-        <h3>Message:</h3>
-        <p>${message}</p>
-        <h3>Image:</h3>
-        <p>${image_err}</p>
+          <div class="card-header">
+            <h1>Message and Image</h1>
+          </div>
+          <div class="card-body text-primary">
+            <h3 style="color:black">Your Prompt: ${message_prompt}</h3>
+            <h3 style="color:black">Image Keywords: ${include}</h3>
+            <div class="row">
+              <div class="col">
+                <h3 style="color:black">Message:</h3>
+                <p style="color:rgb(5, 88, 37)">${message}</p>
+              </div>
+              <div class="col">
+                <h3 style="color:black">Image Error:</h3>
+                <p style="color:rgb(153, 31, 3)">${image_err}</p>
+              </div>
+            </div>
+          </div>
         `
       }
-      loadingGIF.style.display = "none";
-      responseDiv.innerHTML = ''; //clear responseDiv before appending new response
-      responseDiv.appendChild(displayResponse);
     }
+    loadingGIF.style.display = "none";
+    loadingGIF.style.border = "none";
+    loadingGIF.style.borderRadius = "0";
+    responseDiv.appendChild(displayResponse);
+    responseDiv.style.marginTop = "20px";
+    responseDiv.style.border = "2px solid #c1baba";
+    responseDiv.style.borderRadius = "10px";
     form.reset();
   }
 }
