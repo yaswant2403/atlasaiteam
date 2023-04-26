@@ -7,4 +7,4 @@ deployment:
     - /bin/cp client/*.html $DEPLOYPATH
     - /bin/cp client/style.css $DEPLOYPATH
     - /bin/cp -R assets $DEPLOYPATH
-    - /bin/cp server/server.js $DEPLOYSERVER
+    - /bin/cp server/*.js $DEPLOYSERVER
