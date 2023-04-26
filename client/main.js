@@ -27,7 +27,7 @@ const handleSubmit = async (e) => {
   const length = document.querySelector('#length').value + " sentences";
   const include = document.querySelector('#include').value.trim();
   // Input Validation of Null/Empty Strings
-  if (sender == null || sender == "" || receiver == null || receiver == "" || subject == null || subject == "" || length.includes('-') ||
+  if (sender == null || sender == "" || receiver == null || receiver == "" || subject == null || subject == "" || !length.includes('-') ||
     include == null || include == "" || customFormat == null || customFormat == "") {
       alert("Please Enter In All Required Fields");
       form.reset();
