@@ -8,3 +8,5 @@ deployment:
     - /bin/cp -R assets $DEPLOYPATH
     - export DEPLOYPATH=/home/atlasaiteam/openapi.atlasaiteam.web.illinois.edu/
     - /bin/cp server/server.js $DEPLOYPATH
+    - /bin/touch $DEPLOYPATH/test.txt
+    - /bin/echo "This is the new deploy path $(DEPLOYPATH)" >> $DEPLOYPATH/test.txt
