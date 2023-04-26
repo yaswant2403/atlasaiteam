@@ -46,7 +46,7 @@ app.get('/', function (req, res) {
  *    User message: User's prompt from the given inputs 
  */
 app.post('/', async(req, res) => {
-    const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter \
+    const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
     new inputs to generate a new message or image."; // Our violation message
     try {
         const message_prompt = req.body.message_prompt; // we will send backend an object with a body with prompt variable
