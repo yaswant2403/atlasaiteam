@@ -5,6 +5,6 @@ deployment:
     - /bin/cp client/main.js $DEPLOYPATH
     - /bin/cp client/*.html $DEPLOYPATH
     - /bin/cp client/*.css $DEPLOYPATH
-    - /bin/cp -R assets $DEPLOYPATH
+    - /bin/cp -R client/assets $DEPLOYPATH
     - export DEPLOYSERVER=/home/atlasaiteam/openapi.atlasaiteam.web.illinois.edu/
     - /bin/cp server/server.js $DEPLOYSERVER
