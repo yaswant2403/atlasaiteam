@@ -11,35 +11,53 @@
   text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
 }
 
-/*Selects all elements with class name nav-link inside all <div class="navbar-nav"> elements*/
-div.navbar-nav .nav-link {
+/* 
+  1) Choose a font and font color that's better than current - DONE
+  2) Change css headers to align with list instead - DONE
+  3) Integrate ChatGPT's toggle into CSS
+*/
+
+/*Selects all elements with class name nav-link inside all elements with class name navbar-nav*/
+.navbar-nav .nav-link {
   font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 18px;
   font-style: bold;
+  font-weight: 600;
+  text-transform: uppercase;
   margin-right: 100px;
-  color:rgb(15, 93, 219) !important;
+  color:rgb(33, 79, 136) !important;
 }
 
-/* Same as above except with the effect after */
-div.navbar-nav *::after{
+/* Same as above except editing with the after effect*/
+.navbar-nav .nav-link::after {
   content: "";
   display: block;
-  height: 2px;
+  height: 3px;
   width: 0;
   background: rgba(10, 84, 174, 0.648);
   transition: width 0.3s ease;
 }
-div.navbar-nav *:hover::after{
+.navbar-nav .nav-link:hover::after{ 
   width: 100%;
 }
-  
+
 /* Highlights inactive page when user hovers over it */
 .navbar-nav .nav-link:not(.active) {
-  opacity: 0.5;
+  opacity: 0.45;
 }
 .navbar-nav .nav-link:not(.active):hover {
   opacity: 1;
 }
+
+@media (max-width: 580px) {
+  .navbar-nav .nav-link {
+    margin-right: 0;
+  }
+  .navbar-nav .nav-item {
+    text-align: center;
+  }
+}
+
 
 /* ABOUT PAGE STYLING */
 body {

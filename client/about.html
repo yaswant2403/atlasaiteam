@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/website_logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/assets/website_logo.svg" /> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QuikScribe: Message and Image Generator</title>
     <!-- BootStrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-    crossorigin="anonymous"/>
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"/> 
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
     <link rel="stylesheet" href="about.css"/>
+    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
       <div class="container-fluid">
         <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
         <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
-        <button class="navbar-toggler" type="button" data--toggle="collapse" data-mdb-target="#navbarNav"
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
           aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
-          <i class="fas fa-bars"></i>
+          <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <div class="navbar-nav">
-            <a class="nav-link" aria-current="page" href="index.html">Create Message</a>
-            <a class="nav-link active" href="about.html">About</a>
-          </div>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Create Message</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="about.html">About</a>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
