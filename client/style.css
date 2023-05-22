@@ -1,4 +1,5 @@
 /* NAVBAR STYLING (ALWAYS COPY INTO NEW CSS FILE) */
+/* Select all elements with id=logo */
 #logo {
   padding-right: 25px;
 }
