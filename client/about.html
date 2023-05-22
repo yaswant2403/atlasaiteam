@@ -8,18 +8,42 @@
     <title>QuikScribe: Message and Image Generator</title>
     <!-- BootStrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"/> 
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
     <link rel="stylesheet" href="about.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('#navbarToggle');
+        toggleButton.addEventListener("click", function() {
+          var openMenu = document.querySelector('#navbar-hamburger');
+          var closeMenu = document.querySelector('#navbar-close');
+          let closeIconHidden = closeMenu.getAttribute("hidden");
+          if (closeIconHidden) {
+            closeMenu.removeAttribute("hidden");
+            openMenu.setAttribute("hidden", "hidden");
+          } else {
+            openMenu.removeAttribute("hidden");
+            closeMenu.setAttribute("hidden", "hidden");
+          }
+        });
+      });
+    </script>    
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
       <div class="container-fluid">
         <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
         <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        <button id="navbarToggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
           aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
-          <span class="navbar-toggler-icon"></span>
+          <div id="navbar-hamburger">
+            <span class="navbar-toggler-icon"></span>
+          </div>
+          <div id="navbar-close" hidden="hidden">
+            <span class="bi-x-lg"></span>
+          </div>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul class="navbar-nav ml-auto">
