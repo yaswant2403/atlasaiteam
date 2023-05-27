@@ -1,3 +1,7 @@
+/**
+ * TODO: JS for Handling Form Inputs (Very Similar to main.js)
+ */
+
 // Grabbing Button and Heading
 const button = document.querySelector('#submit');
 const change = document.querySelector('#response');
