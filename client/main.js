@@ -69,7 +69,7 @@ const handleSubmit = async (e) => {
     // Sending both message and image prompt to backend in JSON Format
     // local: http://localhost:5000
     // cPanel: https://openapi.atlasaiteam.web.illinois.edu/
-    const chatResponse = await fetch('http://localhost:5000',{
+    const chatResponse = await fetch('http://localhost:5000/main',{
       method: 'POST', // from server.js
       headers: {
         'Content-Type': 'application/json'

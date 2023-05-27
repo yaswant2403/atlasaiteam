@@ -29,23 +29,35 @@ app.use(express.json()); // Pass JSON from frontend to backend
 app.use(cors());
 
 /**
- * IGNORE (Used for past test cases, but no longer required or useful)
+ * IGNORE (Used for past test cases, but no longer required)
  */
 // Telling Express app to use current directory as our main folder
 // app.use(express.static(__dirname));
 
 /**
- * Sends generic JSON file to http://localhost:5000 or https://openapi.atlasaiteam.web.illinois.edu/
+ * Route for main page (Create Message)
+ * Sends generic JSON file to http://localhost:5000/main or https://openapi.atlasaiteam.web.illinois.edu/main
  * @param {path, callback function()} defined as current directory and res.send (a lambda function)
  */
-app.get('/', function (req, res) {
+app.get('/main', function (req, res) {
     res.status(200).send({
-        message: 'Hello World!',
+        message: 'Hello Message Generator!',
     }) 
 });
 
 /**
- * Sending Response back to frontend through post function
+ * Route for spotlight page (Create Spotlight)
+ * Sends generic JSON file to http://localhost:5000/spotlight or https://openapi.atlasaiteam.web.illinois.edu/spotlight
+ * @param {path, callback function()} defined as current directory and res.send (a lambda function)
+ */
+app.get('/spotlight', function (req, res) {
+    res.status(200).send({
+        message: 'Hello Spotlight!',
+    }) 
+});
+
+/**
+ * Route Handler for handling main fetches from frontend
  * @docs https://platform.openai.com/docs/api-reference/chat
  * @param {path, callback function()} defined as current directory and a custom async function 
  * defined as @param {Request, Response} where req is request and res is response all in a try catch block
@@ -66,7 +78,8 @@ app.get('/', function (req, res) {
  * 
  * @returns res.send(response JSON)
  */
-app.post('/', async(req, res) => {
+app.post('/main', async(req, res) => {
+    console.log(req.headers.origin)
     // Our violation message
     const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
     new inputs to generate a new message or image.";
@@ -156,11 +169,78 @@ app.post('/', async(req, res) => {
                 image_bot: violation
             })    
         } else { // if API key has expired or user is spamming submissions
+            // console.log("It reaches here!")
             res.status(500).send({
                 bot: "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
                  If you still receive this error, contact the staff on the About Section!"
             })
         }
+    }
+})
+
+/**
+ * Route Handler for handling spotlight fetches from frontend
+ * Similar functionality as app.post('/main')
+ * @docs https://platform.openai.com/docs/api-reference/chat
+ * @param {path, callback function()} defined as current directory and a custom async function 
+ * defined as @param {Request, Response} where req is request and res is response all in a try catch block
+ * 
+ * Using OpenAI's createChatCompletion function with the @param {model, messages}, we are able to get a response back from the API.
+ * The params are defined as so:
+ * 1) model: the type of language model we want to use (gpt-3.5-turbo)
+ * 2) messages: {role, content}
+ *      roles used: "system" which tells the model to act like a certain type of assistant. "user" which is the author of the prompt 
+ *      content: the actual prompt you'd ask ChatGPT
+ * 
+ * Additionally, we also use createModeration (free of cost) to moderate the message prompt. If any prompt is flagged,
+ * we immediately send a JSON response with the @string violation as the response. 
+ * If createModeration isn't flagged, but a call to the API result in an error, 
+ * we catch and send a JSON response with the @string limiting as the response. This is usually due to user spamming or
+ * expired API Key
+ * 
+ * POST Method ends with res.send
+ * @returns res.send(response JSON)
+ */
+app.post('/spotlight', async(req,res) => {
+    const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
+    new inputs to generate a new message or image.";
+    const limiting = "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
+    If you still receive this error, contact the staff on the About Section!";
+    try {
+        // Receiving the request
+        const message_prompt = req.body.message_prompt; // Grabbing the message_prompt from the request body
+        console.log("How the prompt is defined in backend: " + message_prompt + "\n");
+        const p_messages = [ // array object of dictionary
+            {"role": "system", "content": "You will be writing messages based on user needs."},
+            {"role": "user", "content": message_prompt}
+        ];
+        // moderation for given user message
+        const message_flag = openai.createModeration({
+            input: message_prompt
+        });
+        if ((await message_flag).data.results[0].flagged === true) {
+            // Sending violation message back to frontend
+            res.status(200).send({
+                bot: violation,
+            })
+        } else { // creating message with ChatGPT because not flagged as harmful content
+            const response = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: p_messages,
+                temperature: 0.1,
+            });
+            // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
+            // sending the message to frontend as JSON response
+            res.status(200).send({
+                bot: response.data.choices[0].message.content,
+            })
+        }
+    } catch (error) { // error with response
+        console.log("It reaches here!")
+        console.log("This is error: " + error)
+        res.status(500).send({
+            bot: limiting
+        })
     }
 })
 
