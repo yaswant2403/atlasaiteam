@@ -63,12 +63,179 @@
   </head>
   <body>
     <!-- TO-DO: Form for New Page -->
-    <div id="main" class="container">
-        <h2 id="response">Hello World!</h2>
-        <div class="card-footer d-flex">
-            <button id="submit" type="submit" class="btn btn-primary">Submit!</button>        
+    <!-- can use was-validated to check validation messages -->
+    <!-- Name, Dropdown for Year, Major, How Did You Hear About the Program?, Semesters, Official Position, Client, Responsibilities and Tasks (+ for however many you need), 
+      Skills Gained (Separate with commas), Experience Gained, Future Plans or Career Aspirations, Fun Fact  -->
+    <!-- Referall: Academic Advisor, Department Emails/Newsletters, Career Fair, Flyers, Friends or Classmates, Other-->
+    <div id="main" class="container pt-5">
+      <form id="spotlight-details" class="needs-validation" novalidate>
+        <div class="card-header">
+          <h1 id="response">Generate an ATLAS Spotlight!</h1>
         </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="inputName">Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="Name" required>
+            <!-- Custom Validation Feedback (Add class="was-validated" to form tag to test messages) -->
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your name.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputMajor">Major</label>
+            <input type="text" class="form-control" id="inputMajor" placeholder="English, CS, Physics and Math" required>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your major.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputYear">Year</label>
+            <select id="inputYear" class="form-control" required>
+              <option value="" disabled selected hidden>Select Your Year</option>
+              <option value="Freshman">Freshman</option>
+              <option value="Sophomore">Sophomore</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select your year.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="inputReferral">How Did You Discover the Program?</label>
+            <select id="inputReferral" class="form-control" required>
+              <option value="" disabled selected hidden>Select a Referral</option>
+              <option value="Academic Advisor">Academic Advisor</option>
+              <option value="Department">Department Emails/Newsletters</option>
+              <option value="Career Fair">Career Fair</option>
+              <option value="Friends">Friends/Classmates</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select a referral or Other if it's not listed.</div>
+          </div>
+          <div id="other-referral" class="form-group col-md-4" style="display: none;">
+            <label for="other-referral">Other</label>
+            <input type="text" class="form-control" id="other-referral-input"
+              placeholder="Professor, Career Center, etc" required/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your referral.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputSems">How Many Semesters as an Intern?</label>
+            <select id="inputSems" class="form-control" required>
+              <option value="" disabled selected hidden>Select number of semesters</option>
+              <option value="First">First Semester</option>
+              <option value="Second">Second Semester</option>
+              <option value="Third">Third Semester</option>
+              <option value="Fourth">Fourth Semseter</option>
+              <option value="More Than Four">5 or More</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select the number of semesters you've interned at ATLAS.</div>
+          </div>
+        </div>
+        <div class="onlyfg form-group">
+          <label for="reasonForJoining">Why did you join ATLAS? (Full Sentences)</label>
+          <textarea class="form-control" id="reasonForJoining" rows="2" required
+          placeholder="Ex: I joined ATLAS because I wanted to gain some professional experience before I graduated. It sounded like a great opportunity to develop my technical skills and build my network."></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please explain why you joined the ATLAS Internship Program.</div>
+        </div>
+        <div class="onlyfg form-group col-md-11" style="padding-bottom: 15px;">
+          <label for="funFact">Fun Fact</label>
+          <textarea class="form-control" id="funFact" rows="1" required
+          placeholder="Ex: I've traveled to Europe!"></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please include a fun fact about yourself!</div>
+        </div>
+        <hr />
+        <!-- TODO: Add h2 heading -->
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputPosition">Official Position/Title</label>
+            <input type="text" class="form-control" id="inputPosition"
+              placeholder="Ex: Social Media Specialist, Data Analyst" required/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your position/title.</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="inputClient">Client</label>
+            <input type="text" class="form-control" id="inputClient"
+              placeholder="Ex: Feeding Our Kids, ATLAS Business Process Improvement" required/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your client.</div>
+          </div>
+        </div>
+        <div id="tasks" class="onlyfg form-group col-md-11">
+          <label for="inputTasks">Tasks/Responsibilities - Be Specific! (Minimum: 3)</label>
+          <input type="text" class="form-control" id="inputTasks1"
+            placeholder="Ex: I analyzed Drupal Website Data using packages and libraries in Python and presented the data to relevant stakeholders."
+            style="margin-bottom: 15px;" required/>
+          <input type="text" class="form-control" id="inputTasks2"
+            placeholder="Ex: Created 10 social media posts and edited 5 informational videos to expand the client's reach within its customer base."
+            style="margin-bottom: 15px;" required/>
+          <div class="d-flex input-group align-items-start">
+            <input type="text" class="form-control" id="inputTasks3"
+            placeholder="Ex: Using WordPress, I created 20 weekly newsletters and 15 blogs about my client's medical research."
+            style="margin-bottom: 15px;" required/>
+            <button id="addTasks" type="button" class="btn btn-secondary ml-lg-4" style="text-align: center; background-color: rgb(71, 165, 31);">
+              <span class="bi bi-plus" style="font-size: 15px"></span>
+              Add More
+            </button>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter at least three tasks/responsibilities.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="skillsGain">What skills did you gain as an intern? (Technical & Soft)</label>
+            <textarea class="form-control" id="skillsGain" rows="5" required
+            placeholder="Graphic Design, Editing Videos, Programming in R and Python, Time Management, Good Work Habits or any other skills relevant to your professional growth"></textarea>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please list skills you gained during the Internship Program.</div>
+          </div>
+          <div class="form-group">
+            <label for="experienceGain">What experience did you gain as an intern? (Full Sentences)</label>
+            <textarea class="form-control" id="experienceGain" rows="5" required
+            placeholder="Ex: I gained experience in developing a full-stack instructional web application. I've learned how to conduct a proper research study within the field of economics. Finally, I've grown as a professional and feel confident entering a full-time position."></textarea>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please describe the experience(s) you gained during the Internship Program.</div>
+          </div>
+        </div>
+        <div class="onlyfg form-group" style="padding-bottom: 15px;">
+          <label for="future">Future Plans/Career Aspirations</label>
+          <textarea class="form-control" id="future" rows="2" required
+          placeholder="Ex: I hope to become the editor of a publishing company, but I am also considering going to graduate school and getting my MBA."></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please explain your future goals or career aspirations.</div>
+        </div>
+        <div class="card-footer d-flex">
+          <button id="submit" type="submit" class="btn btn-primary btn-lg">Submit!</button>        
+        </div>
+        <!-- <button type="submit" class="btn btn-primary">Sign in</button> -->
+      </form>
     </div>
+    <!-- <script>
+      // Example starter JavaScript for disabling form submissions if there are invalid fields
+      (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+          // Fetch all the forms we want to apply custom Bootstrap validation styles to
+          var forms = document.getElementsByClassName('needs-validation');
+          // Loop over them and prevent submission
+          var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+              console.log(form.checkValidity());
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+    </script> -->
     <script src="spotlight.js"></script>
     <!-- Bootstrap CSS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
