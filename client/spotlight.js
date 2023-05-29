@@ -13,10 +13,15 @@ const form = document.getElementById('spotlight-details');
 const refSelect = document.querySelector('#inputReferral');
 const otherRef = document.getElementById("other-referral");
 refSelect.addEventListener('change', function () {
+  const otherInput = otherRef.getElementsByTagName('input')[0];
   if (refSelect.value == "other") {
     otherRef.style.display = 'inline-block';
+    // if user selects their own referral, we must add required attribute to input for form validation
+    // (Great explanation: https://stackoverflow.com/questions/18770369/how-to-set-html5-required-attribute-in-javascript)
+    otherInput.required = true;
   } else {
     otherRef.style.display = 'none';
+    otherInput.required = false;
   }
 });
 
@@ -33,11 +38,13 @@ addTask.addEventListener('click', function() {
   newInput.innerHTML = `
     <input type="text" class="form-control" id="inputTasks`+inputCount+`"
       placeholder="Specific Quantifying Task/Responsibility and highlighting its impact"
-    style="margin-bottom: 15px;"/>
+    style="margin-bottom: 15px;" required/>
     <button id="removeTask" type="button" class="btn rm btn-secondary ml-lg-4" style="text-align: center; background-color: rgb(225, 26, 26);">
       <span class="bi bi-x" style="font-size: 16px"></span>
       Remove
     </button>
+    <div class="valid-feedback">Looks Good!</div>
+    <div class="invalid-feedback">Please enter a task/responsibility or remove if unnecessary.</div>
   `;
   taskContainer.appendChild(newInput);
 })
@@ -51,26 +58,6 @@ document.addEventListener("click", function(e) {
   }
 });
 
-function check() {
-  // Array.from(form.elements).forEach((element) => {
-  //   if (typeof element.reportValidity === 'function') {
-  //     console.log(element);
-  //     console.log(`valueMissing: ${element.validity.valueMissing}`,
-  //                 `checkValidity: ${form.checkValidity()}`
-  //     );
-  //     // console.log(element.reportValidity());
-  //   }
-  // });
-  form.classList.add('was-validated');
-  console.log(form.checkValidity());
-}
-
-form.addEventListener("invalid", (e) => {
-  console.log("I reached the invalid listener!")
-  console.log(e);
-})
-
-
 /**
  * Defines an asynchronous process that occurs when user submits form
  * Returns Promise Object
@@ -79,22 +66,11 @@ form.addEventListener("invalid", (e) => {
  * @return {Promise} object that's assigned to the variable handleSubmit
  */
 const handleSubmit = async (e) => {
-    e.preventDefault(); // prevents browser from reloading the page
-    check();
-    // form.classList.add('was-validated');
-    // Array.from(form.elements).forEach((element) => {
-    //   if (typeof element.reportValidity === 'function') {
-    //     console.log(element);
-    //     element.reportValidity();
-    //     // console.log(element.reportValidity());
-    //   }
-    // });
-    // console.log(form.checkValidity());
-    // if (!form.checkValidity()) {
-    //   console.log("We reach here!")
-    //   e.stopPropagation();  
-    //   return;
-    // }
+  e.preventDefault(); // prevents browser from reloading the page
+  if (!form.checkValidity()) {
+    console.log("Form is Invalid!");
+    form.classList.add('was-validated');
+  } else {
     console.log("BUTTON HAS BEEN PRESSED!");
     const prompt = "Give me a song about grapes.";
     const chatResponse = await fetch('http://localhost:5000/spotlight',{
@@ -117,7 +93,10 @@ const handleSubmit = async (e) => {
         console.log(message);
         change.innerText = message;
     }
+  }
 }
 
 // Passing in defined handleSubmit when submit is pressed
-form.addEventListener('submit', handleSubmit);
+// useCapture is set to False because we don't want the user to initiate a submission
+// Helpful Explanation: https://stackoverflow.com/questions/31535600/stop-propagation-doesnt-work
+form.addEventListener('submit', handleSubmit, false);
