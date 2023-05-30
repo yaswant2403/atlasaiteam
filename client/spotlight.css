@@ -120,12 +120,68 @@ select {
   border-color: #D61A46;
 }
 
+#response {
+  margin-top: 100px;
+  margin-bottom: 100px;
+  padding: 1em;
+  border-radius: 5px;
+  border: 3px solid #c1baba !important;
+}
 
-/* Centering Content */
-/* #main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: auto;
-    width: auto;
-} */
+#response hr {
+  border-color: #7f7f7f;
+  border-width: 2px !important;
+}
+
+#response .col {
+  padding-top: 10px;
+}
+
+.border-right {
+  border-right-width: 2px !important;
+  border-right-color: #7f7f7f !important;
+}
+
+/* loading animation */
+/* Adopted from Håvard Brynjulfsen: https://codepen.io/havardob/pen/VjjJey */
+.loader {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 10px;
+  background: #3498DB;
+  border-radius: 5px;
+  animation: load 1.8s ease-in-out infinite;
+  &:before, &:after {
+    position: absolute;
+    display: block;
+    content: "";
+    animation: load 1.8s ease-in-out infinite;
+    height: 10px;
+    border-radius: 5px;
+  }
+}
+.loader::before {
+  top: -20px;
+  left: 10px;
+  width: 40px;
+  background: #EF4836;
+}
+.loader::after {
+  bottom: -20px;
+  width: 35px;
+  background: #F5AB35;
+}
+@keyframes load {
+  0% {
+    transform: translateX(40px);
+  }
+  50% {
+    transform: translateX(-30px);
+  }
+  100% {
+    transform: translateX(40px);
+  }
+}
