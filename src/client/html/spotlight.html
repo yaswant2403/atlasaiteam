@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/spotlight.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('#navbarToggle');
+        toggleButton.addEventListener("click", function() {
+          var openMenu = document.querySelector('#navbar-hamburger');
+          var closeMenu = document.querySelector('#navbar-close');
+          let closeIconHidden = closeMenu.getAttribute("hidden");
+          if (closeIconHidden) {
+            closeMenu.removeAttribute("hidden");
+            openMenu.setAttribute("hidden", "hidden");
+          } else {
+            openMenu.removeAttribute("hidden");
+            closeMenu.setAttribute("hidden", "hidden");
+          }
+        });
+      });
+    </script>    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid">
+        <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
+        <button id="navbarToggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
+          <div id="navbar-hamburger">
+            <span class="navbar-toggler-icon"></span>
+          </div>
+          <div id="navbar-close" hidden="hidden">
+            <span class="bi-x-lg"></span>
+          </div>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="/message">Create Message</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/spotlight">Create Spotlight</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/about">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <!-- TO-DO: Form for New Page -->
+    <!-- can use was-validated to check validation messages -->
+    <!-- Name, Dropdown for Year, Major, How Did You Hear About the Program?, Semesters, Official Position, Client, Responsibilities and Tasks (+ for however many you need), 
+      Skills Gained (Separate with commas), Experience Gained, Future Plans or Career Aspirations, Fun Fact  -->
+    <!-- Referall: Academic Advisor, Department Emails/Newsletters, Career Fair, Flyers, Friends or Classmates, Other-->
+    <div id="main" class="container pt-5">
+      <form id="spotlight-details" class="needs-validation" novalidate>
+        <div class="card-header">
+          <h1>Generate an ATLAS Spotlight!</h1>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="inputName">Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="John Doe" required>
+            <!-- Custom Validation Feedback (Add class="was-validated" to form tag to test messages) -->
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your name.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputMajor">Major</label>
+            <input type="text" class="form-control" id="inputMajor" placeholder="English, CS, Physics and Math" required>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your major.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputYear">Year</label>
+            <select id="inputYear" class="form-control" required>
+              <option value="" disabled selected hidden>Select Your Year</option>
+              <option value="Freshman">Freshman</option>
+              <option value="Sophomore">Sophomore</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select your year.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="inputReferral">How Did You Discover the Program?</label>
+            <select id="inputReferral" class="form-control" required>
+              <option value="" disabled selected hidden>Select a Referral</option>
+              <option value="Academic Advisor">Academic Advisor</option>
+              <option value="Department">Department Emails/Newsletters</option>
+              <option value="Career Fair">Career Fair</option>
+              <option value="Friends">Friends/Classmates</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select a referral or Other if it's not listed.</div>
+          </div>
+          <div id="other-referral" class="form-group col-md-4" style="display: none;">
+            <label for="other-referral">Other</label>
+            <input type="text" class="form-control" id="other-referral-input"
+              placeholder="Professor, Career Center, etc"/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your referral.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputSems">How Many Semesters as an Intern?</label>
+            <select id="inputSems" class="form-control" required>
+              <option value="" disabled selected hidden>Select number of semesters</option>
+              <option value="First Semester">First Semester</option>
+              <option value="Second Semester">Second Semester</option>
+              <option value="Third Semester">Third Semester</option>
+              <option value="Fourth Semester">Fourth Semseter</option>
+              <option value="More Than Four Semesters">5 or More</option>
+            </select>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please select the number of semesters you've interned at ATLAS.</div>
+          </div>
+        </div>
+        <div class="onlyfg form-group">
+          <label for="reasonForJoining">Why did you join ATLAS? (Full Sentences)</label>
+          <textarea class="form-control" id="reasonForJoining" rows="2" required
+          placeholder="Ex: I joined ATLAS because I wanted to gain some professional experience before I graduated. It sounded like a great opportunity to develop my technical skills and build my network."></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please explain why you joined the ATLAS Internship Program.</div>
+        </div>
+        <div class="onlyfg form-group col-md-11" style="padding-bottom: 15px;">
+          <label for="funFact">Fun Fact</label>
+          <textarea class="form-control" id="funFact" rows="1" required
+          placeholder="Ex: I've traveled to Europe!"></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please include a fun fact about yourself!</div>
+        </div>
+        <hr />
+        <!-- TODO: Add h2 heading -->
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputPosition">Official Position/Title</label>
+            <input type="text" class="form-control" id="inputPosition"
+              placeholder="Ex: Social Media Specialist, Data Analyst" required/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your position/title.</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="inputClient">Client</label>
+            <input type="text" class="form-control" id="inputClient"
+              placeholder="Ex: Feeding Our Kids, ATLAS Business Process Improvement" required/>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter your client.</div>
+          </div>
+        </div>
+        <div id="tasks" class="onlyfg form-group col-md-11">
+          <label for="inputTasks">Tasks/Responsibilities - Be Specific! (Minimum: 3)</label>
+          <input type="text" class="form-control" id="inputTasks1"
+            placeholder="Ex: I analyzed Drupal Website Data using packages and libraries in Python and presented the data to relevant stakeholders."
+            style="margin-bottom: 15px;" required/>
+          <input type="text" class="form-control" id="inputTasks2"
+            placeholder="Ex: Created 10 social media posts and edited 5 informational videos to expand the client's reach within its customer base."
+            style="margin-bottom: 15px;" required/>
+          <div class="d-flex input-group align-items-start">
+            <input type="text" class="form-control" id="inputTasks3"
+            placeholder="Ex: Using WordPress, I created 20 weekly newsletters and 15 blogs about my client's medical research."
+            style="margin-bottom: 15px;" required/>
+            <button id="addTasks" type="button" class="btn btn-secondary ml-lg-4" style="text-align: center; background-color: rgb(71, 165, 31);">
+              <span class="bi bi-plus" style="font-size: 15px"></span>
+              Add More
+            </button>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please enter at least three tasks/responsibilities.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="skillsGain">What skills did you gain as an intern? (Technical & Soft)</label>
+            <textarea class="form-control" id="skillsGain" rows="5" required
+            placeholder="Graphic Design, Editing Videos, Programming in R and Python, Time Management, Good Work Habits or any other skills relevant to your professional growth"></textarea>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please list skills you gained during the Internship Program.</div>
+          </div>
+          <div class="form-group">
+            <label for="experienceGain">What experience did you gain as an intern? (Full Sentences)</label>
+            <textarea class="form-control" id="experienceGain" rows="5" required
+            placeholder="Ex: I gained experience in developing a full-stack instructional web application. I've learned how to conduct a proper research study within the field of economics. Finally, I've grown as a professional and feel confident entering a full-time position."></textarea>
+            <div class="valid-feedback">Looks Good!</div>
+            <div class="invalid-feedback">Please describe the experience(s) you gained during the Internship Program.</div>
+          </div>
+        </div>
+        <div class="onlyfg form-group" style="padding-bottom: 15px;">
+          <label for="future">Future Plans/Career Aspirations</label>
+          <textarea class="form-control" id="future" rows="2" required
+          placeholder="Ex: I hope to become the editor of a publishing company, but I am also considering going to graduate school and getting my MBA."></textarea>
+          <div class="valid-feedback">Looks Good!</div>
+          <div class="invalid-feedback">Please explain your future goals or career aspirations.</div>
+        </div>
+        <div class="card-footer d-flex">
+          <button id="submit" type="submit" class="btn btn-primary btn-lg">Submit!</button>        
+        </div>
+      </form>
+    </div>
+    <div id="response" class="container border pt-3">
+      <h1 class="text-center mt-4">⭐Spotlight Paragraph⭐</h1>
+      <hr>  
+      <div class="row">
+        <div id="inputs" class="col border-right">
+          <h3 class="text-center" style="color:black">Your Inputs: </h3>
+          <h2 id="placeholder-input" class="text-center mt-4">Please fill out the form!</h2>
+          <!-- Inputs generated by JS -->
+        </div>
+        <div id="chat" class="col">
+          <h3 class="text-center" style="color:black">ChatGPT Generated Paragraph:</h3>
+          <p id="chat-response" class="text-center"> <span style="font-weight: bold;">Example:</span> Mary, a freshman studying statistics and computer science, discovered the ATLAS Internship Program through a friend and eagerly joined for her first semester. As a Virtual Event Planner and Social Media Specialist, she was assigned to work with the European Union Center (EUC). Tasked with expanding the EUC's online presence, Mary devoted her time to designing captivating graphics and posting engaging content on their Instagram page two to three times a week. Additionally, she focused on undergraduate outreach, using her analytical skills to analyze social media data and brainstorm innovative strategies for expansion. A valuable aspect of her role involved editing videos and uploading them to the website, allowing her to build an impressive portfolio and refine her video editing skills. Throughout her internship, Mary experienced significant personal growth, enhancing her communication and problem-solving abilities. The ATLAS Internship Program equipped her with valuable skills in video editing, graphic design, and marketing, setting a strong foundation for her future endeavors. Inspired by her experiences, Mary plans to pursue graduate school and obtain a Ph.D., driven by her passion for statistics and computer science. As she embarks on her academic journey, Mary cherishes the memories of her favorite travel destination, the Netherlands, which holds a special place in her heart.
+          <div id="loading" class="loader" style="display: none"></div>
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="js/spotlight.js"></script>
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  </body>
+</html>
