@@ -16,8 +16,13 @@ app.use(cors());
 app.use("/assets", assetsRouter);
 app.use("/css", cssRouter);
 app.use("/js", jsRouter);
+// app use middleware, then next called at the end of it or redirect them automatically
 
-// Get requests for all the main pages
+// Get requests for all the pages
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../index.html"));
+  console.log("main page!")
+});
 app.get("/message", (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
 });
