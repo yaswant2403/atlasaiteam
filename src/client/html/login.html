@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/spotlight.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid">
+        <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <!-- TO-DO: Form for New Page -->
+    <!-- can use was-validated to check validation messages -->
+    <!-- Name, Dropdown for Year, Major, How Did You Hear About the Program?, Semesters, Official Position, Client, Responsibilities and Tasks (+ for however many you need), 
+      Skills Gained (Separate with commas), Experience Gained, Future Plans or Career Aspirations, Fun Fact  -->
+    <!-- Referall: Academic Advisor, Department Emails/Newsletters, Career Fair, Flyers, Friends or Classmates, Other-->
+    <div id="main" class="container pt-5">
+        <a href="/auth/openid">Login Through Azure AD!</a>
+    </div>
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  </body>
+</html>

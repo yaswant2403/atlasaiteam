@@ -15,6 +15,14 @@
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
+    "express-mysql-session": "^3.0.0",
+    "express-session": "^1.17.3",
+    "http-errors": "^2.0.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.3.5",
+    "mysql2-promise": "^0.1.4",
+    "passport": "^0.6.0",
+    "passport-azure-ad": "^4.3.5",
     "vite-express": "*"
   }
 }
