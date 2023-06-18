@@ -1,21 +1,12 @@
-// Initializing dependencies
+/******************************************************************************
+ * Module dependencies.
+ *****************************************************************************/
 const express = require("express");
-const ViteExpress = require("vite-express");
+const ViteExpress = require("vite-express"); // to be able to run vite frontend using Express as backend
 const cors = require("cors");
 const path = require("path");
-
-// for logging
-const bunyan = require('bunyan');
-var logger = bunyan.createLogger({
-  name: 'Spotlight Generator Application'
-});
-
-// Dependencies for Authentication
 require('dotenv').config();
-const expressSession = require("express-session");
-var passport = require("passport");
-var OIDCStrategy = require("passport-azure-ad").OIDCStrategy;
-
+const expressSession = require("express-session"); // necessary to store the session of our user
 
 // Creating Express App
 const app = express();
@@ -23,133 +14,49 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
-// Set up mySQL Database, create User model with Sequelize, and connect database to express session
-const { Sequelize, DataTypes } = require('sequelize');
-const mysql = require("mysql2");
+/******************************************************************************
+ * Database Connection Check
+ *****************************************************************************/
+// Grabbing user model from database
+var UserA = require('./config/db.config');
+// // testing if UserA is able to sync with our database
+try {
+  (async () => {
+    await UserA.sync();
+    console.log('Users have been synced! [main.js]');
+  })();
+} catch (error) {
+  console.error('Unable to sync to database [main.js]!', error);
+}
+
+// importing the passport configuration which handles the authentication
+var passport = require('passport');
+require('./config/passport.js');
+
+/******************************************************************************
+ * Session Store Setup
+ *****************************************************************************/
+
+/********************************
+ * What is a session?
+ * A session stores unique information about the current user of our application such that
+ * if they close the tab, they're able to access the website again without having to log in.
+ * Passport handles the behind the scenes to allow our server to recognize the user and then grant them access.
+ * 
+ * We could store this unique information in a cookie, but that's unsafe because hackers can easily access any identifying information
+ * within the cookie (since cookies are stored in the browser) and pretend to be that user. Additonally, cookies have a limit on the
+ * amount of information we can store in them. As such, we use a database to store all of the different sessions of our users. In this
+ * app, we store them in a MySQL Database, but you can store them in MongoDB, PostgreSQL, etc.
+ * 
+ * Once the user logs out, the session gets destroyed in our database and the user must log back in to access our application.
+ * 
+ * An important note is that if the user closes their browser, the session-id they received previously will no longer be valid. 
+ * It will expire according to its expiry date and they'll have to login again creating a new session with a new session-id.
+ ********************************/
+
+// initializing session store with mySQL so that each user has a unique session
 const MySQLStore = require("express-mysql-session")(expressSession);
 
-const sequelize = new Sequelize(process.env.DATABASE, 'user', process.env.PASSWORD, {
-  host: 'localhost',
-  dialect: 'mysql',
-  logging: msg => logger.debug(msg)
-});
-
-try {
-  (async () => {
-    await sequelize.authenticate();
-  })();
-  console.log('Connection has been established!')
-} catch (error) {
-  console.error('Unable to connect!', error);
-}
-
-// Created User schema where oid and email will be added when the user is logged in
-const User = sequelize.define('User', {
-  'oid': {
-    type: DataTypes.STRING
-  },
-  'name': {
-    type: DataTypes.STRING
-  },
-  'email': {
-    type: DataTypes.STRING
-  },
-}, {
-  tableName: 'Interns'
-});
-
-// testing if interns table has been created
-try {
-  (async () => {
-    await User.sync();
-  })();
-  console.log('Interns table for User model has been created!')
-} catch (error) {
-  console.error('Unable to create table!', error);
-}
-
-// Setting up Passport
-
-//-----------------------------------------------------------------------------
-// To support persistent login sessions, Passport needs to be able to
-// serialize users into and deserialize users out of the session.  Typically,
-// this will be as simple as storing the user ID when serializing, and finding
-// the user by ID when deserializing.
-//-----------------------------------------------------------------------------
-passport.serializeUser(function(user, done) {
-  done(null, user.oid);
-});
-
-passport.deserializeUser(function(oid, done) {
-  User.findOne({
-    where: {
-      oid: oid
-    }
-  }).then(function(user) {
-    if(user) {
-      return done(null, user);
-    }
-  })
-  .catch((err) => {
-    console.log("Something wrong with database: ", err);
-    return done(err);
-  });
-});
-
-var OIDC_Configs = {
-    identityMetadata: `https://login.microsoftonline.com/${process.env.TENANT_ID}/v2.0/.well-known/openid-configuration`,
-    clientID: process.env.CLIENT_ID, // Required, the client ID of your app in AAD
-    responseType: 'code id_token',
-    responseMode: 'form_post',
-    redirectUrl: process.env.REDIRECT_URL, //the reply URL registered in AAD for your app
-    allowHttpForRedirectUrl: true, // false if using https
-    clientSecret: process.env.CLIENT_SECRET,
-    validateIssuer: true,
-    passReqToCallback: false,
-    scope: ['openid', 'profile', 'email'],
-    loggingLevel: 'info',
-};
-
-var verifyCallback = function (iss, sub, profile, accessToken, refreshToken, done) {
-  if (!profile.oid) {
-    console.log(profile);
-    return done(new Error("No OID found!"), null);
-  }
-  User.findOne({
-    where: {
-      oid: profile.oid
-    }
-  }).then(function(user) {
-    if (user) {
-      logger.info('we are using user: ', user);
-      return done(null, user);
-    } else {
-      var data = {
-        oid: profile.oid,
-        name: profile.displayName,
-        email: profile._json.email
-      }
-      User.create(data).then(function(newUser, created) {
-        console.log("Created a new user! Here they are:")
-        console.log(newUser.name);
-        console.log(newUser);
-        return done(null, newUser);
-      })
-    }
-  })
-  .catch((err) => {
-    console.log("Something wrong with database: ", err);
-    done(err);
-  });
-};
-
-// Using OIDC Strategy with custom configs and verify callback function
-const strategy = new OIDCStrategy(OIDC_Configs, verifyCallback);
-passport.use(strategy);
-
-/**
- * -------------- SESSION SETUP ----------------
- */
 const options = {
   host: 'localhost',
   port: '3306',
@@ -206,12 +113,6 @@ const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
 // whenever app wants to use assets,css,js, it'll go through the router to ensure that they load in properly
 // app use middleware, then next called at the end of it or redirect them automatically
-// function ensureAuthentication(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   }
-//   res.redirect('/auth/openid');
-// }
 
 // Get requests for all the pages
 // app.get("/", ensureAuthentication, (req, res, next) => {
@@ -259,12 +160,12 @@ app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {
 // If user fails authentication, we send them back to login-error
 app.get("/login-error", (req, res) => {
   console.log("User isn't authenticated!");
-  res.send("<p>You are NOT authenticated!<p>");
+  res.send("<p>You are NOT authenticated!<p>"); // link them back to login page
 })
 
 // 'logout' route, logout from passport, and destroy the session with AAD.
 app.get('/logout', function(req, res) {
-  // logout removes req.user property and clears any login sessions
+  // logout removes req.user property and clears any sessions stored in our database
   req.logout(function(err) {
     if (err) { console.error("Error logging out!", err); }
   });
