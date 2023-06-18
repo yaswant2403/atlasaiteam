@@ -205,11 +205,12 @@ const handleSubmit = async (e) => {
     const prompt = createPromptandDisplayInputs();
     
     // Sending prompt to server
-    const chatResponse = await fetch('http://localhost:5000/spotlight',{
+    const chatResponse = await fetch('/spotlight',{
       method: 'POST', // from server.js
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'same-origin',
       body: JSON.stringify({
         message_prompt: prompt,
       }) 

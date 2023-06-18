@@ -80,8 +80,8 @@ var verifyCallback = function (iss, sub, profile, accessToken, refreshToken, don
         }
     }).then(function(user) {
         if (user) {
-        logger.info('we are using user: ', user);
-        return done(null, user);
+            logger.info('we are using user: ', user);
+            return done(null, user);
         } else {
             var data = {
                 oid: profile.oid,
