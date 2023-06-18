@@ -2,15 +2,6 @@
  * Form and Response elements
  * Grabbing form and response using querySelector
  */
-
-// Redirect users to login.microsoftonline.com/
-// We need to obtain a **client ID for my appliation through application registration** in Azure AD. We then copy
-// the client id into the application config files. in the application registration, we will also include the url of the
-// web application so that azure ad can redirect successfully
-
-// Tenant is University of Illinois
-
-
 const form = document.querySelector('#greeting-details')
 const responseDiv = document.querySelector('#response')
 
