@@ -1,3 +1,6 @@
+/******************************************************************************
+ * Module dependencies for our database.
+ *****************************************************************************/
 const { Sequelize, DataTypes } = require('sequelize');
 const mysql = require("mysql2");
 
@@ -7,12 +10,13 @@ var logger = bunyan.createLogger({
   name: 'Spotlight Generator Application'
 });
 
+// Set up mySQL Database with our DB Config Details
 const sequelize = new Sequelize(process.env.DATABASE, 'user', process.env.PASSWORD, {
   host: 'localhost',
   dialect: 'mysql',
   logging: msg => logger.debug(msg)
 });
-
+// Checking if sequelize is able to connect to our DB
 try {
   (async () => {
     await sequelize.authenticate();
@@ -22,7 +26,8 @@ try {
   console.error('Unable to connect!', error);
 }
 
-// Created User schema where oid and email will be added when the user is logged in
+// Created User schema with sequelize where oid and email will be added when the user is logged in
+// ONLY FOR DEVELOPMENT TESTING - In PROD, we use existing database
 const User = sequelize.define('User', {
   'oid': {
     type: DataTypes.STRING
@@ -47,4 +52,5 @@ try {
   console.error('Unable to create table!', error);
 }
 
+// exporting User model
 module.exports = User;
