@@ -1,7 +1,3 @@
-/**
- * TODO: JS for Handling Form Inputs (Very Similar to main.js)
- */
-
 // Grabbing Form and Response
 const form = document.getElementById('spotlight-details');
 const response = document.querySelector('#chat-response');
