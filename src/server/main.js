@@ -57,6 +57,7 @@ require('./config/passport.js');
 // initializing session store with mySQL so that each user has a unique session
 const MySQLStore = require("express-mysql-session")(expressSession);
 
+// our database details so MySQLStore can create a new sessions table 
 const options = {
   host: 'localhost',
   port: '3306',
@@ -66,25 +67,26 @@ const options = {
   createDatabaseTable: true
 };
 const sessionStore = new MySQLStore(options);
-// checking sessionStore has no errors
+// checking sessionStore has no errors and is configured properly
 sessionStore.onReady().then(() => {
   console.log("MySQLStore ready!");
 }).catch(error => {
   console.log(error);
 });
 
+// Telling our express app to use a session and then store that session in our MySQL Database
 app.use(expressSession({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET, // a random arrangement of characters
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
+    maxAge: 1000 * 60 * 60 * 24, // expiration data of cookie (will delete itself from our database)
     secure: false // set to true if using https
   }
 }))
 
-//Passport authentication by making Express use it
+// Initializing Passport with our Express App
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -105,28 +107,33 @@ app.use(passport.session());
 //   }
 // })
 
-// root@localhost at port 3306
+//-----------------------------------------------------------------------------
+// Setting up Necessary Route Controllers
+//
+// 1. For 'login' route and 'returnURL' route, use `passport.authenticate`. 
+// This way the passport middleware can redirect the user to login page, receive
+// id_token, oid, display name, etc from returnURL.
+//
+// 2. For the routes you want to check if user is already logged in, use 
+// `ensureAuthenticated`. It checks if there is an user stored in session, if not
+// it will redirect user to login page where passport can authenticate.
+//-----------------------------------------------------------------------------
 
 // Grabbing routers to load assets, css, js
 const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
-// whenever app wants to use assets,css,js, it'll go through the router to ensure that they load in properly
-// app use middleware, then next called at the end of it or redirect them automatically
 
-// Get requests for all the pages
-// app.get("/", ensureAuthentication, (req, res, next) => {
-//   console.log("You are authenticated!")
-//   console.log("Your user email is: ", req.user._json.email);
-//   return next();
-// }, function(req, res, next) {
-//   res.sendFile(path.join(__dirname, "../../index.html"));
-// });
+
 // middleware to ensure authentication
 function ensureAuthenticated(req, res, next) {
   if(req.isAuthenticated()) { return next(); }
   res.redirect('http://localhost:3000/login');
 }
+
+/*****************************
+ * Passport Routes
+ *****************************/
 
 // Home Page is the Login Page
 app.get("/", (req, res) => {
@@ -135,8 +142,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  console.log("Here is the login page!")
-  // const login = '<a href=\"/auth/openid\">Login Through Azure AD!</a>';
+  console.log("Here is the login page!");
   res.redirect("/");
 })
 
@@ -147,16 +153,17 @@ app.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureR
     res.redirect('/message');
   }
 );
-/// 'GET returnURL'
+
 // `passport.authenticate` will try to authenticate the content returned in
 // query (such as authorization code). If authentication fails, user will be
-// redirected to '/' (home page); otherwise, it passes to the next middleware.
+// redirected to '/login-error'; otherwise, it redirects them to the /message.
 app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
   (req, res) => {
     console.log("User is authenticated! We received a return from AzureAD AGAIN!");
     res.redirect('/message');
   }
 );
+
 // If user fails authentication, we send them back to login-error
 app.get("/login-error", (req, res) => {
   console.log("User isn't authenticated!");
@@ -169,23 +176,20 @@ app.get('/logout', function(req, res) {
   req.logout(function(err) {
     if (err) { console.error("Error logging out!", err); }
   });
-  // then destroy the session
-  // req.session.destroy(function(err) {
-  //   if (err) {
-  //     console.error("Error destroying session!", err);
-  //   }
-  // });
   // send user back to login page
   const postLogoutRedirectURL = encodeURIComponent('http://localhost:3000/login');
   res.redirect(`https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectURL}`);
 });
 
+// whenever app wants to use assets,css,js, it'll go through the router to ensure that they load in properly
 app.use("/assets", assetsRouter);
 app.use("/css", cssRouter);
 app.use("/js", jsRouter);
-// app.get("/login", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../client/html/login.html"));
-// })
+
+/*****************************
+ * Main Page Routes
+ *****************************/
+// All are only accessible if ensureAuthenticated is true (user is authenticated)
 app.get("/message", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
 });
@@ -196,8 +200,7 @@ app.get("/about", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/about.html"));
 });
 
+// For ViteExpress
 ViteExpress.listen(app, 3000, () =>
   console.log("Server is listening on port 3000...")
 );
-
-// Test whether user can logout and then they shouldn't be able to access 
