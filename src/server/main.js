@@ -201,7 +201,11 @@ app.get("/login-error", (req, res) => {
 
 // Only added because for some reason if a user does /logout, they're able to access generate message.
 app.get('/logout', function(req, res) {
-  res.redirect('/login');
+  if (req.isAuthenticated()) { 
+    // console.log("In the login function, the request headers are: \n", req.headers); 
+    return res.redirect('/'); 
+  }
+  return res.redirect('/login');
 })
 
 // 'logout' route, logout from passport, and destroy the session with AAD.
