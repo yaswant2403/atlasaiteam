@@ -136,12 +136,16 @@ const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
 
-
+let count = 0;
 // middleware to ensure authentication
 function ensureAuthenticated(req, res, next) {
-  // console.log(req)
-  if(req.isAuthenticated()) { return next(); }
-  res.redirect('http://localhost:3000/login');
+  count++;
+  console.log("In the ensureAuth function, request is ", req.isAuthenticated(), " authenticated ", count, " times! \n");
+  if(req.isAuthenticated()) { 
+    console.log("In the ensureAuth function, the request headers are: \n", req.headers);
+    return next(); 
+  }
+  return res.redirect('/login');
 }
 
 /*****************************
@@ -149,21 +153,28 @@ function ensureAuthenticated(req, res, next) {
  *****************************/
 
 // Home Page is the Login Page
-app.get("/", (req, res) => {
-  console.log("I made it here!");
-  res.sendFile(path.join(__dirname, "../client/html/login.html"));
+app.get("/", ensureAuthenticated, (req, res) => {
+  console.log("User made it to the main page!");
+  res.redirect('/spotlight');
 })
 
 app.get("/login", (req, res) => {
-  console.log("Here is the login page!");
-  res.redirect("/");
+  console.log("User has made it to the login page!");
+  // console.log("In the /login function, request is ", req.isAuthenticated(), " authenticated!\n");
+  // this is used to redirect the user back to the homepage if they try to access the login page after being authenticated
+  // otherwise, it works as usual, directing them to the login page.
+  if (req.isAuthenticated()) { 
+    // console.log("In the login function, the request headers are: \n", req.headers); 
+    return res.redirect('/'); 
+  }
+  return res.sendFile(path.join(__dirname, "../client/html/login.html"));
 })
 
 // After user clicks on login, we send them to a /auth/openid page
 app.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
   (req, res) => {
     console.log("User is authenticated! We received a return from AzureAD");
-    res.redirect('/message');
+    res.redirect('/spotlight');
   }
 );
 
@@ -173,7 +184,7 @@ app.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureR
 app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
   (req, res) => {
     console.log("User is authenticated! We received a return from AzureAD AGAIN!");
-    res.redirect('/message');
+    res.redirect('/spotlight');
   }
 );
 
@@ -248,7 +259,7 @@ const exParagraph5 = "Kayln Nowlan is a senior majoring in English. She learned 
  * 
  * @returns res.send(response JSON)
  */
-app.post('/main', async(req, res) => {
+app.post('/main', ensureAuthenticated, async(req, res) => {
   console.log(req.headers.origin)
   // Our violation message
   const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
@@ -269,7 +280,7 @@ app.post('/main', async(req, res) => {
       if ((await message_flag).data.results[0].flagged === true) {
           // Sending prompt and image violation message back to frontend
           // POST Method ends with res.send
-          res.status(200).send({
+          return res.status(200).send({
               bot: violation,
               image_bot: violation
           })
@@ -313,7 +324,7 @@ app.post('/main', async(req, res) => {
               // prints the url of the image
               // console.log(image.data.data[0].url);
               // sending both the message and image URL to frontend as JSON response
-              res.status(200).send({
+              return res.status(200).send({
                   bot: response.data.choices[0].message.content,
                   image_bot: image.data.data[0].url
               })  
@@ -334,13 +345,13 @@ app.post('/main', async(req, res) => {
               messages: p_messages,
               temperature: 0.1,
           });
-          res.status(500).send({
+          return res.status(500).send({
               bot: response.data.choices[0].message.content,
               image_bot: violation
           })    
       } else { // if API key has expired or user is spamming submissions
           // console.log("It reaches here!")
-          res.status(500).send({
+          return res.status(500).send({
               bot: "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
                If you still receive this error, contact the staff on the About Section!"
           })
@@ -372,7 +383,7 @@ app.post('/main', async(req, res) => {
 * POST Method ends with res.send
 * @returns res.send(response JSON)
 */
-app.post('/spotlight', async(req,res) => {
+app.post('/spotlight', ensureAuthenticated, async(req,res) => {
   const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
   new inputs to generate a new message or image.";
   const limiting = "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
@@ -383,6 +394,7 @@ app.post('/spotlight', async(req,res) => {
   Margins: Ensure the spotlight is professional and consists of a single paragraph with less than 400 words.\
   Perspective: If you are capable, generate more than one spotlight for an intern.\
   Throughputs: Ensure that the output is grammatically correct, professional and concise.";
+  console.log('\nHere is the req headers inside /spotlight: ', req.headers);
   try {
       // Receiving the request
       let message_prompt = req.body.message_prompt; // Grabbing the message_prompt from the request body
@@ -400,7 +412,7 @@ app.post('/spotlight', async(req,res) => {
       });
       if ((await message_flag).data.results[0].flagged === true) {
           // Sending violation message back to frontend
-          res.status(200).send({
+          return res.status(200).send({
               bot: violation,
           })
       } else { // creating message with ChatGPT because not flagged as harmful content
@@ -411,14 +423,14 @@ app.post('/spotlight', async(req,res) => {
           });
           // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
           // sending the message to frontend as JSON response
-          res.status(200).send({
+          return res.status(200).send({
               bot: response.data.choices[0].message.content,
           })
       }
   } catch (error) { // error with response
       console.log("It reaches here!")
       console.log("This is error: " + error)
-      res.status(500).send({
+      return res.status(500).send({
           bot: limiting
       })
   }

@@ -69,18 +69,23 @@ const handleSubmit = async (e) => {
     // Sending both message and image prompt to backend in JSON Format
     // local: http://localhost:5000
     // cPanel: https://openapi.atlasaiteam.web.illinois.edu/
-    const chatResponse = await fetch('/main',{
-      method: 'POST', // from server.js
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        message_prompt: message_prompt,
-        image_prompt: image_prompt
-      }) 
-    })
-
+    var chatResponse;
+    try {
+      chatResponse = await fetch('/main',{
+        method: 'POST', // from server.js
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          message_prompt: message_prompt,
+          image_prompt: image_prompt
+        }) 
+      })  
+    } catch (err) {
+      // console.log("Here is the error in client/main.js\n", err);
+    }
+    console.log(chatResponse);
     // IF NO ERRORS with response, grabbing response from backend
     if (chatResponse.ok) {
       const data = await chatResponse.json();
