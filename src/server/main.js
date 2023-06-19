@@ -149,7 +149,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 /*****************************
- * Passport Routes
+ * Authentication Routes
  *****************************/
 
 // Home Page is the Login Page
@@ -188,14 +188,22 @@ app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {
   }
 );
 
+app.get("/auth/check-auth", ensureAuthenticated, (req, res) => {
+  res.json({isAuthenticated : true});
+})
+
 // If user fails authentication, we send them back to login-error
 app.get("/login-error", (req, res) => {
   console.log("User isn't authenticated!");
   res.send("<p>You are NOT authenticated!<p>"); // link them back to login page
 })
 
+// app.get('/logout', function(req, res) {
+//   res.redirect()
+// })
+
 // 'logout' route, logout from passport, and destroy the session with AAD.
-app.get('/logout', function(req, res) {
+app.post('/logout', function(req, res) {
   // logout removes req.user property and clears any sessions stored in our database
   req.logout(function(err) {
     if (err) { console.error("Error logging out!", err); }
