@@ -58,3 +58,43 @@
         background-color: rgb(240, 152, 106);
     }
 }
+
+/* Login Page */
+.link {
+    cursor: pointer;
+    border: 20pc;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: large;
+    width: 200px;
+    &:hover {
+        text-decoration: none;
+        transition: all 0.1s;
+        font-weight: 700;
+    }
+}
+
+.link:hover {
+
+    font-weight: 900;
+}
+
+.button {
+    position: relative; /* Add position property */
+    overflow: hidden; /* Hide the slide-in effect initially */
+    border-radius: 50px;
+    letter-spacing: 1px;
+    z-index: 0;
+    background-color:rgba(107, 162, 230, 0.648);
+    box-shadow: 0 4px 15px 0 rgba(65, 132, 234, 0.75);
+    transition: 0.5s;
+    &:hover { 
+      transform: translateY(-2em);
+      font-weight: 900;
+      border-color: #87bf66;
+      box-shadow: 0 4px 15px 0 rgb(23, 98, 191);
+    }
+}
