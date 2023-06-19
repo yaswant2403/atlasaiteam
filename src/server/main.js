@@ -188,9 +188,10 @@ app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {
   }
 );
 
-app.get("/auth/check-auth", ensureAuthenticated, (req, res) => {
-  res.json({isAuthenticated : true});
-})
+// app.get("/auth/check-auth", ensureAuthenticated, (req, res) => {
+//   res.json({isAuthenticated : true});
+// })
+
 
 // If user fails authentication, we send them back to login-error
 app.get("/login-error", (req, res) => {
@@ -198,9 +199,10 @@ app.get("/login-error", (req, res) => {
   res.send("<p>You are NOT authenticated!<p>"); // link them back to login page
 })
 
-// app.get('/logout', function(req, res) {
-//   res.redirect()
-// })
+// Only added because for some reason if a user does /logout, they're able to access generate message.
+app.get('/logout', function(req, res) {
+  res.redirect('/login');
+})
 
 // 'logout' route, logout from passport, and destroy the session with AAD.
 app.post('/logout', function(req, res) {
