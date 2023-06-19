@@ -194,7 +194,7 @@ const handleSubmit = async (e) => {
     response.innerHTML = "";
     document.querySelector('#loading').style.display = "block";
     form.classList.remove('was-validated');
-    // Removing previous placeholder text and user inputs if they exists
+    // Removing previous placeholder text and user inputs if they exist
     if (document.querySelector('#placeholder-input')) {
       document.querySelector('#placeholder-input').parentElement.removeChild(document.querySelector('#placeholder-input'));
     }
@@ -203,33 +203,55 @@ const handleSubmit = async (e) => {
       displayInputs.parentElement.removeChild(displayInputs);
     }
     const prompt = createPromptandDisplayInputs();
-    
+
+    // Create three boxes under the form
+    const boxContainer = document.createElement('div');
+    boxContainer.style.display = 'flex';
+    boxContainer.style.justifyContent = 'space-between';
+    boxContainer.style.marginTop = '40px';
+
+    for (let i = 0; i < 3; i++) {
+      const box = document.createElement('div');
+      box.style.width = '500px';
+      box.style.height = '1500px';
+      box.style.border = '3px solid black';
+      box.style.display = 'flex';
+      box.style.justifyContent = 'center';
+      box.style.alignItems = 'center';
+      box.innerText = `Box ${i + 1}`;
+      boxContainer.appendChild(box);
+    }
+
+    // Append the box container to the document body
+    document.body.appendChild(boxContainer);
+
     // Sending prompt to server
-    const chatResponse = await fetch('http://localhost:5000/spotlight',{
-      method: 'POST', // from server.js
+    const chatResponse = await fetch('http://localhost:5000/spotlight', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         message_prompt: prompt,
-      }) 
-    })
+      })
+    });
     if (chatResponse.ok) {
-        // Make loading animation invisible
-        document.querySelector('#loading').style.display = "none";
-        const data = await chatResponse.json();
-        const finalResponse = data.bot.trim();
-        console.log("How the response is in frontend: " + finalResponse);
-        response.innerText = message; // displaying response
-      } else {  // Means ChatGPT is down or API Key has run out of credits
-        document.querySelector('#loading').style.display = "none";
-        const err = await chatResponse.json();
-        const message = err.bot.trim();
-        console.log(message);
-        response.innerText = message;
+      // Make loading animation invisible
+      document.querySelector('#loading').style.display = "none";
+      const data = await chatResponse.json();
+      const finalResponse = data.bot.trim();
+      console.log("How the response is in frontend: " + finalResponse);
+      response.innerText = message; // displaying response
+    } else { // Means ChatGPT is down or API Key has run out of credits
+      document.querySelector('#loading').style.display = "none";
+      const err = await chatResponse.json();
+      const message = err.bot.trim();
+      console.log(message);
+      response.innerText = message;
     }
   }
-}
+};
+
 
 // Passing in defined handleSubmit when submit is pressed
 // useCapture is set to False because we don't want the user to initiate a submission
