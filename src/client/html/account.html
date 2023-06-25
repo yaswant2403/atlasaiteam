@@ -12,7 +12,7 @@
     crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
-    <link rel="stylesheet" href="css/about.css"/>
+    <link rel="stylesheet" href="css/account.css"/>
     <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -54,10 +54,10 @@
               <a class="nav-link" aria-current="page" href="/spotlight">Create Spotlight</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/about">About</a>
+              <a class="nav-link" href="/about">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/account">Account</a>
+              <a class="nav-link active" href="/account">Account</a>
             </li>
           </ul>
           <form id="logout" method="POST" action="/logout">
@@ -68,48 +68,21 @@
     </nav>
   </head>
   <body>
-    <div id="about" class="container-fluid">
-      <div id="about-header" class="header">
-        <img id="atlas-logo" src="assets/atlas.png" alt="Logo">
-        <h1>About Us</h1>
-      </div>
-      <div id="about-text" class="text-center">
-        <h2>Project Description</h2>
-        <p>This project is a full-stack web appliction that uses OpenAI's 
-          gpt-3.5-turbo API along with NodeJS, HTML and CSS. The user enters information about the type of message they would like, 
-          and using those inputs, we send ChatGPT a prompt that generates a response which we display to the user on the frontend. 
-          Along with the message, we use ChatGPT to generate a DALL-E prompt, and send that prompt to DALL-E to create an image 
-          corresponding with the message.</p>
-        <h2>Staff</h2>
-        <div class="card-columns">
-          <div class="card">
-            <img src="https://via.placeholder.com/250x250" alt="Yash Ejjagiri">
-            <div class="card-body">
-              <h5 class="card-title">Yash Ejjagiri</h5>
+    <div class="row row-cols-md-2 g-* h-100 w-100">
+        <div class="col" style="background-image: url(assets/paragraph-image.png);">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text">Hello!</p>
+                </div>
             </div>
-          </div>
-          <div class="card">
-            <img src="https://via.placeholder.com/250x250" alt="Rohan Bokaria">
-            <div class="card-body">
-              <h5 class="card-title">Rohan Bokaria</h5>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://via.placeholder.com/250x250" alt="Mike Meissner">
-            <div class="card-body">
-              <h5 class="card-title">Mike Meissner</h5>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://via.placeholder.com/250x250" alt="Yewen Li">
-            <div class="card-body">
-              <h5 class="card-title">Yewen Li</h5>
-            </div>
-          </div>
         </div>
-        <h2>Future Implementations</h2>
-        <p>We hope to use this website as a foundation to build an Internships Spotlight Generator.</p>
-      </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text">Hello Bar!</p>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Bootstrap CSS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

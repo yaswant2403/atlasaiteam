@@ -237,6 +237,9 @@ app.get("/spotlight", ensureAuthenticated, (req, res) => {
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/about.html"));
 });
+app.get("/account", ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/html/account.html"));
+});
 
 /*****************************
  * Form Submission POST Routes
