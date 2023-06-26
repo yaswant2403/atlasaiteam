@@ -240,6 +240,9 @@ app.get("/about", ensureAuthenticated, (req, res) => {
 app.get("/account", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/account.html"));
 });
+app.get("/interns", ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/html/interns.html"));
+});
 
 /*****************************
  * Form Submission POST Routes
