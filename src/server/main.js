@@ -43,7 +43,8 @@ try {
 
 // importing the passport configuration which handles the authentication
 var passport = require('passport');
-require('./config/passport.js');
+const auth = require('./config/passport');
+passport = auth.passport;
 
 /******************************************************************************
  * Session Store Setup
@@ -124,7 +125,7 @@ app.use(passport.session());
 //
 // 1. For 'login' route and 'returnURL' route, use `passport.authenticate`. 
 // This way the passport middleware can redirect the user to login page, receive
-// id_token, oid, display name, etc from returnURL.
+// id_token, oid, display name, etc from returnURL. This is in passport.js
 //
 // 2. For the routes you want to check if user is already logged in, use 
 // `ensureAuthenticated`. It checks if there is an user stored in session, if not
@@ -135,6 +136,8 @@ app.use(passport.session());
 const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
+const accountsRouter = require("./routes/accountsRouter");
+const authRouter = auth.router;
 
 let count = 0;
 // middleware to ensure authentication
@@ -142,17 +145,17 @@ function ensureAuthenticated(req, res, next) {
   count++;
   console.log("In the ensureAuth function, request is ", req.isAuthenticated(), " authenticated ", count, " times! \n");
   if(req.isAuthenticated()) { 
-    console.log("In the ensureAuth function, the request headers are: \n", req.headers);
+    // console.log("In the ensureAuth function, the request headers are: \n", req.headers);
     return next(); 
   }
   return res.redirect('/login');
 }
 
 /*****************************
- * Authentication Routes
+ * Main GET Routes
  *****************************/
 
-// Home Page is the Login Page
+// Home Page is the Spotlight Page if Authenticated
 app.get("/", ensureAuthenticated, (req, res) => {
   console.log("User made it to the main page!");
   res.redirect('/spotlight');
@@ -170,63 +173,14 @@ app.get("/login", (req, res) => {
   return res.sendFile(path.join(__dirname, "../client/html/login.html"));
 })
 
-// After user clicks on login, we send them to a /auth/openid page
-app.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
-  (req, res) => {
-    console.log("User is authenticated! We received a return from AzureAD");
-    res.redirect('/spotlight');
-  }
-);
-
-// `passport.authenticate` will try to authenticate the content returned in
-// query (such as authorization code). If authentication fails, user will be
-// redirected to '/login-error'; otherwise, it redirects them to the /message.
-app.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
-  (req, res) => {
-    console.log("User is authenticated! We received a return from AzureAD AGAIN!");
-    res.redirect('/spotlight');
-  }
-);
-
-// app.get("/auth/check-auth", ensureAuthenticated, (req, res) => {
-//   res.json({isAuthenticated : true});
-// })
-
-
-// If user fails authentication, we send them back to login-error
-app.get("/login-error", (req, res) => {
-  console.log("User isn't authenticated!");
-  res.send("<p>You are NOT authenticated!<p>"); // link them back to login page
-})
-
-// Only added because for some reason if a user does /logout, they're able to access generate message.
-app.get('/logout', function(req, res) {
-  if (req.isAuthenticated()) { 
-    // console.log("In the login function, the request headers are: \n", req.headers); 
-    return res.redirect('/'); 
-  }
-  return res.redirect('/login');
-})
-
-// 'logout' route, logout from passport, and destroy the session with AAD.
-app.post('/logout', function(req, res) {
-  // logout removes req.user property and clears any sessions stored in our database
-  req.logout(function(err) {
-    if (err) { console.error("Error logging out!", err); }
-  });
-  // send user back to login page
-  const postLogoutRedirectURL = encodeURIComponent('http://localhost:3000/login');
-  res.redirect(`https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectURL}`);
-});
-
+// allow app to use our authenticate routes
+app.use(authRouter);
 // whenever app wants to use assets,css,js, it'll go through the router to ensure that they load in properly
 app.use("/assets", assetsRouter);
 app.use("/css", cssRouter);
 app.use("/js", jsRouter);
+app.use("/account/", accountsRouter)
 
-/*****************************
- * Main Page GET Routes
- *****************************/
 // All are only accessible if ensureAuthenticated is true (user is authenticated)
 app.get("/message", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
@@ -240,9 +194,9 @@ app.get("/about", ensureAuthenticated, (req, res) => {
 app.get("/account", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/account.html"));
 });
-app.get("/interns", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/interns.html"));
-});
+// app.get("/interns", ensureAuthenticated, (req, res) => {
+//   res.sendFile(path.join(__dirname, "../client/html/interns.html"));
+// });
 
 /*****************************
  * Form Submission POST Routes
@@ -254,7 +208,6 @@ const exParagraph2 = "Mary is a junior studying English and Creative Writing. Sh
 const exParagraph3 = "Sue is a senior studying English and Creative Writing. She heard about the ATLAS Internship Program her freshman year and then her advisor recommended it her junior year. Mary decided to join the program to have the opportunity to get professional work experience. She knew ATLAS has a lot of established connections at the university so she decided to sign up. Mary is a Team Leader for the Business Process Improvement Team. Some of her responsibilities include, helping to build forms for clients based on specifications, she is on-call for the FormBuilder Help Desk to assist any clients having issues with their forms, and she is the first line of communication between their new clients and the team. She has currently finished working with a Help Desk client from the Less Commonly Taught Language Program. They were having issues with the text merge fields in the confirmation/reviewal phases, as well as the emails being sent to the form submitter and admins. She met with them to help make sure their text merge fields were all working properly and to discuss their concerns with routing triggers. Mary's future career plan has recently changed, she was previously planning on going to law school, but now she is preparing to apply for admissions to English graduate/PhD programs for Fall 2023. After she gets her graduate degree, she hopes to teach English Literature at any level. Mary will bring newly learned skills and experience, including the ability to effectively communicate very technical information, to the rest of her professional life.";
 const exParagraph4 = "Jenny Lee is a Senior double-majoring in Advertising and Economics with a business minor! Jenny is a Social Media and Marketing Intern for Earnest Earth! She is responsible for posting and analyzing the company's social media platforms and search engines using various tactics using programs such as SEMrush. After analyzing target consumers' interests and behaviors, she develops marketing projects. This involves improving a website by creating a blog post on relevant topics after research.  Jenny is currently working on SEO Strategy. In order to do so, she is researching and analyzing keywords and popular search engines that are relevant to the company using various platforms or tools such as SEMrush, UberSuggest, and etc. Jenny hopes to pursue a career in marketing, public relations, finance, or media! She hopes to develop her career in the field of business involving art or media! Through her ATLAS internship, Jenny has realized the importance of time-management and communication skills! Some fun facts about Jenny are that she loves music and singing and bought karaoke microphones to sing with her roommates!";
 const exParagraph5 = "Kayln Nowlan is a senior majoring in English. She learned about ATLAS through the Humanities Professional Resource Center while looking for an internship in communications. She works for the Office of Provost as a Media Content Producer. Kayln helps produce a series of faculty development-themed podcasts called “Dear Alma” a series in which Kalyn and her partner interview senior faculty members on the UIUC campus, drafting interview questions that are intended to support up-and-coming faculty as they grow and develop their careers. Then they culminate the audio into the podcast episodes, creating thumbnails that are consistent with the Office of the Provost brand and marketing our podcast series on various social media platforms. Currently, Kayln is working on releasing and editing more series of “Dear Alma.” She is planning to do a master's in Library and Information Science here at UIUC with hopes to pursue academic librarianship or a career in Information Science. Through ATLAS, Kayln learned about professionalism in the workplace and gained valuable communication experience. A fun fact about Kayln is that she studied abroad in the UK in Spring 2019!";
-
 
 /**
  * Route Handler for handling 'Generate Message' submissions from client side
@@ -280,7 +233,7 @@ const exParagraph5 = "Kayln Nowlan is a senior majoring in English. She learned 
  * @returns res.send(response JSON)
  */
 app.post('/main', ensureAuthenticated, async(req, res) => {
-  console.log(req.headers.origin)
+  // console.log(req.headers.origin)
   // Our violation message
   const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
   new inputs to generate a new message or image.";
@@ -414,7 +367,7 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
   Margins: Ensure the spotlight is professional and consists of a single paragraph with less than 400 words.\
   Perspective: If you are capable, generate more than one spotlight for an intern.\
   Throughputs: Ensure that the output is grammatically correct, professional and concise.";
-  console.log('\nHere is the req headers inside /spotlight: ', req.headers);
+  // console.log('\nHere is the req headers inside /spotlight: ', req.headers);
   try {
       // Receiving the request
       let message_prompt = req.body.message_prompt; // Grabbing the message_prompt from the request body

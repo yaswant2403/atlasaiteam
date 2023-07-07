@@ -1,6 +1,9 @@
 /******************************************************************************
  * Module dependencies and initialization.
  *****************************************************************************/
+const express = require("express");
+const router = express.Router();
+
 var passport = require("passport");
 var OIDCStrategy = require("passport-azure-ad").OIDCStrategy;
 var User = require('./db.config'); //grabbing User from database
@@ -106,5 +109,60 @@ var verifyCallback = function (iss, sub, profile, accessToken, refreshToken, don
 const strategy = new OIDCStrategy(OIDC_Configs, verifyCallback);
 passport.use(strategy);
 
+/*****************************
+ * Authentication Routes
+ *****************************/
+
+// After user clicks on login, we send them to a /auth/openid page
+router.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
+  (req, res) => {
+    console.log("User is authenticated! We received a return from AzureAD");
+    res.redirect('/spotlight');
+  }
+);
+
+// `passport.authenticate` will try to authenticate the content returned in
+// query (such as authorization code). If authentication fails, user will be
+// redirected to '/login-error'; otherwise, it redirects them to the /message.
+router.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
+  (req, res) => {
+    console.log("User is authenticated! We received a return from AzureAD AGAIN!");
+    res.redirect('/spotlight');
+  }
+);
+
+// router.get("/auth/check-auth", ensureAuthenticated, (req, res) => {
+//   res.json({isAuthenticated : true});
+// })
+
+// If user fails authentication, we send them back to login-error
+router.get("/login-error", (req, res) => {
+  console.log("User isn't authenticated!");
+  res.send("<p>You are NOT authenticated!<p>"); // link them back to login page
+})
+
+// Only added because for some reason if a user does /logout, they're able to access generate message.
+router.get('/logout', function(req, res) {
+  if (req.isAuthenticated()) { 
+    // console.log("In the login function, the request headers are: \n", req.headers); 
+    return res.redirect('/'); 
+  }
+  return res.redirect('/login');
+})
+
+// 'logout' route, logout from passport, and destroy the session with AAD.
+router.post('/logout', function(req, res) {
+  // logout removes req.user property and clears any sessions stored in our database
+  req.logout(function(err) {
+    if (err) { console.error("Error logging out!", err); }
+  });
+  // send user back to login page
+  const postLogoutRedirectURL = encodeURIComponent('http://localhost:3000/login');
+  res.redirect(`https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectURL}`);
+});
+
+
 //exporting passport object
-module.exports = passport;
+module.exports.passport = passport;
+// exporting router
+module.exports.router = router;
