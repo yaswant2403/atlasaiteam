@@ -7,7 +7,6 @@ const jsRegex = () => {
 };
 
 router.get(jsRegex(), (req, res) => {
-    console.log("After jsRegex():", req.path)
     res.redirect(303, `http://localhost:3000/src/client/js/${req.path}`)
 });
 

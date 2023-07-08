@@ -12,8 +12,11 @@
     crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
-    <link rel="stylesheet" href="css/account.css"/>
+    <link rel="stylesheet" href="css/interns.css"/>
     <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -69,6 +72,175 @@
     </nav>
   </head>
   <body>
+    <div class="container-fluid">
+      <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">ATLAS Interns</h2>
+      <!-- Input search, filter, add button -->
+      <div class="row pb-2">
+        <div class="col-md-5 pb-sm-2">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-bg-primary"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Search by Name">
+          </div>
+        </div>
+        <div class="col-md-5 pb-sm-2">
+          <select id="sort" class="form-control">
+            <option value="" disabled selected hidden>Filter By</option>
+            <option value="name-a-z">Name</option>
+            <option value="term">Term</option>
+            <option value="role">Role</option>
+            <option value="other">Other</option>
+          </select>
+        </div> 
+        <div class="col-md-2 text-center">
+          <button class="btn btn-success" data-toggle="modal" data-target="#add-intern">
+            Add Intern
+          </button>
+        </div>
+      </div>
+      <!-- Add Intern Modal -->
+      <div class="modal fade" id="add-intern" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modal-title">Add New ATLAS Intern</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="new-intern">
+              <div class="modal-body">
+                <div class="form-row justify-content-center">
+                  <div class="form-group col-md-5 text-center">
+                    <label for="inputNetID">Enter the Intern's NetID:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndo2" required>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="table-responsive-md">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">User ID</th>
+                  <th scope="col">Net ID</th>
+                  <th scope="col">Full Name</th>
+                  <th scope="col">Term</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Attempts</th>
+                  <th scope="col">Updated By</th>
+                  <th scope="col">Updated Date</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>yse2</td>
+                  <td>Yash Ejjagiri</td>
+                  <td>1202305</td>
+                  <td>Intern, Staff, Admin</td>
+                  <td>3</td>
+                  <td>yse2</td>
+                  <td>06/07/2023</td>
+                  <td class="text-center">
+                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
+                    </span>
+                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>yse2</td>
+                  <td>Yash Ejjagiri</td>
+                  <td>1202305</td>
+                  <td>Intern, Staff, Admin</td>
+                  <td>3</td>
+                  <td>yse2</td>
+                  <td>06/07/2023</td>
+                  <td class="text-center">
+                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
+                    </span>
+                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>yse2</td>
+                  <td>Yash Ejjagiri</td>
+                  <td>1202305</td>
+                  <td>Intern, Staff, Admin</td>
+                  <td>3</td>
+                  <td>yse2</td>
+                  <td>06/07/2023</td>
+                  <td class="text-center">
+                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
+                    </span>
+                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>yse2</td>
+                  <td>Yash Ejjagiri</td>
+                  <td>1202305</td>
+                  <td>Intern, Staff, Admin</td>
+                  <td>3</td>
+                  <td>yse2</td>
+                  <td>06/07/2023</td>
+                  <td class="text-center">
+                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
+                    </span>
+                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Pagination -->
+        <nav aria-label="Search ATLAS Interns">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Previous" tabindex="-1">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+              </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item">
+              <a class="page-link disabled" href="#" aria-label="Next" tabindex="-1">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
     <!-- Bootstrap CSS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

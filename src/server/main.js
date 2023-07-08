@@ -136,7 +136,6 @@ app.use(passport.session());
 const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
-const accountsRouter = require("./routes/accountsRouter");
 const authRouter = auth.router;
 
 let count = 0;
@@ -179,7 +178,10 @@ app.use(authRouter);
 app.use("/assets", assetsRouter);
 app.use("/css", cssRouter);
 app.use("/js", jsRouter);
-app.use("/account/", accountsRouter)
+// specifically for account because it's a subpage (could have a better implementation but sticking with this for now)
+app.use("/account/assets", assetsRouter);
+app.use("/account/css", cssRouter);
+app.use("/account/js", jsRouter);
 
 // All are only accessible if ensureAuthenticated is true (user is authenticated)
 app.get("/message", ensureAuthenticated, (req, res) => {
@@ -194,9 +196,19 @@ app.get("/about", ensureAuthenticated, (req, res) => {
 app.get("/account", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/account.html"));
 });
-// app.get("/interns", ensureAuthenticated, (req, res) => {
-//   res.sendFile(path.join(__dirname, "../client/html/interns.html"));
-// });
+app.get("/account/paragraphs", ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/html/paragraphs.html"));
+});
+app.get("/account/interns", ensureAuthenticated, (req, res) => {
+  // console.log(req);
+  res.sendFile(path.join(__dirname, "../client/html/interns.html"));
+});
+app.get("/account/staff", ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/html/staff.html"));
+});
+app.get("/account/users", ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/html/allusers.html"));
+});
 
 /*****************************
  * Form Submission POST Routes
