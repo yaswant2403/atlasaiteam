@@ -26,31 +26,4 @@ try {
   console.error('Unable to connect!', error);
 }
 
-// Created User schema with sequelize where oid and email will be added when the user is logged in
-// ONLY FOR DEVELOPMENT TESTING - In PROD, we use existing database
-const User = sequelize.define('User', {
-  'oid': {
-    type: DataTypes.STRING
-  },
-  'netID': {
-    type: DataTypes.STRING
-  },
-  'email': {
-    type: DataTypes.STRING
-  },
-}, {
-  tableName: 'Interns'
-});
-
-// testing if interns table has been created
-try {
-  (async () => {
-    await User.sync();
-    console.log('Interns table for User model has been created!')
-  })();
-} catch (error) {
-  console.error('Unable to create table!', error);
-}
-
-// exporting User model
-module.exports = User;
+module.exports = sequelize;

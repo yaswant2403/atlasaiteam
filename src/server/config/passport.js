@@ -6,16 +6,21 @@ const router = express.Router();
 
 var passport = require("passport");
 var OIDCStrategy = require("passport-azure-ad").OIDCStrategy;
-var User = require('./db.config'); //grabbing User from database
+
+const sequelize = require('./db.config');
+var initModels = require('../db_models/init-models');
+var models = initModels(sequelize);
+var User = models.User;
+
 // checking database connection
 try {
-    (async () => {
-      await User.sync();
-      console.log('User synced to database in passport.js!')
-    })();
-  } catch (error) {
-    console.error('Unable to sync database in passport.js!', error);
-  }
+  (async () => {
+    await User.sync();
+    console.log('User synced to database in passport.js!')
+  })();
+} catch (error) {
+  console.error('Unable to sync database in passport.js!', error);
+}
 
 // for logging
 const bunyan = require('bunyan');
@@ -37,7 +42,7 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(oid, done) {
     User.findOne({ // use Sequelize model's built-in method to find a single entry where oid = req.oid
         where: {
-        oid: oid
+          oid: oid
         }
     }).then(function(user) {
         if(user) {
@@ -79,24 +84,25 @@ var verifyCallback = function (iss, sub, profile, accessToken, refreshToken, don
     }
     User.findOne({
         where: {
-        oid: profile.oid
+          oid: profile.oid
         }
     }).then(function(user) {
         if (user) {
             logger.info('we are using user: ', user);
             return done(null, user);
         } else {
-            var data = {
-                oid: profile.oid,
-                name: profile.displayName,
-                email: profile._json.email
-            }
-            User.create(data).then(function(newUser, created) { // adding a new User to our database
-                console.log("Created a new user! Here they are:")
-                console.log(newUser.name);
-                console.log(newUser);
-                return done(null, newUser);
-            })
+            // var data = {
+            //     oid: profile.oid,
+            //     name: profile.displayName,
+            //     email: profile._json.email
+            // }
+            // User.create(data).then(function(newUser, created) { // adding a new User to our database
+            //     console.log("Created a new user! Here they are:")
+            //     console.log(newUser.name);
+            //     console.log(newUser);
+            //     return done(null, newUser);
+            // })
+            return done(new Error("Unauthorized User!"), null)
         }
     })
     .catch((err) => {

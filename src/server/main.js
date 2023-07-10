@@ -29,17 +29,17 @@ const openai = new OpenAIApi(configuration)
 /******************************************************************************
  * Database Connection Check
  *****************************************************************************/
-// Grabbing user model from database
-var UserA = require('./config/db.config');
-// // testing if UserA is able to sync with our database
-try {
-  (async () => {
-    await UserA.sync();
-    console.log('Users have been synced! [main.js]');
-  })();
-} catch (error) {
-  console.error('Unable to sync to database [main.js]!', error);
-}
+// Grabbing all models created from our existing database
+// var UserA = require('./config/db.config');
+// // // testing if UserA is able to sync with our database
+// try {
+//   (async () => {
+//     await User.sync();
+//     console.log('Users have been synced! [main.js]');
+//   })();
+// } catch (error) {
+//   console.error('Unable to sync to database [main.js]!', error);
+// }
 
 // importing the passport configuration which handles the authentication
 var passport = require('passport');
