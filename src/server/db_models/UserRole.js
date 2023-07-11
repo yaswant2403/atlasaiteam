@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('UserRoles', {
+  return sequelize.define('UserRole', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'atlas_users',
+        model: 'User',
         key: 'user_id'
       }
     },
@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(20),
       allowNull: false,
       references: {
-        model: 'user_roles_lkup',
+        model: 'Role',
         key: 'role'
       }
     },
@@ -42,6 +42,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
+    freezeTableName: true,
     tableName: 'user_roles',
     timestamps: false,
     indexes: [

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('NumTries', {
+  return sequelize.define('Paragraph', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -11,19 +11,17 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'atlas_users',
+        model: 'User',
         key: 'user_id'
       }
     },
-    spotlight_attempts: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 3
+    term: {
+      type: DataTypes.STRING(6),
+      allowNull: false
     },
-    message_attempts: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 3
+    paragraph: {
+      type: DataTypes.TEXT,
+      allowNull: false
     },
     created_by: {
       type: DataTypes.STRING(20),
@@ -44,7 +42,8 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'user_actions',
+    freezeTableName: true,
+    tableName: 'intern_paragraphs',
     timestamps: false,
     indexes: [
       {
@@ -56,7 +55,7 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "actions_user_id_constraint",
+        name: "paragraphs_user_id_constraint",
         using: "BTREE",
         fields: [
           { name: "user_id" },

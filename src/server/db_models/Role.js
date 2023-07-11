@@ -1,25 +1,12 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Paragraphs', {
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
+  return sequelize.define('Role', {
+    role: {
+      type: DataTypes.STRING(20),
       allowNull: false,
       primaryKey: true
     },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'atlas_users',
-        key: 'user_id'
-      }
-    },
-    term: {
-      type: DataTypes.STRING(6),
-      allowNull: false
-    },
-    paragraph: {
+    description: {
       type: DataTypes.TEXT,
       allowNull: false
     },
@@ -42,7 +29,8 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'intern_paragraphs',
+    freezeTableName: true,
+    tableName: 'user_roles_lkup',
     timestamps: false,
     indexes: [
       {
@@ -50,14 +38,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "id" },
-        ]
-      },
-      {
-        name: "paragraphs_user_id_constraint",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
+          { name: "role" },
         ]
       },
     ]

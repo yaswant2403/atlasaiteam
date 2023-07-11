@@ -1,14 +1,29 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Roles', {
-    role: {
-      type: DataTypes.STRING(20),
+  return sequelize.define('Action', {
+    id: {
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'user_id'
+      }
+    },
+    spotlight_attempts: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 3
+    },
+    message_attempts: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 3
     },
     created_by: {
       type: DataTypes.STRING(20),
@@ -29,7 +44,8 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'user_roles_lkup',
+    freezeTableName: true,
+    tableName: 'user_actions',
     timestamps: false,
     indexes: [
       {
@@ -37,7 +53,14 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "role" },
+          { name: "id" },
+        ]
+      },
+      {
+        name: "actions_user_id_constraint",
+        using: "BTREE",
+        fields: [
+          { name: "user_id" },
         ]
       },
     ]

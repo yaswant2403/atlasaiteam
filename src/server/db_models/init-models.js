@@ -1,34 +1,36 @@
 var DataTypes = require("sequelize").DataTypes;
 var _User = require("./User");
-var _Paragraphs = require("./Paragraphs");
-var _NumTries = require("./NumTries");
+var _Paragraph = require("./Paragraph");
+var _Action = require("./Action");
 var _UserRole = require("./UserRole");
-var _Roles = require("./Roles");
+var _Role = require("./Role");
 
 function initModels(sequelize) {
   var User = _User(sequelize, DataTypes);
-  var Paragraphs = _Paragraphs(sequelize, DataTypes);
-  var NumTries = _NumTries(sequelize, DataTypes);
+  var Paragraph = _Paragraph(sequelize, DataTypes);
+  var Action = _Action(sequelize, DataTypes);
   var UserRole = _UserRole(sequelize, DataTypes);
-  var Roles = _Roles(sequelize, DataTypes);
+  var Role = _Role(sequelize, DataTypes);
 
-  User.hasMany(NumTries, { as: "attempts", foreignKey: "user_id"});
-  NumTries.belongsTo(User, { as: "user", foreignKey: "user_id"});
+  User.hasMany(Action, { as: "attempts", foreignKey: "user_id"});
+  Action.belongsTo(User, { as: "user", foreignKey: "user_id"});
 
-  User.hasMany(Paragraphs, { as: "paragraphs", foreignKey: "user_id"});
-  Paragraphs.belongsTo(User, { as: "user", foreignKey: "user_id"});
+  User.hasMany(Paragraph, { as: "paragraphs", foreignKey: "user_id"});
+  Paragraph.belongsTo(User, { as: "user", foreignKey: "user_id"});
 
-  User.hasMany(UserRole, { as: "roles", foreignKey: "user_id"});
+  User.belongsToMany(Role, {unique: false, through: UserRole, foreignKey: 'user_id'});
+  Role.belongsToMany(User, {unique: false, through: UserRole, foreignKey: 'role'});
+  User.hasMany(UserRole, { as: "user_roles", foreignKey: "user_id"});
   UserRole.belongsTo(User, { as: "user", foreignKey: "user_id"});
-  Roles.hasMany(UserRole, { as: "roles", foreignKey: "role"});
-  UserRole.belongsTo(Roles, { as: "role_description", foreignKey: "role"});
+  Role.hasMany(UserRole, { as: "roles", foreignKey: "role"});
+  UserRole.belongsTo(Role, { as: "role_description", foreignKey: "role"});
 
   return {
     User,
-    Paragraphs,
-    NumTries,
+    Paragraph,
+    Action,
     UserRole,
-    Roles,
+    Role,
   };
 }
 module.exports = initModels;

@@ -42,6 +42,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
+    freezeTableName: true,
     tableName: 'atlas_users',
     timestamps: false,
     indexes: [

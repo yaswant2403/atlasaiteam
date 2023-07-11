@@ -11,6 +11,8 @@ const sequelize = require('./db.config');
 var initModels = require('../db_models/init-models');
 var models = initModels(sequelize);
 var User = models.User;
+var Action = models.Action;
+var Role = models.Role;
 
 // checking database connection
 try {
@@ -172,3 +174,7 @@ router.post('/logout', function(req, res) {
 module.exports.passport = passport;
 // exporting router
 module.exports.router = router;
+// exporting the User, Action, Role
+module.exports.User = User;
+module.exports.Action = Action;
+module.exports.Role = Role;

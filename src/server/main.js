@@ -26,25 +26,18 @@ const configuration = new Configuration({
 // Creating an open api object using the configuration
 const openai = new OpenAIApi(configuration)
 
-/******************************************************************************
- * Database Connection Check
- *****************************************************************************/
-// Grabbing all models created from our existing database
-// var UserA = require('./config/db.config');
-// // // testing if UserA is able to sync with our database
-// try {
-//   (async () => {
-//     await User.sync();
-//     console.log('Users have been synced! [main.js]');
-//   })();
-// } catch (error) {
-//   console.error('Unable to sync to database [main.js]!', error);
-// }
-
 // importing the passport configuration which handles the authentication
 var passport = require('passport');
 const auth = require('./config/passport');
 passport = auth.passport;
+
+
+/******************************************************************************
+ * Database User Model
+ *****************************************************************************/
+var User = auth.User;
+var Action = auth.Action;
+var Role = auth.Role;
 
 /******************************************************************************
  * Session Store Setup
@@ -210,6 +203,107 @@ app.get("/account/users", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/allusers.html"));
 });
 
+const getAllInterns = (element, interns) => {
+  var term = "";
+  if (element.term.endsWith("5")) {
+    term = "SU" + element.term.substring(1,5);
+  } else if (element.term.endsWith("8")) {
+    term = "FA" + element.term.substring(1,5);
+  } else {
+    term = "SP" + element.term.substring(1,5);
+  }
+  var updatedBy = "";
+  var updatedDate;
+  var roles = [];
+  if (element.last_modified_by == null) {
+    updatedBy = element.created_by;
+    updatedDate = element.created_date;
+  } else {
+    updatedBy = element.last_modified_by;
+    updatedDate = element.last_modified_date;
+  }
+  element.Roles.forEach((role) => {
+    roles.push(Object.values(role)[0]);
+  })
+  return {
+    net_id: element.net_id,
+    name: element.name,
+    term: term,
+    attempts: element.attempts[0].spotlight_attempts,
+    updatedBy: updatedBy,
+    updatedDate: updatedDate,
+    roles: roles
+  };
+}
+
+app.post('/all-interns', ensureAuthenticated, async(req, res) => {
+  try {
+    (async () => {
+      var interns = [];
+      var result = await User.findAll({
+        attributes: {
+          exclude: ['user_id', 'oid']
+        },
+        include: [{
+            model: Action,
+            as: 'attempts',
+            attributes: ['spotlight_attempts'] 
+          },
+          {
+            model: Role,
+            attributes: ['role'],
+            through: {
+              attributes: []
+            }
+          }
+        ]
+      });
+      if (result.length > 0) {
+        result.forEach((element) => {
+          var term = "";
+          if (element.term.endsWith("5")) {
+            term = "SU" + element.term.substring(1,5);
+          } else if (element.term.endsWith("8")) {
+            term = "FA" + element.term.substring(1,5);
+          } else {
+            term = "SP" + element.term.substring(1,5);
+          }
+          var updatedBy = "";
+          var updatedDate;
+          var roles = [];
+          if (element.last_modified_by == null) {
+            updatedBy = element.created_by;
+            updatedDate = element.created_date;
+          } else {
+            updatedBy = element.last_modified_by;
+            updatedDate = element.last_modified_date;
+          }
+          element.Roles.forEach((role) => {
+            roles.push(Object.values(role)[0]);
+          })
+          interns.push ({
+            net_id: element.net_id,
+            name: element.name,
+            term: term,
+            attempts: element.attempts[0].spotlight_attempts,
+            updatedBy: updatedBy,
+            updatedDate: updatedDate,
+            roles: roles
+          });
+        })
+      } else {
+        interns.push({net_id: null}); // no interns found in database
+      }
+      console.log(interns);
+      res.status(200).send(interns); 
+    })();
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      error: 'There was an error fetching the intern data from the database!'
+    }) 
+  }
+})
 /*****************************
  * Form Submission POST Routes
  *****************************/
