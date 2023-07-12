@@ -114,13 +114,14 @@
                 <div class="form-row justify-content-center">
                   <div class="form-group col-md-5 text-center">
                     <label for="inputNetID">Enter the Intern's NetID:</label>
-                    <input type="text" class="form-control" id="inputNetID" placeholder="johndo2" required>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
                   </div>
+                  <div class="alert alert-danger container-fluid text-center" id="invalid-net-ID" style="display: none;"></div>
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button id="check-net-id" type="submit" form="new-intern" class="btn btn-primary">Verify Net ID</button>
               </div>
             </form>
           </div>
@@ -144,76 +145,9 @@
                 </tr>
               </thead>
               <tbody id="intern-data">
-                <tr>
-                  <td>yse2</td>
-                  <td>Yash Ejjagiri</td>
-                  <td>1202305</td>
-                  <td>Intern, Staff, Admin</td>
-                  <td>3</td>
-                  <td>yse2</td>
-                  <td>06/07/2023</td>
-                  <td class="text-center">
-                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
-                    </span>
-                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>yse2</td>
-                  <td>Yash Ejjagiri</td>
-                  <td>1202305</td>
-                  <td>Intern, Staff, Admin</td>
-                  <td>3</td>
-                  <td>yse2</td>
-                  <td>06/07/2023</td>
-                  <td class="text-center">
-                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
-                    </span>
-                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>yse2</td>
-                  <td>Yash Ejjagiri</td>
-                  <td>1202305</td>
-                  <td>Intern, Staff, Admin</td>
-                  <td>3</td>
-                  <td>yse2</td>
-                  <td>06/07/2023</td>
-                  <td class="text-center">
-                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
-                    </span>
-                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>yse2</td>
-                  <td>Yash Ejjagiri</td>
-                  <td>1202305</td>
-                  <td>Intern, Staff, Admin</td>
-                  <td>3</td>
-                  <td>yse2</td>
-                  <td>06/07/2023</td>
-                  <td class="text-center">
-                    <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                      <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
-                    </span>
-                    <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                      <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
-                    </span>
-                  </td>
-                </tr>
               </tbody>
             </table>
+            <div class="alert alert-danger container-fluid text-center" id="no-interns-alert" style="display: none;">No interns found! Please add an intern by clicking Add Intern!</div>
           </div>
         </div>
         <!-- Pagination -->

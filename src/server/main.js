@@ -7,6 +7,7 @@ const cors = require("cors");
 const path = require("path");
 require('dotenv').config();
 const expressSession = require("express-session"); // necessary to store the session of our user
+const emailValidator = require('deep-email-validator');
 const {Configuration, OpenAIApi } = require("openai") // tuple object - necessary to send API requests to generate paragraphs
 
 // Creating Express App
@@ -30,6 +31,8 @@ const openai = new OpenAIApi(configuration)
 var passport = require('passport');
 const auth = require('./config/passport');
 passport = auth.passport;
+
+// importing Microsoft Graph Client
 
 
 /******************************************************************************
@@ -96,22 +99,6 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// const connection = mysql.createConnection(options);
-// connection.connect((err) => {
-//   if (!err) {
-//     console.log("Connected!");
-//     // connection.query('SHOW TABLES', function(err, results) {
-//     //   if (err) {
-//     //     console.log(err);
-//     //   } else {
-//     //     console.log(results);
-//     //   }
-//     // })
-//   } else {
-//     console.log(err);
-//     console.log("Connection failed");
-//   }
-// })
 
 //-----------------------------------------------------------------------------
 // Setting up Necessary Route Controllers
@@ -238,70 +225,85 @@ const getAllInterns = (element, interns) => {
 
 app.post('/all-interns', ensureAuthenticated, async(req, res) => {
   try {
-    (async () => {
-      var interns = [];
-      var result = await User.findAll({
-        attributes: {
-          exclude: ['user_id', 'oid']
+    var interns = [];
+    var result = await User.findAll({
+      attributes: {
+        exclude: ['user_id', 'oid']
+      },
+      include: [{
+          model: Action,
+          as: 'attempts',
+          attributes: ['spotlight_attempts'] 
         },
-        include: [{
-            model: Action,
-            as: 'attempts',
-            attributes: ['spotlight_attempts'] 
-          },
-          {
-            model: Role,
-            attributes: ['role'],
-            through: {
-              attributes: []
-            }
+        {
+          model: Role,
+          attributes: ['role'],
+          through: {
+            attributes: []
           }
-        ]
-      });
-      if (result.length > 0) {
-        result.forEach((element) => {
-          var term = "";
-          if (element.term.endsWith("5")) {
-            term = "SU" + element.term.substring(1,5);
-          } else if (element.term.endsWith("8")) {
-            term = "FA" + element.term.substring(1,5);
-          } else {
-            term = "SP" + element.term.substring(1,5);
-          }
-          var updatedBy = "";
-          var updatedDate;
-          var roles = [];
-          if (element.last_modified_by == null) {
-            updatedBy = element.created_by;
-            updatedDate = element.created_date;
-          } else {
-            updatedBy = element.last_modified_by;
-            updatedDate = element.last_modified_date;
-          }
-          element.Roles.forEach((role) => {
-            roles.push(Object.values(role)[0]);
-          })
-          interns.push ({
-            net_id: element.net_id,
-            name: element.name,
-            term: term,
-            attempts: element.attempts[0].spotlight_attempts,
-            updatedBy: updatedBy,
-            updatedDate: updatedDate,
-            roles: roles
-          });
+        }
+      ]
+    });
+    if (result.length > 0) {
+      result.forEach((element) => {
+        var term = "";
+        if (element.term.endsWith("5")) {
+          term = "SU" + element.term.substring(1,5);
+        } else if (element.term.endsWith("8")) {
+          term = "FA" + element.term.substring(1,5);
+        } else {
+          term = "SP" + element.term.substring(1,5);
+        }
+        var updatedBy = "";
+        var updatedDate;
+        var roles = [];
+        if (element.last_modified_by == null) {
+          updatedBy = element.created_by;
+          updatedDate = element.created_date;
+        } else {
+          updatedBy = element.last_modified_by;
+          updatedDate = element.last_modified_date;
+        }
+        element.Roles.forEach((role) => {
+          roles.push(Object.values(role)[0]);
         })
-      } else {
-        interns.push({net_id: null}); // no interns found in database
-      }
-      console.log(interns);
-      res.status(200).send(interns); 
-    })();
+        interns.push ({
+          net_id: element.net_id,
+          name: element.name,
+          term: term,
+          attempts: element.attempts[0].spotlight_attempts,
+          updatedBy: updatedBy,
+          updatedDate: updatedDate,
+          roles: roles
+        });
+      })
+    } else {
+      interns.push({net_id: null}); // no interns found in database
+    }
+    // console.log(interns);
+    res.status(200).send(interns);
   } catch (error) {
     console.log(error);
     return res.status(500).send({
-      error: 'There was an error fetching the intern data from the database!'
+      error: 'There was an error fetching the intern data!'
     }) 
+  }
+})
+
+const isEmailValid = async (email) => {
+  return emailValidator.validate(email);
+}
+
+app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
+  const inputEmail = req.body.net_id + "@illinois.edu"
+  const { valid, reason, validators } = await isEmailValid(inputEmail);
+  if (valid) {
+    res.status(200).send({ message: "valid" });
+  } else {
+    return res.status(500).send({
+      message: "Please provide a valid NetID!",
+      reason: reason
+    })
   }
 })
 /*****************************
