@@ -50,12 +50,9 @@ const loadTable = async (e) => {
 }
 window.onload = loadTable;
 
-// Verifying if netID is valid
-const form = document.querySelector('#new-intern');
+// verifying netID function
 const invalid_netID = document.querySelector('#invalid-net-ID');
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    const net_id = document.querySelector('#inputNetID').value; 
+const verifyNetID = async (net_id) => {
     const verification = await fetch('/verify_net_id',{ // from server
         method: 'POST',
         headers: {
@@ -71,14 +68,25 @@ const handleSubmit = async (e) => {
         if (invalid_netID.style.display != null) {
             invalid_netID.style.display = "none";
         }
-        console.log(valid);
+        console.log(valid, "in function");
+        return true;
     } else {
         const invalid = await verification.json();
         document.querySelector('#inputNetID').value = '';
         invalid_netID.style.display = null;
         invalid_netID.innerText = invalid.message;
-        console.log(invalid.reason);
+        console.log(invalid.reason, "in function");
+        return false;
     }
+}
+
+const form = document.querySelector('#new-intern');
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const net_id = document.querySelector('#inputNetID').value;
+    // Verifying if netID is valid
+    const verification = verifyNetID(net_id);
+    console.log(verification);
 }
 
 form.addEventListener('submit', handleSubmit, false);
