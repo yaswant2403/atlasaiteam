@@ -15,10 +15,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(400),
       allowNull: false
     },
-    oid: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
     term: {
       type: DataTypes.STRING(6),
       allowNull: true

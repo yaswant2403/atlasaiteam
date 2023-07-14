@@ -38,13 +38,13 @@ var logger = bunyan.createLogger({
 // when deserializing.
 //-----------------------------------------------------------------------------
 passport.serializeUser(function(user, done) {
-    done(null, user.oid);
+    done(null, user.net_id);
 });
   
-passport.deserializeUser(function(oid, done) {
-    User.findOne({ // use Sequelize model's built-in method to find a single entry where oid = req.oid
+passport.deserializeUser(function(net_id, done) {
+    User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
         where: {
-          oid: oid
+          net_id: net_id
         }
     }).then(function(user) {
         if(user) {
@@ -52,7 +52,7 @@ passport.deserializeUser(function(oid, done) {
         }
     })
     .catch((err) => {
-        console.log("Something wrong with database: ", err);
+        console.log("Something went wrong with deserializing User in passport.js: ", err);
         return done(err);
     });
 });
@@ -80,35 +80,26 @@ var OIDC_Configs = {
 // in our database. However, for production, we will have a database already created
 // and if they don't exist in there, they won't be able to access our web application
 var verifyCallback = function (iss, sub, profile, accessToken, refreshToken, done) {
-    if (!profile.oid) {
+    console.log();
+    if (!profile._json.email) {
         console.log(profile);
-        return done(new Error("No OID found!"), null);
+        return done(new Error("No EMAIL found!"), null);
     }
+    const user_netID = profile._json.email.substring(0, profile._json.email.indexOf("@"))
     User.findOne({
         where: {
-          oid: profile.oid
+          net_id: user_netID
         }
     }).then(function(user) {
         if (user) {
             logger.info('we are using user: ', user);
             return done(null, user);
         } else {
-            // var data = {
-            //     oid: profile.oid,
-            //     name: profile.displayName,
-            //     email: profile._json.email
-            // }
-            // User.create(data).then(function(newUser, created) { // adding a new User to our database
-            //     console.log("Created a new user! Here they are:")
-            //     console.log(newUser.name);
-            //     console.log(newUser);
-            //     return done(null, newUser);
-            // })
             return done(new Error("Unauthorized User!"), null)
         }
     })
     .catch((err) => {
-        console.log("Something wrong with database: ", err);
+        console.log("Something went wrong with verifying callback in passport.js ", err);
         done(err);
     });
 };
@@ -126,6 +117,7 @@ router.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failu
   (req, res) => {
     console.log("User is authenticated! We received a return from AzureAD");
     res.redirect('/spotlight');
+    console.log(oid)
   }
 );
 

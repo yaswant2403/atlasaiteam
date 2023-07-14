@@ -190,45 +190,12 @@ app.get("/account/users", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/allusers.html"));
 });
 
-const getAllInterns = (element, interns) => {
-  var term = "";
-  if (element.term.endsWith("5")) {
-    term = "SU" + element.term.substring(1,5);
-  } else if (element.term.endsWith("8")) {
-    term = "FA" + element.term.substring(1,5);
-  } else {
-    term = "SP" + element.term.substring(1,5);
-  }
-  var updatedBy = "";
-  var updatedDate;
-  var roles = [];
-  if (element.last_modified_by == null) {
-    updatedBy = element.created_by;
-    updatedDate = element.created_date;
-  } else {
-    updatedBy = element.last_modified_by;
-    updatedDate = element.last_modified_date;
-  }
-  element.Roles.forEach((role) => {
-    roles.push(Object.values(role)[0]);
-  })
-  return {
-    net_id: element.net_id,
-    name: element.name,
-    term: term,
-    attempts: element.attempts[0].spotlight_attempts,
-    updatedBy: updatedBy,
-    updatedDate: updatedDate,
-    roles: roles
-  };
-}
-
 app.post('/all-interns', ensureAuthenticated, async(req, res) => {
   try {
     var interns = [];
     var result = await User.findAll({
       attributes: {
-        exclude: ['user_id', 'oid']
+        exclude: ['user_id']
       },
       include: [{
           model: Action,
@@ -294,11 +261,35 @@ const isEmailValid = async (email) => {
   return emailValidator.validate(email);
 }
 
+const existingNetID = async (net_id) => {
+  try {
+    const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
+      where: {
+        net_id: net_id
+      }
+    })
+    if (user) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log("There was an error checking if this intern exists or not: ", error);
+    return null;
+  }
+}
+
 app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
   const inputEmail = req.body.net_id + "@illinois.edu"
   const { valid, reason, validators } = await isEmailValid(inputEmail);
   if (valid) {
-    res.status(200).send({ message: "valid" });
+    const exists = await existingNetID(req.body.net_id);
+    if (exists != null) {
+      var response = exists ? {message: "User already exists! Please provide another NetID."} : {message: "valid"};
+      return res.status(200).send(response);
+    }
+    return res.status(500).send({
+      message: "Something is wrong with our database. Please try again later or contact admin.", 
+      reason: "db-error"});
   } else {
     return res.status(500).send({
       message: "Please provide a valid NetID!",

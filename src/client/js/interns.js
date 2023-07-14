@@ -1,7 +1,7 @@
 // Loading in All Intern Data into Table
 const table_body = document.querySelector('#intern-data');
 const no_interns = document.querySelector('#no-interns-alert');
-
+var interns = []; // storing them in a global variable so we don't have to keep fetching them
 const loadTable = async (e) => {
     const allInterns = await fetch('/all-interns', {  // from server
         method: 'POST',
@@ -64,18 +64,24 @@ const verifyNetID = async (net_id) => {
         }) 
     })
     if (verification.ok) {
-        const valid = await verification.json();
-        if (invalid_netID.style.display != null) {
-            invalid_netID.style.display = "none";
+        const validity = await verification.json();
+        console.log(validity);
+        if (validity.message == "valid") {
+            if (invalid_netID.style.display != null) { // get rid of alert if it's visible
+                invalid_netID.style.display = "none";
+            }
+            return true;
         }
-        console.log(valid, "in function");
-        return true;
+        document.querySelector('#inputNetID').value = '';
+        invalid_netID.style.display = null;
+        invalid_netID.innerText = validity.message;
+        return false;
     } else {
         const invalid = await verification.json();
         document.querySelector('#inputNetID').value = '';
         invalid_netID.style.display = null;
         invalid_netID.innerText = invalid.message;
-        console.log(invalid.reason, "in function");
+        console.log(invalid.reason);
         return false;
     }
 }
@@ -85,8 +91,9 @@ const handleSubmit = async (e) => {
     e.preventDefault();
     const net_id = document.querySelector('#inputNetID').value;
     // Verifying if netID is valid
-    const verification = verifyNetID(net_id);
-    console.log(verification);
+    const valid = await verifyNetID(net_id);
+    console.log(valid);
+
 }
 
 form.addEventListener('submit', handleSubmit, false);
