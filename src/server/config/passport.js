@@ -13,6 +13,7 @@ var models = initModels(sequelize);
 var User = models.User;
 var Action = models.Action;
 var Role = models.Role;
+var UserRole = models.UserRole;
 
 // checking database connection
 try {
@@ -170,3 +171,4 @@ module.exports.router = router;
 module.exports.User = User;
 module.exports.Action = Action;
 module.exports.Role = Role;
+module.exports.UserRole = UserRole;

@@ -17,16 +17,16 @@ const loadTable = async (e) => {
         } else {
             while (interns.length > 0) {
                 var intern = interns.pop();
-                var roles = []
-                for (let i = 0; i < intern.roles.length; i++) {
-                    roles.push((JSON.parse(JSON.stringify(intern.roles[i]))).role);
-                }
+                // var roles = intern.roles;
+                // for (let i = 0; i < intern.roles.length; i++) {
+                //     roles.push(JSON.parse(JSON.stringify(intern.roles[i])));
+                // }
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${intern.net_id}</td>
                     <td>${intern.name}</td>
                     <td>${intern.term}</td>
-                    <td>${roles.join(', ')}</td>
+                    <td>${intern.roles.join(', ')}</td>
                     <td>${intern.attempts} of 3</td>
                     <td>${intern.updatedBy}</td>
                     <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>

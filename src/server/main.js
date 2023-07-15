@@ -36,11 +36,13 @@ passport = auth.passport;
 
 
 /******************************************************************************
- * Database User Model
+ * Database Models
  *****************************************************************************/
+const { Op } = require('sequelize');
 var User = auth.User;
 var Action = auth.Action;
 var Role = auth.Role;
+var UserRole = auth.UserRole;
 
 /******************************************************************************
  * Session Store Setup
@@ -192,11 +194,8 @@ app.get("/account/users", ensureAuthenticated, (req, res) => {
 
 app.post('/all-interns', ensureAuthenticated, async(req, res) => {
   try {
-    var interns = [];
-    var result = await User.findAll({
-      attributes: {
-        exclude: ['user_id']
-      },
+    var response = [];
+    var interns = await User.findAll({
       include: [{
           model: Action,
           as: 'attempts',
@@ -205,50 +204,64 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
         {
           model: Role,
           attributes: ['role'],
+          where: {
+            'role': 'Intern'
+          },
           through: {
             attributes: []
           }
         }
       ]
     });
-    if (result.length > 0) {
-      result.forEach((element) => {
+    if (interns.length > 0) {
+      for (const intern of interns) {
+        const user_id = intern.user_id;
         var term = "";
-        if (element.term.endsWith("5")) {
-          term = "SU" + element.term.substring(1,5);
-        } else if (element.term.endsWith("8")) {
-          term = "FA" + element.term.substring(1,5);
+        var additional_roles = await UserRole.findAll({
+          attributes: ['role'],
+          where: {
+            'user_id': user_id,
+            'role': {
+              [Op.ne]: 'Intern'
+            }
+          },
+          raw: true
+        });
+        var roles = ["Intern"];
+        additional_roles.forEach((role) => {
+          roles.push(Object.values(role)[0]);
+        })
+        if (intern.term.endsWith("5")) {
+          term = "SU" + intern.term.substring(1,5);
+        } else if (intern.term.endsWith("8")) {
+          term = "FA" + intern.term.substring(1,5);
         } else {
-          term = "SP" + element.term.substring(1,5);
+          term = "SP" + intern.term.substring(1,5);
         }
         var updatedBy = "";
         var updatedDate;
-        var roles = [];
-        if (element.last_modified_by == null) {
-          updatedBy = element.created_by;
-          updatedDate = element.created_date;
+        if (intern.last_modified_by == null) {
+          updatedBy = intern.created_by;
+          updatedDate = intern.created_date;
         } else {
-          updatedBy = element.last_modified_by;
-          updatedDate = element.last_modified_date;
+          updatedBy = intern.last_modified_by;
+          updatedDate = intern.last_modified_date;
         }
-        element.Roles.forEach((role) => {
-          roles.push(Object.values(role)[0]);
-        })
-        interns.push ({
-          net_id: element.net_id,
-          name: element.name,
+        response.push ({
+          net_id: intern.net_id,
+          name: intern.name,
           term: term,
-          attempts: element.attempts[0].spotlight_attempts,
+          attempts: intern.attempts[0].spotlight_attempts,
           updatedBy: updatedBy,
           updatedDate: updatedDate,
           roles: roles
         });
-      })
+      }
     } else {
-      interns.push({net_id: null}); // no interns found in database
+      response.push({net_id: null}); // no interns found in database
     }
     // console.log(interns);
-    res.status(200).send(interns);
+    res.status(200).send(response);
   } catch (error) {
     console.log(error);
     return res.status(500).send({
