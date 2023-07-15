@@ -86,7 +86,7 @@ const verifyNetID = async (net_id) => {
     }
 }
 
-const form = document.querySelector('#new-intern');
+const addInternForm = document.querySelector('#new-intern');
 const handleSubmit = async (e) => {
     e.preventDefault();
     const net_id = document.querySelector('#inputNetID').value;
@@ -96,4 +96,4 @@ const handleSubmit = async (e) => {
 
 }
 
-form.addEventListener('submit', handleSubmit, false);
+addInternForm.addEventListener('submit', handleSubmit, false);

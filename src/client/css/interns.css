@@ -133,3 +133,8 @@ select {
 .table-btn-delete {
     background-color: red;
 }
+
+label {
+    font-weight: 500;
+    font-size: 16px;
+}

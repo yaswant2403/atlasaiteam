@@ -111,17 +111,50 @@
             </div>
             <form id="new-intern">
               <div class="modal-body">
-                <div class="form-row justify-content-center">
+                <!-- <div class="form-row justify-content-center">
                   <div class="form-group col-md-5 text-center">
                     <label for="inputNetID">Enter the Intern's NetID:</label>
                     <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
                   </div>
                   <div class="alert alert-danger container-fluid text-center" id="invalid-net-ID" style="display: none;"></div>
+                </div> -->
+                <div class="form-row justify-content-center">
+                  <div class="form-group col-md-3 text-center">
+                    <label for="inputNetID">NetID:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-2">
+                    <label for="inputNetID">Term:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputNetID">First Name:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputNetID">Last Name:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                  <div class="form-group col-md-2">
+                    <label for="inputNetID">Attempts:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                </div>
+                <div class="form-row justify-content-center">
+                  <div class="form-group col-md-5">
+                    <label for="inputNetID">Role:</label>
+                    <button type="button" class="btn btn-success ml-2 mr-2">Intern</button>
+                    <button type="button" class="btn btn-success disabled ml-2 mr-2">Staff</button>
+                    <button type="button" class="btn btn-success disabled ml-2 mr-2">Admin</button>
+                  </div>
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="check-net-id" type="submit" form="new-intern" class="btn btn-primary">Verify Net ID</button>
+                <!-- <button id="check-net-id" type="submit" form="new-intern" class="btn btn-primary">Verify Net ID</button> -->
+                <button id="check-net-id" type="submit" form="new-intern" class="btn btn-primary">Continue</button>
               </div>
             </form>
           </div>
