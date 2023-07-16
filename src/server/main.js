@@ -301,7 +301,7 @@ app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
       return res.status(200).send(response);
     }
     return res.status(500).send({
-      message: "Something is wrong with our database. Please try again later or contact admin.", 
+      message: "Something is wrong with our database. Please try again later or contact an Admin.", 
       reason: "db-error"});
   } else {
     return res.status(500).send({

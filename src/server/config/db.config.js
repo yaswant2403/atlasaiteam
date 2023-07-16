@@ -14,6 +14,14 @@ var logger = bunyan.createLogger({
 const sequelize = new Sequelize(process.env.DATABASE, 'user', process.env.PASSWORD, {
   host: 'localhost',
   dialect: 'mysql',
+  /**
+   * FOR PRODUCTION
+   * pool: {
+   *   max: 5,
+   *   min: 1,
+   *   idle: 20000
+   * }
+   */
   logging: msg => logger.debug(msg)
 });
 // Checking if sequelize is able to connect to our DB

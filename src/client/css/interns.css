@@ -109,6 +109,16 @@ select {
     background-size: .65em auto, 100%;
 }
 
+/* setting background color of selected items */
+.selected {
+    background: #5cb85c !important;
+    color: #fff !important;
+}
+/* adding border to selectpicker */
+.bootstrap-select button {
+    border: 1px solid #ced4da !important;
+}
+
 .fas {
     font-size: larger;
 }
@@ -134,7 +144,58 @@ select {
     background-color: red;
 }
 
+
+/* FORM STYLING */
 label {
     font-weight: 500;
     font-size: 16px;
+}
+
+.form-row .form-group {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* loading animation */
+/* Adopted from Håvard Brynjulfsen: https://codepen.io/havardob/pen/VjjJey */
+.loader {
+    position: absolute;
+    top: 90%;
+    left: 45%;
+    transform: translate(-40%, -40%);
+    width: 50px;
+    height: 10px;
+    background: #3498DB;
+    border-radius: 5px;
+    animation: load 1.8s ease-in-out infinite;
+    &:before, &:after {
+      position: absolute;
+      display: block;
+      content: "";
+      animation: load 1.8s ease-in-out infinite;
+      height: 10px;
+      border-radius: 5px;
+    }
+}
+.loader::before {
+    top: -20px;
+    left: 10px;
+    width: 40px;
+    background: #EF4836;
+}
+.loader::after {
+    bottom: -20px;
+    width: 35px;
+    background: #F5AB35;
+}
+@keyframes load {
+    0% {
+        transform: translateX(40px);
+    }
+    50% {
+        transform: translateX(-30px);
+    }
+    100% {
+        transform: translateX(40px);
+    }
 }

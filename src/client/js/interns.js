@@ -17,10 +17,6 @@ const loadTable = async (e) => {
         } else {
             while (interns.length > 0) {
                 var intern = interns.pop();
-                // var roles = intern.roles;
-                // for (let i = 0; i < intern.roles.length; i++) {
-                //     roles.push(JSON.parse(JSON.stringify(intern.roles[i])));
-                // }
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${intern.net_id}</td>
@@ -86,14 +82,115 @@ const verifyNetID = async (net_id) => {
     }
 }
 
-const addInternForm = document.querySelector('#new-intern');
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    const net_id = document.querySelector('#inputNetID').value;
-    // Verifying if netID is valid
-    const valid = await verifyNetID(net_id);
-    console.log(valid);
 
+const verifyInternForm = document.querySelector('#verify-intern');
+const addInternForm = document.querySelector('#new-intern');
+$('#add-intern-btn').click(_ => {
+    verifyInternForm.reset();
+    $('#verify-internID').modal('toggle');
+})
+$('.close-verify').click(_ => {
+    if (!invalid_netID.style.display) {
+        invalid_netID.style.display = "none"
+    }
+    $('#verify-internID').modal('toggle');
+})
+$('.close-verify-modal-btn').click(_ => {
+    if (!invalid_netID.style.display) {
+        invalid_netID.style.display = "none"
+    }
+    $('#verify-internID').modal('toggle');
+})
+$('.close-add').click(_ => {
+    $('#add-intern').modal('toggle');
+})
+$('.close-add-modal-btn').click(_ => {
+    $('#add-intern').modal('toggle');
+})
+$('#add-intern').on('show.bs.modal', function() {
+    addInternForm.reset();
+    if (addInternForm.classList.contains('was-validated')) {
+        addInternForm.classList.remove('was-validated');
+    }
+});
+
+
+const handleVerifySubmit = async (e) => {
+    e.preventDefault();
+    // start loading animation
+    document.querySelector('#loading').style.display = "block";
+    // Verifying if netID is valid
+    const net_id = document.querySelector('#inputNetID').value;
+    const valid = await verifyNetID(net_id);
+    // stop loading animation
+    document.querySelector('#loading').style.display = "none";
+    console.log(valid);
+    if (valid) { 
+        console.log('Reached!');
+        $('#verify-internID').modal('toggle');
+        $('#add-intern').modal('toggle');
+    };
 }
 
-addInternForm.addEventListener('submit', handleSubmit, false);
+function getNewInternInputs {
+    const name = document.querySelector('#inputName').value.trim();
+    const major = document.querySelector('#inputMajor').value.trim();
+    const year = document.querySelector('#inputYear').value;
+    const referral = document.querySelector('#inputReferral').value;
+    let reference = referral;
+    if (referral === "other") {
+      reference = document.querySelector('#other-referral-input').value;
+    }
+    const sems = document.querySelector('#inputSems').value;
+    const whyJoin = document.querySelector('#reasonForJoining').value.trim();
+    const funFact = document.querySelector('#funFact').value.trim();
+    const position = document.querySelector('#inputPosition').value.trim();
+    const client = document.querySelector('#inputClient').value.trim();
+    const task1 = document.querySelector('#inputTasks1').value.trim();
+    const task2 = document.querySelector('#inputTasks2').value.trim();
+    const task3 = document.querySelector('#inputTasks3').value.trim();
+}
+
+const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    if (!addInternForm.checkValidity()) {
+        console.log("Form is Invalid!");
+        addInternForm.classList.add('was-validated');
+    } else {
+        addInternForm.classList.remove('was-validated');
+
+    }
+}
+verifyInternForm.addEventListener('submit', handleVerifySubmit, false);
+addInternForm.addEventListener('submit', handleAddSubmit, false);
+/**
+ * <div class="modal fade" id="add-intern" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modal-title">Add New ATLAS Intern</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="new-intern"> <!--class  needs validation only for add form-->
+              <div id="modal-content" class="modal-body">
+                <div id="verifyNetID" class="form-row justify-content-center">
+                  <div class="form-group col-md-5 text-center">
+                    <label for="inputNetID">Enter the Intern's NetID:</label>
+                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
+                  </div>
+                  <div class="alert alert-danger container-fluid text-center" id="invalid-net-ID" style="display: none;"></div>
+                </div>
+                <div id="loading" class="loader" style="display: none"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="check-net-id" type="submit" form="new-intern" class="btn btn-primary">Verify Net ID</button>
+                <button id="continue-add" type="submit" form="new-intern" class="btn btn-primary" disabled style="display: none;">Continue</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+ */
