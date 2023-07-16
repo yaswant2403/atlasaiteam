@@ -160,7 +160,7 @@ label {
 /* Adopted from Håvard Brynjulfsen: https://codepen.io/havardob/pen/VjjJey */
 .loader {
     position: absolute;
-    top: 90%;
+    top: 75%;
     left: 45%;
     transform: translate(-40%, -40%);
     width: 50px;
