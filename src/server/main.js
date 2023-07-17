@@ -246,7 +246,7 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
           updatedDate = intern.created_date;
         } else {
           updatedBy = intern.last_modified_by;
-          updatedDate = intern.last_modified_date;
+          updatedDate = intern.created_date; // change this
         }
         response.push ({
           net_id: intern.net_id,
@@ -433,14 +433,14 @@ app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
       }],
       user_roles: roles
     }, {
-      include: [{ model: Action, as: 'attempts'},
-                { model: UserRole, as: 'user_roles'}]
-    }, {
       where: {
         net_id: net_id
       }
+    },{
+      include: [{ model: Action, as: 'attempts'},
+                { model: UserRole, as: 'user_roles'}]
     });
-    return res.status(200).send({message: "User does exist!"});
+    return res.status(200).send({message: "User has been edited!"});
   } else {
     return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
   }
