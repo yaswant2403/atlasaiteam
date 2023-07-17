@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" 
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" 
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/interns.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('#navbarToggle');
+        toggleButton.addEventListener("click", function() {
+          var openMenu = document.querySelector('#navbar-hamburger');
+          var closeMenu = document.querySelector('#navbar-close');
+          let closeIconHidden = closeMenu.getAttribute("hidden");
+          if (closeIconHidden) {
+            closeMenu.removeAttribute("hidden");
+            openMenu.setAttribute("hidden", "hidden");
+          } else {
+            openMenu.removeAttribute("hidden");
+            closeMenu.setAttribute("hidden", "hidden");
+          }
+        });
+      });
+    </script> 
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid">
+        <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
+        <button id="navbarToggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
+          <div id="navbar-hamburger">
+            <span class="navbar-toggler-icon"></span>
+          </div>
+          <div id="navbar-close" hidden="hidden">
+            <span class="bi-x-lg"></span>
+          </div>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/message">Create Message</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/spotlight">Create Spotlight</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/account">Account</a>
+            </li>
+          </ul>
+          <form id="logout" method="POST" action="/logout" style="padding-right: 19px;">
+            <button id="logout-btn" type="submit" class="btn btn-danger">LOG OUT</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">ATLAS Interns</h2>
+      <!-- Input search, filter, add button -->
+      <div class="row pb-2">
+        <div class="col-md-5 pb-sm-2">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-bg-primary"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Search by Name">
+          </div>
+        </div>
+        <div class="col-md-5 pb-sm-2">
+          <select id="sort" class="form-control">
+            <option value="" disabled selected hidden>Filter By</option>
+            <option value="name-a-z">Name</option>
+            <option value="term">Term</option>
+            <option value="role">Role</option>
+            <option value="other">Other</option>
+          </select>
+        </div> 
+        <div class="col-md-2 text-center">
+          <button id="add-intern-btn" class="btn btn-success">
+            Add Intern
+          </button>
+        </div>
+      </div>
+      <!-- Add New Intern Modal -->
+      <div class="modal fade" id="add-intern" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add New ATLAS Intern</h5>
+              <button type="button" class="close close-add" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="new-intern" clas="needs-validation" novalidate>
+              <h4 id="loading-text" class="text-center justify-content-center" 
+              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Adding Intern</h4>
+              <div id="loading" class="loader" style="display: none;"></div>
+              <div id="add-modal-body" class="modal-body">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="newNetID">NetID:</label>
+                    <input type="text" class="form-control" id="newNetID" placeholder="johndoe2" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the intern's netID.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputFirstName">First Name:</label>
+                    <input type="text" class="form-control" id="inputFirstName" placeholder="John" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the first name.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputLastName">Last Name:</label>
+                    <input type="text" class="form-control" id="inputLastName" placeholder="Doe" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the last name.</div>
+                  </div>
+                </div>
+                <div class="form-row pt-2">
+                  <div class="form-group col-md-3">
+                    <label for="inputTerm">Term:</label>
+                    <select id="inputTerm" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Term</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a term.</div>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="inputYear">Year:</label>
+                    <select id="inputYear" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Year</option>
+                        <!-- Adds current year and 4 after -->
+                        <script>
+                        let dataDropdown = document.querySelector('#inputYear');
+                        let currentYear = new Date().getFullYear();
+                        for (let i = 0; i < 4; i++) {
+                            let option = document.createElement('option');
+                            option.value = currentYear;
+                            option.text = currentYear;
+                            dataDropdown.add(option);
+                            currentYear++;
+                        }
+                        </script>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a year.</div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="inputAttempts">Spotlight Attempts:</label>
+                    <select id="inputAttempts" class="form-control">
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        One attempt generates Three paragraphs
+                    </small>
+                    <small class="form-text text-muted">
+                        Three attempts generates Nine paragraphs
+                    </small>
+                  </div>
+                </div>
+                <div class="form-row pt-1">
+                  <div class="form-group col-md-5">
+                    <label for="inputRoles" class="pr-2">Roles:</label>
+                    <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
+                    data-selected-text-format="count > 3" data-actions-box="true">
+                        <option selected disabled value="Intern">Intern
+                        </option>
+                        <option value="Admin">Admin</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Every new Intern will have Intern role. Other roles are optional.
+                    </small>
+                  </div>
+                </div>
+                <div class="alert container-fluid text-center" id="add-alert" style="display: none;"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
+                <button id="continue-add" type="submit" form="new-intern" class="btn btn-primary">Continue</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Edit Intern Modal -->
+      <div class="modal fade" id="edit-intern-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit ATLAS Intern</h5>
+              <button type="button" class="close close-edit" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="edit-intern-form" clas="needs-validation" novalidate>
+              <h4 id="edit-loading-text" class="text-center justify-content-center" 
+              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Editing Intern</h4>
+              <div id="edit-loading" class="loader" style="display: none;"></div>
+              <div id="edit-modal-body" class="modal-body">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="editNetID">NetID:</label>
+                    <input type="text" class="form-control" id="editNetID" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the intern's netID.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="editFirstName">First Name:</label>
+                    <input type="text" class="form-control" id="editFirstName" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the first name.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="editLastName">Last Name:</label>
+                    <input type="text" class="form-control" id="editLastName" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the last name.</div>
+                  </div>
+                </div>
+                <div class="form-row pt-2">
+                  <div class="form-group col-md-3">
+                    <label for="editTerm">Term:</label>
+                    <select id="editTerm" class="form-control" required>
+                        <option selected value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a term.</div>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="editYear">Year:</label>
+                    <select id="editYear" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Year</option>
+                        <!-- Adds current year and 4 after -->
+                        <script>
+                          let editDataDropdown = document.querySelector('#editYear');
+                          let editCurrentYear = new Date().getFullYear();
+                          for (let i = 0; i < 4; i++) {
+                              let option = document.createElement('option');
+                              option.value = editCurrentYear;
+                              option.text = editCurrentYear;
+                              editDataDropdown.add(option);
+                              editCurrentYear++;
+                          }
+                        </script>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a year.</div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="editAttempts">Spotlight Attempts:</label>
+                    <select id="editAttempts" class="form-control">
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        One attempt generates Three paragraphs
+                    </small>
+                    <small class="form-text text-muted">
+                        Three attempts generates Nine paragraphs
+                    </small>
+                  </div>
+                </div>
+                <div class="form-row pt-1">
+                  <div class="form-group col-md-5">
+                    <label for="editRoles" class="pr-2">Roles:</label>
+                    <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
+                    data-selected-text-format="count > 3" data-actions-box="true">
+                        <option selected disabled value="Intern">Intern
+                        </option>
+                        <option value="Admin">Admin</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Every new Intern will have Intern role. Other roles are optional.
+                    </small>
+                  </div>
+                </div>
+                <div class="alert container-fluid text-center" id="edit-alert" style="display: none;"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
+                <button id="save-edit" type="submit" form="edit-intern-form" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="table-responsive-md">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Net ID</th>
+                  <th scope="col">Full Name</th>
+                  <th scope="col">Term</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Attempts</th>
+                  <th scope="col">Updated By</th>
+                  <th scope="col">Updated Date</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="intern-data">
+              </tbody>
+            </table>
+            <div class="alert alert-danger container-fluid text-center" id="no-interns-alert" style="display: none;">No interns found! Please add an intern by clicking Add Intern!</div>
+          </div>
+        </div>
+        <!-- Pagination -->
+        <nav aria-label="Search ATLAS Interns">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Previous" tabindex="-1">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+              </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item">
+              <a class="page-link disabled" href="#" aria-label="Next" tabindex="-1">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <script src="js/interns.js"></script>
+    <!-- Bootstrap + jQuery CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js" 
+    integrity="sha512-yDlE7vpGDP7o2eftkCiPZ+yuUyEcaBwoJoIhdXv71KZWugFqEphIS3PU60lEkFaz8RxaVsMpSvQxMBaKVwA5xg==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Changes default value to roles instead of items -->
+    <script>
+      $('.selectpicker').selectpicker({
+        countSelectedText: function(numSelected, numTotal) {
+          return numSelected + " roles selected";
+        }
+      });
+    </script>
+  </body>
+</html>

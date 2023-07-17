@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/about.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('#navbarToggle');
+        toggleButton.addEventListener("click", function() {
+          var openMenu = document.querySelector('#navbar-hamburger');
+          var closeMenu = document.querySelector('#navbar-close');
+          let closeIconHidden = closeMenu.getAttribute("hidden");
+          if (closeIconHidden) {
+            closeMenu.removeAttribute("hidden");
+            openMenu.setAttribute("hidden", "hidden");
+          } else {
+            openMenu.removeAttribute("hidden");
+            closeMenu.setAttribute("hidden", "hidden");
+          }
+        });
+      });
+    </script>    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid">
+        <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
+        <button id="navbarToggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
+          <div id="navbar-hamburger">
+            <span class="navbar-toggler-icon"></span>
+          </div>
+          <div id="navbar-close" hidden="hidden">
+            <span class="bi-x-lg"></span>
+          </div>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/message">Create Message</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/spotlight">Create Spotlight</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/account">Account</a>
+            </li>
+          </ul>
+          <form id="logout" method="POST" action="/logout">
+            <button id="logout-btn" type="submit" class="btn btn-danger">LOG OUT</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <div id="about" class="container-fluid">
+      <div id="about-header" class="header">
+        <img id="atlas-logo" src="assets/atlas.png" alt="Logo">
+        <h1>About Us</h1>
+      </div>
+      <div id="about-text" class="text-center">
+        <h2>Project Description</h2>
+        <p>This project is a full-stack web appliction that uses OpenAI's 
+          gpt-3.5-turbo API along with NodeJS, HTML and CSS. The user enters information about the type of message they would like, 
+          and using those inputs, we send ChatGPT a prompt that generates a response which we display to the user on the frontend. 
+          Along with the message, we use ChatGPT to generate a DALL-E prompt, and send that prompt to DALL-E to create an image 
+          corresponding with the message.</p>
+        <h2>Staff</h2>
+        <div class="card-columns">
+          <div class="card">
+            <img src="https://via.placeholder.com/250x250" alt="Yash Ejjagiri">
+            <div class="card-body">
+              <h5 class="card-title">Yash Ejjagiri</h5>
+            </div>
+          </div>
+          <div class="card">
+            <img src="https://via.placeholder.com/250x250" alt="Rohan Bokaria">
+            <div class="card-body">
+              <h5 class="card-title">Rohan Bokaria</h5>
+            </div>
+          </div>
+          <div class="card">
+            <img src="https://via.placeholder.com/250x250" alt="Mike Meissner">
+            <div class="card-body">
+              <h5 class="card-title">Mike Meissner</h5>
+            </div>
+          </div>
+          <div class="card">
+            <img src="https://via.placeholder.com/250x250" alt="Yewen Li">
+            <div class="card-body">
+              <h5 class="card-title">Yewen Li</h5>
+            </div>
+          </div>
+        </div>
+        <h2>Future Implementations</h2>
+        <p>We hope to use this website as a foundation to build an Internships Spotlight Generator.</p>
+      </div>
+    </div>
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  </body>
+</html>

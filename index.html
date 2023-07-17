@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/style.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggleButton = document.querySelector('#navbarToggle');
+        toggleButton.addEventListener("click", function() {
+          var openMenu = document.querySelector('#navbar-hamburger');
+          var closeMenu = document.querySelector('#navbar-close');
+          let closeIconHidden = closeMenu.getAttribute("hidden");
+          if (closeIconHidden) {
+            closeMenu.removeAttribute("hidden");
+            openMenu.setAttribute("hidden", "hidden");
+          } else {
+            openMenu.removeAttribute("hidden");
+            closeMenu.setAttribute("hidden", "hidden");
+          }
+        });
+      });
+    </script>    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid">
+        <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a>
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe</a>
+        <button id="navbarToggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle Navigation">
+          <div id="navbar-hamburger">
+            <span class="navbar-toggler-icon"></span>
+          </div>
+          <div id="navbar-close" hidden="hidden">
+            <span class="bi-x-lg"></span>
+          </div>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/message">Create Message</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/spotlight">Create Spotlight</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/account">Account</a>
+            </li>
+          </ul>
+          <form id="logout" method="POST" action="/logout">
+            <button id="logout-btn" type="submit" class="btn btn-danger">LOG OUT</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <div class="container pt-5">
+      <form id="greeting-details">
+        <div class="card-header">
+          <h1>Generate a Unique Message!</h1>
+        </div>
+        <!-- Each input is a form-group -->
+        <div class="form-group">
+          <label for="format">Format:</label>
+          <select class="form-control" id="format">
+            <option value="" disabled selected hidden>Select a format option</option>
+            <option value="greeting">Greeting Card</option>
+            <option value="letter">Letter</option>
+            <option value="email">Email</option>
+            <option value="note">Note</option>
+            <option value="custom">Custom</option>
+          </select>
+          <br>
+          <div id="custom-input" style="display: none;">
+            <label for="custom-format">Custom Format</label>
+            <input 
+              type="text" 
+              class="form-control"
+              id="custom-format-input"
+              placeholder="Enter custom format of your message (Ex: Text Message):"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="from-input">From:</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="from"
+            placeholder="Enter sender's name (John, Barry S., Sam)"/>
+        </div>
+        <div class="form-group">
+          <label for="to-input">To:</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="to"
+            placeholder="Enter receiver's name (Sue, Iris, Ben)"/>
+        </div>
+        <div class="form-group">
+          <label for="subject">Subject:</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="subject"
+            placeholder="Enter subject of letter (50th Birthday, Anniversary, Get Well)"/>
+        </div>
+        <div class="form-group">
+          <label for="length">Length:</label>
+          <select class="form-control" id="length">
+            <option value="" disabled selected hidden>Select the length of the message</option>
+            <option value="1-3">One to Three Sentences</option>
+            <option value="4-6">Four to Six Sentences</option>
+            <option value="7-10">Seven to Ten Sentences</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="include">Image Keywords</label>
+          <input 
+            type="text" 
+            class="form-control"
+            id="include"
+            placeholder="Enter objects you would like to have in the image (Balloons, Kittens, Dogs)"/>
+        </div>
+        <div class="card-footer d-flex">
+          <button type="submit" class="btn btn-primary">Submit!</button>        
+        </div>
+      </form>
+      <!-- Aligns image with form container with d-flex and align-items-center with mx-auto centering horizontal -->
+      <div id="loading" class="d-flex align-items-center">
+        <img id="loadingGIF" src="assets/loading.gif" class="mx-auto" style="display: none;" alt="Loading...">
+      </div>
+      <div id="response" class="container pt-3"></div>
+    </div> 
+    <script src="js/main.js"></script>
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  </body>
+</html>

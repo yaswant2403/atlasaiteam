@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- CONTENT IN HEAD MUST BE COPIED TO EVERY HTML FILE (Because Navbar exists on every page) -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/website_logo.svg" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuikScribe: Message and Image Generator</title>
+    <!-- BootStrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
+    <link rel="stylesheet" href="css/login.css"/>
+    <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color:coral">
+      <div class="container-fluid justify-content-center">
+        <!-- <a href="https://illinois.edu"><img id="logo" src="assets/logo.svg" height="40" alt="Illinois Logo" loading="lazy"/></a> -->
+        <a class="navbar-brand" href="https://atlas.illinois.edu/internships">QuikScribe - ATLAS Spotlight Generator</a>
+      </div>
+    </nav>
+  </head>
+  <body>
+    <!-- Template from: https://mdbootstrap.com/docs/standard/extended/login/ -->
+    <section class="pt-5">
+      <!-- Jumbotron -->
+      <div class="px-4 py-5 px-md-5 text-center text-lg-start" style="background-color: hsl(0, 0%, 96%)">
+        <div class="container">
+          <div class="row gx-lg-5 align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+              <h1 class="my-5 display-3 fw-bold ls-tight">
+                Welcome to the  <br />
+                <span class="text-primary">ATLAS Spotlight Generator!</span>
+              </h1>
+              <p style="color: hsl(217, 10%, 50.8%)">
+                At the University of Illinois Urbana-Champaign, the ATLAS Internship Program facilitates a variety of pre-professional experiences for a diverse population of driven and dedicated interns.
+                With the variety of intriguing and current projects and persons involved in the program, ATLAS Intern Spotlights were created to highlight and celebrate the achievements of our students. 
+                Each and every ATLAS Intern leaves their internship with a number of stories to tell, and Intern Spotlights are where those stories live. 
+              </p>
+              <p style="color: hsl(210, 92%, 39%)">
+                If you are a part of the ATLAS Intern Team, you can use this website as a way to help brainstorm, draft and manage your Spotlight Paragraphs!
+              </p>
+            </div>
+            <div class="col-lg-6 mb-5 mb-lg-0">
+              <div class="button py-5 px-md-5">
+                <span id="login-span"></span>
+                <i class="bi bi-microsoft" style="color: #2196f3; font-size: 23px;"></i>
+                <a class="link" href="/auth/openid">Sign in with Microsoft</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  </body>
+</html>

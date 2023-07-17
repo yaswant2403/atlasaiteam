@@ -1,0 +1,132 @@
+/* NAVBAR STYLING (ALWAYS COPY INTO NEW CSS FILE) */
+/* Select all elements with id=logo */
+#logo {
+    padding-right: 25px;
+  }
+  
+/*Selects all elements with class name navbar-brand*/
+.navbar-brand {
+  font-family:'Trebuchet MS';
+  font-size: 18px !important;
+  color:white !important;
+  text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
+}
+
+/*Selects all elements with class name nav-link inside all elements with class name navbar-nav*/
+.navbar-nav .nav-link {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 100px;
+  color:rgb(33, 79, 136) !important;
+}
+
+#logout-btn {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  border-radius: 10px;
+}
+
+/* Highlights inactive page when user hovers over it */
+.navbar-nav .nav-link:not(.active) {
+  opacity: 0.45;
+}
+.navbar-nav .nav-link:not(.active):hover {
+  opacity: 1;
+}
+
+/* Hover effect for bigger viewports */
+@media (min-width: 992px) {
+  /* Same as before except editing with the after effect*/
+  .navbar-nav .nav-link::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 0;
+    background: rgba(10, 84, 174, 0.648);
+    transition: width 0.3s ease;
+  }
+  .navbar-nav .nav-link:hover::after{ 
+    cursor: pointer;
+    width: 100%;
+  }
+}
+/* Highlight effect for smaller viewports */
+@media (max-width: 991px) {
+  .navbar-nav .nav-link {
+    margin-left: 20px;
+  }
+  /* 240 142 106 */
+  .navbar-nav .nav-item:hover {
+    background-color: rgb(240, 152, 106);
+  }
+  #logout{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 15px;
+  }
+  #logout-btn {
+    padding-left: 50px;
+    padding-right: 50px;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-style: bold;
+    letter-spacing: 5px;
+  }
+}
+
+
+/* ABOUT PAGE STYLING */
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    overflow-x: hidden;
+}
+.header {
+    background-color: #00bfff;
+    color: #fff;
+    font-size: 4rem;
+    text-shadow: 2px 2px #333;
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.header img {
+    /* width: 100%; */
+    width: auto;
+    margin-right: 150px;
+    max-width: 200px;
+}
+#about-text {
+  padding-left: 150px;
+  padding-right: 150px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+.card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Change # of Cards on Page if on Smaller Viewports */
+@media (min-width: 576px) {
+    .card-columns {
+        column-count: 2;
+    }
+}
+@media (min-width: 1200px) {
+    .card-columns {
+        column-count: 4;
+    }
+}

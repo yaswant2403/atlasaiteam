@@ -1,0 +1,206 @@
+/* NAVBAR STYLING (ALWAYS COPY INTO NEW CSS FILE) */
+/* Select all elements with id=logo */
+#logo {
+  padding-right: 25px;
+}
+
+/*Selects all elements with class name navbar-brand*/
+.navbar-brand {
+  font-family:'Trebuchet MS';
+  font-size: 18px !important;
+  color:white !important;
+  text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
+}
+
+/*Selects all elements with class name nav-link inside all elements with class name navbar-nav*/
+.navbar-nav .nav-link {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 18px;
+  font-style: bold;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 100px;
+  color:rgb(33, 79, 136) !important;
+}
+
+#logout-btn {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  border-radius: 10px;
+}
+
+/* Highlights inactive page when user hovers over it */
+.navbar-nav .nav-link:not(.active) {
+  opacity: 0.45;
+}
+.navbar-nav .nav-link:not(.active):hover {
+  opacity: 1;
+}
+
+/* Hover effect for bigger viewports */
+@media (min-width: 992px) {
+  /* Same as before except editing with the after effect*/
+  .navbar-nav .nav-link::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 0;
+    background: rgba(10, 84, 174, 0.648);
+    transition: width 0.3s ease;
+  }
+  .navbar-nav .nav-link:hover::after{ 
+    cursor: pointer;
+    width: 100%;
+  }
+}
+/* Highlight effect for smaller viewports */
+@media (max-width: 991px) {
+  .navbar-nav .nav-link {
+    margin-left: 20px;
+  }
+  /* 240 142 106 */
+  .navbar-nav .nav-item:hover {
+    background-color: rgb(240, 152, 106);
+  }
+  #logout{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 15px;
+  }
+  #logout-btn {
+    padding-left: 50px;
+    padding-right: 50px;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-style: bold;
+    letter-spacing: 5px;
+  }
+}
+
+/* Spotlight PAGE Styling */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+  }
+
+#spotlight-details {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  box-sizing: border-box;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  border-radius: 10px;
+  border: 2px solid #c1baba;
+}
+
+#spotlight-details label {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.form-row .form-group {
+  padding-left: 50px;
+  padding-top: 15px;
+  padding-right: 50px;
+}
+
+.onlyfg {
+  padding-top: 10px;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+/* Custom Dropdown Icon */
+select {
+  padding: 10px;
+  padding-right: 30px;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat, repeat;
+  background-position: right .7em top 50%, 0 0;
+  background-size: .65em auto, 100%;
+}
+
+/* Hover Effect for Task Buttons */
+#tasks button {
+  transition: 0.25s;
+  &:hover { 
+    transform: translateY(-0.25em);
+  }
+}
+#addTasks:hover {
+  box-shadow: 0 1em 1em -0.4em #98CA32;
+  border-color: #98CA32;
+}
+#removeTask:hover {
+  box-shadow: 0 1em 1em -0.4em #D61A46;
+  border-color: #D61A46;
+}
+
+#response {
+  margin-top: 100px;
+  margin-bottom: 100px;
+  padding: 1em;
+  border-radius: 5px;
+  border: 3px solid #c1baba !important;
+}
+
+#response hr {
+  border-color: #7f7f7f;
+  border-width: 2px !important;
+}
+
+#response .col {
+  padding-top: 10px;
+}
+
+.border-right {
+  border-right-width: 2px !important;
+  border-right-color: #7f7f7f !important;
+}
+
+/* loading animation */
+/* Adopted from Håvard Brynjulfsen: https://codepen.io/havardob/pen/VjjJey */
+.loader {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 10px;
+  background: #3498DB;
+  border-radius: 5px;
+  animation: load 1.8s ease-in-out infinite;
+  &:before, &:after {
+    position: absolute;
+    display: block;
+    content: "";
+    animation: load 1.8s ease-in-out infinite;
+    height: 10px;
+    border-radius: 5px;
+  }
+}
+.loader::before {
+  top: -20px;
+  left: 10px;
+  width: 40px;
+  background: #EF4836;
+}
+.loader::after {
+  bottom: -20px;
+  width: 35px;
+  background: #F5AB35;
+}
+@keyframes load {
+  0% {
+    transform: translateX(40px);
+  }
+  50% {
+    transform: translateX(-30px);
+  }
+  100% {
+    transform: translateX(40px);
+  }
+}
