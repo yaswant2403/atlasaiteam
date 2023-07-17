@@ -177,6 +177,7 @@ app.get("/about", ensureAuthenticated, (req, res) => {
 });
 app.get("/account", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/account.html"));
+  // res.render(path.join(__dirname, "../client/html/account.ejs"), req.user.user_id);
 });
 app.get("/account/paragraphs", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/paragraphs.html"));
@@ -270,9 +271,31 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
   }
 })
 
-const isEmailValid = async (email) => {
-  return emailValidator.validate(email);
-}
+// const isEmailValid = async (email) => {
+//   return emailValidator.validate(email);
+// }
+
+
+
+// app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
+//   const inputEmail = req.body.net_id + "@illinois.edu"
+//   const { valid, reason, validators } = await isEmailValid(inputEmail);
+//   if (valid) {
+//     const exists = await existingNetID(req.body.net_id);
+//     if (exists != null) {
+//       var response = exists ? {message: "User already exists! Please provide another NetID."} : {message: "valid"};
+//       return res.status(200).send(response);
+//     }
+//     return res.status(500).send({
+//       message: "Something is wrong with our database. Please try again later or contact an Admin.", 
+//       reason: "db-error"});
+//   } else {
+//     return res.status(500).send({
+//       message: "Please provide a valid NetID!",
+//       reason: reason
+//     })
+//   }
+// })
 
 const existingNetID = async (net_id) => {
   try {
@@ -291,23 +314,85 @@ const existingNetID = async (net_id) => {
   }
 }
 
-app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
-  const inputEmail = req.body.net_id + "@illinois.edu"
-  const { valid, reason, validators } = await isEmailValid(inputEmail);
+const verifyNetID = async (net_id) => {
+  const inputEmail = net_id + "@illinois.edu";
+  const { valid, reason, validators } = await emailValidator.validate(inputEmail);
   if (valid) {
-    const exists = await existingNetID(req.body.net_id);
-    if (exists != null) {
-      var response = exists ? {message: "User already exists! Please provide another NetID."} : {message: "valid"};
-      return res.status(200).send(response);
+    const alreadyExists = await existingNetID(net_id);
+    if (alreadyExists != null) {
+      return alreadyExists ? {message: "User already exists! Please provide another NetID.", reason: "exists"} : {message: "valid", reason: null};
+    } else {
+      return {
+        message: "Something went wrong on our side. Please try again in a few moments or contact Admin if issue persists.", 
+        reason: "db-error"
+      };
     }
-    return res.status(500).send({
-      message: "Something is wrong with our database. Please try again later or contact an Admin.", 
-      reason: "db-error"});
   } else {
-    return res.status(500).send({
+    return {
       message: "Please provide a valid NetID!",
       reason: reason
-    })
+    };
+  }
+}
+
+app.post('/add-intern', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const verification = await verifyNetID(net_id);
+  if (verification.message == "valid") {
+    const name = req.body.name;
+    const season = req.body.term.slice(0, -4);
+    const year = req.body.term.slice(-4);
+    let term = "1" + year;
+    if (season == "Fall") {
+      term += "8";
+    } else if (season == "Summer") {
+      term += "5";
+    } else {
+      term += "1";
+    }
+    const spotlight_attempts = parseInt(req.body.attempts);
+    const created_by = req.session.passport.user;
+    const roles = [];
+    for (const role of req.body.roles) {
+      var user_role = {
+        role: role,
+        created_by: 'yse2',
+        last_modified_by: null,
+        last_modified_date: null
+      };
+      roles.push(user_role);
+    }
+    const newIntern = await User.create({
+      net_id: net_id,
+      name: name,
+      term: term,
+      created_by: created_by,
+      last_modified_by: null,
+      last_modified_date: null,
+      attempts: [{ 
+          spotlight_attempts: spotlight_attempts,
+          message_attempts: 0,
+          created_by: created_by,
+          last_modified_by: null,
+          last_modified_date: null
+      }],
+      user_roles: roles
+    }, {
+      include: [{ model: Action, as: 'attempts'},
+                { model: UserRole, as: 'user_roles'}]
+    });
+    let response = "";
+    if (newIntern) {
+      response = "User " + newIntern.net_id + " has been created! Reload the page to see the user in the table.";
+      return res.status(200).send({message: response});
+    } else {
+      return res.status(500).send({
+        message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
+        reason: "db-error"
+      });
+    }
+  } else {
+    return res.status(500).send(verification);
   }
 })
 /*****************************

@@ -104,35 +104,6 @@
           </button>
         </div>
       </div>
-      <!-- Verify Intern Modal -->
-      <div class="modal fade" id="verify-internID" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Add New ATLAS Intern</h5>
-              <button type="button" class="close close-verify" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form id="verify-intern"> <!--class  needs validation only for add form-->
-              <div class="modal-body pb-5">
-                <div class="form-row justify-content-center">
-                  <div class="form-group col-md-5 text-center">
-                    <label for="inputNetID">Enter the Intern's NetID:</label>
-                    <input type="text" class="form-control" id="inputNetID" placeholder="johndoe2" required>
-                  </div>
-                  <div class="alert alert-danger container-fluid text-center" id="invalid-net-ID" style="display: none;"></div>
-                </div>
-                <div id="loading" class="loader" style="display: none"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-verify-modal-btn">Close</button>
-                <button id="check-net-id" type="submit" form="verify-intern" class="btn btn-primary">Verify Net ID</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
       <!-- Add New Intern Modal -->
       <div class="modal fade" id="add-intern" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -144,26 +115,31 @@
               </button>
             </div>
             <form id="new-intern" clas="needs-validation" novalidate>
-              <div class="modal-body">
+              <h4 id="loading-text" class="text-center justify-content-center" 
+              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Adding Intern</h4>
+              <div id="loading" class="loader" style="display: none;"></div>
+              <div id="add-modal-body" class="modal-body">
                 <div class="form-row">
-                  <div class="form-group col-auto">
+                  <div class="form-group col-md-4">
                     <label for="newNetID">NetID:</label>
-                    <input type="text" class="form-control" id="newNetID" placeholder="johndoe2" readonly>
+                    <input type="text" class="form-control" id="newNetID" placeholder="johndoe2" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the intern's netID.</div>
                   </div>
-                  <div class="form-group col-auto">
+                  <div class="form-group col-md-4">
                     <label for="inputFirstName">First Name:</label>
                     <input type="text" class="form-control" id="inputFirstName" placeholder="John" required>
                     <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the intern's first name.</div>
+                    <div class="invalid-feedback">Please enter the first name.</div>
                   </div>
-                  <div class="form-group col-auto">
+                  <div class="form-group col-md-4">
                     <label for="inputLastName">Last Name:</label>
                     <input type="text" class="form-control" id="inputLastName" placeholder="Doe" required>
                     <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the intern's last name.</div>
+                    <div class="invalid-feedback">Please enter the last name.</div>
                   </div>
                 </div>
-                <div class="form-row justify-content-center pt-2">
+                <div class="form-row pt-2">
                   <div class="form-group col-md-3">
                     <label for="inputTerm">Term:</label>
                     <select id="inputTerm" class="form-control" required>
@@ -215,8 +191,7 @@
                     <label for="inputRoles" class="pr-2">Roles:</label>
                     <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
                     data-selected-text-format="count > 3" data-actions-box="true">
-                        <option selected disabled>Intern
-                        <span class="fa-solid fa-check"></span>
+                        <option selected disabled value="Intern">Intern
                         </option>
                         <option value="Admin">Admin</option>
                         <option value="Staff">Staff</option>
@@ -226,10 +201,117 @@
                     </small>
                   </div>
                 </div>
+                <div class="alert container-fluid text-center" id="add-alert" style="display: none;"></div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
                 <button id="continue-add" type="submit" form="new-intern" class="btn btn-primary">Continue</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Edit Intern Modal -->
+      <div class="modal fade" id="edit-intern-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit ATLAS Intern</h5>
+              <button type="button" class="close close-edit" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="edit-intern-form" clas="needs-validation" novalidate>
+              <h4 id="loading-text" class="text-center justify-content-center" 
+              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Editing Intern</h4>
+              <div id="loading" class="loader" style="display: none;"></div>
+              <div id="edit-modal-body" class="modal-body">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="editNetID">NetID:</label>
+                    <input type="text" class="form-control" id="editNetID" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the intern's netID.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="editFirstName">First Name:</label>
+                    <input type="text" class="form-control" id="editFirstName" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the first name.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="editLastName">Last Name:</label>
+                    <input type="text" class="form-control" id="editLastName" required>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please enter the last name.</div>
+                  </div>
+                </div>
+                <div class="form-row pt-2">
+                  <div class="form-group col-md-3">
+                    <label for="editTerm">Term:</label>
+                    <select id="editTerm" class="form-control" required>
+                        <option selected value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a term.</div>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="editYear">Year:</label>
+                    <select id="editYear" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Year</option>
+                        <!-- Adds current year and 4 after -->
+                        <script>
+                          let editDataDropdown = document.querySelector('#editYear');
+                          let editCurrentYear = new Date().getFullYear();
+                          for (let i = 0; i < 4; i++) {
+                              let option = document.createElement('option');
+                              option.value = editCurrentYear;
+                              option.text = editCurrentYear;
+                              editDataDropdown.add(option);
+                              editCurrentYear++;
+                          }
+                        </script>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a year.</div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="editAttempts">Spotlight Attempts:</label>
+                    <select id="editAttempts" class="form-control">
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        One attempt generates Three paragraphs
+                    </small>
+                    <small class="form-text text-muted">
+                        Three attempts generates Nine paragraphs
+                    </small>
+                  </div>
+                </div>
+                <div class="form-row pt-1">
+                  <div class="form-group col-md-5">
+                    <label for="editRoles" class="pr-2">Roles:</label>
+                    <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
+                    data-selected-text-format="count > 3" data-actions-box="true">
+                        <option selected disabled value="Intern">Intern
+                        </option>
+                        <option value="Admin">Admin</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Every new Intern will have Intern role. Other roles are optional.
+                    </small>
+                  </div>
+                </div>
+                <div class="alert container-fluid text-center" id="edit-alert" style="display: none;"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
+                <button id="save-edit" type="submit" form="edit-intern-form" class="btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>

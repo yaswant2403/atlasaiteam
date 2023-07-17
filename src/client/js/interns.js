@@ -28,10 +28,10 @@ const loadTable = async (e) => {
                     <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
                     <td class="text-center">
                         <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                            <a href="#" class="pl-4 pr-4 edit" data-toggle="modal" data-target="#add-intern"><i class="fas fa-edit link-info"></i></a>
+                            <a href="#" class="pl-4 pr-4 edit-intern" data-netid=${intern.net_id}><i class="fas fa-edit link-info"></i></a>
                         </span>
                         <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                            <a href="#" class="pr-4 delete" data-toggle="modal" data-target="#add-intern"><i class="fas fa-trash-alt link-danger"></i></a>
+                            <a href="#" class="pr-4 delete" data-netid=${intern.net_id}><i class="fas fa-trash-alt link-danger"></i></a>
                         </span>
                     </td>
                 `;
@@ -47,25 +47,24 @@ const loadTable = async (e) => {
 window.onload = loadTable;
 
 // grabbing the forms
-const verifyInternForm = document.querySelector('#verify-intern');
 const addInternForm = document.querySelector('#new-intern');
+const editForm = document.querySelector('#edit-intern-form');
+const cls = ['was-validated', 'alert-success', 'alert-danger'];
 
+// manually toggling modals because using data-target/dismiss doesn't work well with our logic of verification
 $(document).ready(function() {
+    // ensuring the modal is back to default everytime user clicks on Add Intern
     $('#add-intern-btn').click(_ => {
-        verifyInternForm.reset();
-        $('#verify-internID').modal('toggle');
-    })
-    $('.close-verify').click(_ => {
-        if (!invalid_netID.style.display) {
-            invalid_netID.style.display = "none"
-        }
-        $('#verify-internID').modal('toggle');
-    })
-    $('.close-verify-modal-btn').click(_ => {
-        if (!invalid_netID.style.display) {
-            invalid_netID.style.display = "none"
-        }
-        $('#verify-internID').modal('toggle');
+        $('#add-intern').modal('toggle');
+        addInternForm.reset();
+        addInternForm.classList.remove(...cls);
+        document.querySelector('.filter-option-inner-inner').innerText = "Intern";
+        document.querySelector('#add-modal-body').style.opacity = '1';
+        document.querySelector('#loading').style.display = 'none';
+        document.querySelector('#loading-text').style.display = 'none';
+        document.querySelector('#add-alert').style.display = 'none';
+        document.querySelector('#add-alert').classList.remove(...cls);
+        document.querySelector('#continue-add').style.display = null;
     })
     $('.close-add').click(_ => {
         $('#add-intern').modal('toggle');
@@ -73,97 +72,93 @@ $(document).ready(function() {
     $('.close-add-modal-btn').click(_ => {
         $('#add-intern').modal('toggle');
     })
-    $('#add-intern').on('show.bs.modal', function() {
-        addInternForm.reset();
-        if (addInternForm.classList.contains('was-validated')) {
-            addInternForm.classList.remove('was-validated');
-        }
+    $('.close-edit').click(_ => {
+        $('#edit-intern-modal').modal('toggle');
+    })
+    $('.close-edit-modal-btn').click(_ => {
+        $('#edit-intern-modal').modal('toggle');
+    })
+    // $('#edit-intern-modal').on('show.bs.modal', function(event) {
+    //     console.log(event.relatedTarget);
+    // })
+    $(document).on('click', '.edit-intern', _ => {
+        // alert("Hello!")
+        // console.log("hi");
+        $('#edit-intern-modal').modal('toggle');
+        editForm.reset();
+        console.log($('.edit-intern').data('netid'));
     });
 });
 
-// verifying netID function
-const invalid_netID = document.querySelector('#invalid-net-ID');
-const verifyNetID = async (net_id) => {
-    const verification = await fetch('/verify_net_id',{ // from server
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          net_id: net_id,
-        }) 
-    })
-    if (verification.ok) {
-        const validity = await verification.json();
-        console.log(validity);
-        if (validity.message == "valid") {
-            return true;
-        }
-        document.querySelector('#inputNetID').value = '';
-        invalid_netID.style.display = null;
-        invalid_netID.innerText = validity.message;
-        return false;
-    } else {
-        const invalid = await verification.json();
-        document.querySelector('#inputNetID').value = '';
-        invalid_netID.style.display = null;
-        invalid_netID.innerText = invalid.message;
-        console.log(invalid.reason);
-        return false;
-    }
-}
 
-// Handler For Verifying NetID Form 
-const handleVerifySubmit = async (e) => {
-    e.preventDefault();
-    // start loading animation
-    document.querySelector('#loading').style.display = "block";
-    // Verifying if netID is valid
-    const net_id = document.querySelector('#inputNetID').value;
-    if (invalid_netID.style.display != null) { // get rid of alert if it's visible
-        invalid_netID.style.display = "none";
-    }
-    const valid = await verifyNetID(net_id);
-    // stop loading animation
-    document.querySelector('#loading').style.display = "none";
-    console.log(valid);
-    if (valid) { 
-        console.log('Reached!');
-        $('#verify-internID').modal('toggle');
-        $('#add-intern').modal('toggle');
+// getting all the new intern form inputs
+function getNewInternInputs() {
+    const net_id = document.querySelector('#newNetID').value.trim();
+    const name = document.querySelector('#inputFirstName').value.trim() + ' ' +
+        document.querySelector('#inputLastName').value.trim();
+    const term = document.querySelector('#inputTerm').value + 
+        document.querySelector('#inputYear').value;
+    const attempts = document.querySelector('#inputAttempts').value;
+    var roles = ['Intern'];
+    roles = roles.concat($('#inputRoles').val());
+    return {
+        net_id: net_id,
+        name: name,
+        term: term,
+        attempts: attempts,
+        roles: roles
     };
 }
 
-verifyInternForm.addEventListener('submit', handleVerifySubmit, false);
-// function getNewInternInputs {
-//     const name = document.querySelector('#inputName').value.trim();
-//     const major = document.querySelector('#inputMajor').value.trim();
-//     const year = document.querySelector('#inputYear').value;
-//     const referral = document.querySelector('#inputReferral').value;
-//     let reference = referral;
-//     if (referral === "other") {
-//       reference = document.querySelector('#other-referral-input').value;
-//     }
-//     const sems = document.querySelector('#inputSems').value;
-//     const whyJoin = document.querySelector('#reasonForJoining').value.trim();
-//     const funFact = document.querySelector('#funFact').value.trim();
-//     const position = document.querySelector('#inputPosition').value.trim();
-//     const client = document.querySelector('#inputClient').value.trim();
-//     const task1 = document.querySelector('#inputTasks1').value.trim();
-//     const task2 = document.querySelector('#inputTasks2').value.trim();
-//     const task3 = document.querySelector('#inputTasks3').value.trim();
-// }
-
 const handleAddSubmit = async (e) => {
     e.preventDefault();
+    const add_alert = document.querySelector('#add-alert');
+    add_alert.classList.remove(...cls);
+    add_alert.classList.display = 'none';
+    add_alert.innerText = null;
     if (!addInternForm.checkValidity()) {
         console.log("Form is Invalid!");
         addInternForm.classList.add('was-validated');
     } else {
         addInternForm.classList.remove('was-validated');
-
+        const allInputs = getNewInternInputs();
+        const warning_message = "Are you sure you want to add " + allInputs.name + 
+            " and grant them the following roles: " + allInputs.roles.join(" ") + "?";
+        if(confirm(warning_message)) {
+            const add_intern_response = await fetch('/add-intern', {  // from server
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(allInputs) 
+            })
+            // loading animation enabled
+            document.querySelector('#loading').style.display = null;
+            document.querySelector('#loading-text').style.display = null;
+            document.querySelector('#add-modal-body').style.opacity = '0';
+            if (add_intern_response.ok) {
+                document.querySelector('#loading').style.display = 'none';
+                document.querySelector('#loading-text').style.display = 'none';
+                document.querySelector('#add-modal-body').style.opacity = '1';
+                const result = await add_intern_response.json();
+                addInternForm.reset();
+                add_alert.classList.add('alert-success');
+                add_alert.innerText = result.message;
+                add_alert.style.display = null;
+                document.querySelector('#continue-add').style.display = 'none';
+            } else {
+                document.querySelector('#loading').style.display = 'none';
+                document.querySelector('#loading-text').style.display = 'none';
+                document.querySelector('#add-modal-body').style.opacity = '1';
+                const result = await add_intern_response.json();
+                add_alert.classList.add('alert-danger');
+                add_alert.innerText = result.message;
+                add_alert.style.display = null;
+            }
+        }
     }
 }
 
 addInternForm.addEventListener('submit', handleAddSubmit, false);
+
