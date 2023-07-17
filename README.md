@@ -1,5 +1,17 @@
 # QuikScribe - Message and Image Generator
-## Done by ATLAS AI Team of Spring 2023
+## Done by ATLAS AI Team of Spring 2023 and Summer 2023
+
+After cloning repo locally, you will need to add an .env file similar to the dummy env file with your details. If you have a mySQL database set up, you'll need to edit the password and database name accordingly. In the future, we won't be creating our database. It will be made on cPanel and we will only query it for the admin page.
+#### Launch the App
+```bash
+cd spotlight-web-app
+npm ci
+npm run dev
+```
+
+Go to http://localhost:3000/ to see the website!
+
+IGNORE THE BELOW FOR NOW! It is outdated information.
 
 This project is a full-stack web appliction that uses OpenAI's gpt-3.5-turbo API along with NodeJS, HTML and CSS. The user enters information about the type of message they would like, and using those inputs, we send ChatGPT a prompt that generates a response which we display to the user on the frontend. Along with the message, we use ChatGPT to generate a DALL-E prompt, and send that prompt to DALL-E to create an image corresponding with the message.
 
