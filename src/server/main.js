@@ -356,7 +356,7 @@ app.post('/add-intern', ensureAuthenticated, async(req, res) => {
     for (const role of req.body.roles) {
       var user_role = {
         role: role,
-        created_by: 'yse2',
+        created_by: created_by,
         last_modified_by: null,
         last_modified_date: null
       };
@@ -398,8 +398,48 @@ app.post('/add-intern', ensureAuthenticated, async(req, res) => {
 
 app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
+  console.log(req.body);
   const verification = await existingNetID(net_id);
   if (verification) {
+    const name = req.body.name;
+    const season = req.body.term.slice(0, -4);
+    const year = req.body.term.slice(-4);
+    let term = "1" + year;
+    if (season == "Fall") {
+      term += "8";
+    } else if (season == "Summer") {
+      term += "5";
+    } else {
+      term += "1";
+    }
+    const spotlight_attempts = parseInt(req.body.attempts);
+    const last_modified_by = req.session.passport.user;
+    const roles = [];
+    for (const role of req.body.roles) {
+      var user_role = {
+        role: role,
+        last_modified_by: last_modified_by
+      };
+      roles.push(user_role);
+    }
+    const updateIntern = await User.update({
+      net_id: net_id,
+      name: name,
+      term: term,
+      last_modified_by: last_modified_by,
+      attempts: [{ 
+          spotlight_attempts: spotlight_attempts,
+          last_modified_by: last_modified_by,
+      }],
+      user_roles: roles
+    }, {
+      include: [{ model: Action, as: 'attempts'},
+                { model: UserRole, as: 'user_roles'}]
+    }, {
+      where: {
+        net_id: net_id
+      }
+    });
     return res.status(200).send({message: "User does exist!"});
   } else {
     return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
