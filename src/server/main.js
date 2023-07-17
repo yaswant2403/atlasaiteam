@@ -383,7 +383,7 @@ app.post('/add-intern', ensureAuthenticated, async(req, res) => {
     });
     let response = "";
     if (newIntern) {
-      response = "User " + newIntern.net_id + " has been created! Reload the page to see the user in the table.";
+      response = "User " + newIntern.net_id + " has been created!";
       return res.status(200).send({message: response});
     } else {
       return res.status(500).send({

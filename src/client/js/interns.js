@@ -2,7 +2,7 @@
 const table_body = document.querySelector('#intern-data');
 const no_interns = document.querySelector('#no-interns-alert');
 var interns = []; // storing them in a global variable so we don't have to keep fetching them
-const loadTable = async (e) => {
+async function loadTable(firstTime) {
     const allInterns = await fetch('/all-interns', {  // from server
         method: 'POST',
         headers: {
@@ -10,11 +10,37 @@ const loadTable = async (e) => {
         },
         credentials: 'same-origin'
     })
+    const interns = await allInterns.json();
     if (allInterns.ok) {
-        const interns = await allInterns.json();
-        if (interns[0].net_id == null) {
-            no_interns.style.display = null;
+        if (firstTime) {
+            if (interns[0].net_id == null) {
+                no_interns.style.display = null;
+            } else {
+                while (interns.length > 0) {
+                    var intern = interns.pop();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${intern.net_id}</td>
+                        <td>${intern.name}</td>
+                        <td>${intern.term}</td>
+                        <td>${intern.roles.join(', ')}</td>
+                        <td>${intern.attempts} of 3</td>
+                        <td>${intern.updatedBy}</td>
+                        <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
+                        <td class="text-center">
+                            <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                                <a href="#" class="pl-4 pr-4 edit-intern" data-netid=${intern.net_id}><i class="fas fa-edit link-info"></i></a>
+                            </span>
+                            <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                                <a href="#" class="pr-4 delete" data-netid=${intern.net_id}><i class="fas fa-trash-alt link-danger"></i></a>
+                            </span>
+                        </td>
+                    `;
+                    table_body.appendChild(tr);
+                }
+            }
         } else {
+            table_body.textContent = '';
             while (interns.length > 0) {
                 var intern = interns.pop();
                 const tr = document.createElement('tr');
@@ -41,10 +67,10 @@ const loadTable = async (e) => {
     } else {
         const errMessage = await allInterns.json();
         no_interns.style.display = null;
-        no_interns.innerText = errMessage.error + " Please try again.";
+        no_interns.innerText = errMessage.error + " Please refresh the page again.";
     }
 }
-window.onload = loadTable;
+window.onload = loadTable(true);
 
 // grabbing the forms
 const addInternForm = document.querySelector('#new-intern');
@@ -147,6 +173,7 @@ const handleAddSubmit = async (e) => {
                 add_alert.innerText = result.message;
                 add_alert.style.display = null;
                 document.querySelector('#continue-add').style.display = 'none';
+                loadTable();
             } else {
                 document.querySelector('#loading').style.display = 'none';
                 document.querySelector('#loading-text').style.display = 'none';
