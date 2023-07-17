@@ -395,6 +395,72 @@ app.post('/add-intern', ensureAuthenticated, async(req, res) => {
     return res.status(500).send(verification);
   }
 })
+
+app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    return res.status(200).send({message: "User does exist!"});
+  } else {
+    return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
+  }
+  // if (verification.message == "valid") {
+  //   const name = req.body.name;
+  //   const season = req.body.term.slice(0, -4);
+  //   const year = req.body.term.slice(-4);
+  //   let term = "1" + year;
+  //   if (season == "Fall") {
+  //     term += "8";
+  //   } else if (season == "Summer") {
+  //     term += "5";
+  //   } else {
+  //     term += "1";
+  //   }
+  //   const spotlight_attempts = parseInt(req.body.attempts);
+  //   const created_by = req.session.passport.user;
+  //   const roles = [];
+  //   for (const role of req.body.roles) {
+  //     var user_role = {
+  //       role: role,
+  //       created_by: 'yse2',
+  //       last_modified_by: null,
+  //       last_modified_date: null
+  //     };
+  //     roles.push(user_role);
+  //   }
+  //   const newIntern = await User.create({
+  //     net_id: net_id,
+  //     name: name,
+  //     term: term,
+  //     created_by: created_by,
+  //     last_modified_by: null,
+  //     last_modified_date: null,
+  //     attempts: [{ 
+  //         spotlight_attempts: spotlight_attempts,
+  //         message_attempts: 0,
+  //         created_by: created_by,
+  //         last_modified_by: null,
+  //         last_modified_date: null
+  //     }],
+  //     user_roles: roles
+  //   }, {
+  //     include: [{ model: Action, as: 'attempts'},
+  //               { model: UserRole, as: 'user_roles'}]
+  //   });
+  //   let response = "";
+  //   if (newIntern) {
+  //     response = "User " + newIntern.net_id + " has been created!";
+  //     return res.status(200).send({message: response});
+  //   } else {
+  //     return res.status(500).send({
+  //       message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
+  //       reason: "db-error"
+  //     });
+  //   }
+  // } else {
+  //   return res.status(500).send(verification);
+  // }
+})
 /*****************************
  * Form Submission POST Routes
  *****************************/

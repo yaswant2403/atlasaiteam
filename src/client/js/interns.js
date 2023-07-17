@@ -106,11 +106,18 @@ $(document).ready(function() {
     $('.close-edit-modal-btn').click(_ => {
         $('#edit-intern-modal').modal('toggle');
     })
+    // toggle edit user modal
     $(document).on('click', '.edit-intern', function() {
         var user = $(this).attr('data-user')
         $('#edit-intern-modal').attr("data-user", user).modal('toggle');
-        document.querySelector('#edit-intern-modal .filter-option-inner-inner').innerText = "Intern";
         editForm.reset();
+        document.querySelector('#edit-intern-modal .filter-option-inner-inner').innerText = "Intern";
+        editForm.classList.remove(...cls);
+        document.querySelector('#edit-modal-body').style.opacity = '1';
+        document.querySelector('#edit-loading').style.display = 'none';
+        document.querySelector('#edit-loading-text').style.display = 'none';
+        document.querySelector('#edit-alert').style.display = 'none';
+        document.querySelector('#edit-alert').classList.remove(...cls);
     });
     // displays all users data in the form
     $('#edit-intern-modal').on('shown.bs.modal', function(event) {
@@ -135,9 +142,6 @@ $(document).ready(function() {
         $('#editRoles').val(user.roles);
         document.querySelector('#edit-intern-modal .filter-option-inner-inner').innerText = user.roles.join(", ");
     })
-    //         console.log($(this))
-    // var uid = $(this).attr('data-netid');
-    // console.log(uid)
 });
 
 
@@ -151,6 +155,24 @@ function getNewInternInputs() {
     const attempts = document.querySelector('#inputAttempts').value;
     var roles = ['Intern'];
     roles = roles.concat($('#inputRoles').val());
+    return {
+        net_id: net_id,
+        name: name,
+        term: term,
+        attempts: attempts,
+        roles: roles
+    };
+}
+// getting all the edit form inputs
+function getEditInternInputs() {
+    const net_id = document.querySelector('#editNetID').value.trim();
+    const name = document.querySelector('#editFirstName').value.trim() + ' ' +
+        document.querySelector('#editLastName').value.trim();
+    const term = document.querySelector('#editTerm').value + 
+        document.querySelector('#editYear').value;
+    const attempts = document.querySelector('#editAttempts').value;
+    var roles = ['Intern'];
+    roles = roles.concat($('#editRoles').val());
     return {
         net_id: net_id,
         name: name,
@@ -211,5 +233,49 @@ const handleAddSubmit = async (e) => {
     }
 }
 
-addInternForm.addEventListener('submit', handleAddSubmit, false);
+const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const edit_alert = document.querySelector('#edit-alert');
+    edit_alert.classList.remove(...cls);
+    edit_alert.classList.display = 'none';
+    edit_alert.innerText = null;
+    if (!editForm.checkValidity()) {
+        console.log("Form is Invalid!");
+        editForm.classList.add('was-validated');
+    } else {
+        editForm.classList.remove('was-validated');
+        // loading animation enabled
+        document.querySelector('#edit-loading').style.display = null;
+        document.querySelector('#edit-loading-text').style.display = null;
+        document.querySelector('#edit-modal-body').style.opacity = '0';
+        const allInputs = getEditInternInputs();
+        const edit_intern_response = await fetch('/edit-intern', {  // from server
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(allInputs) 
+        })
+        if (edit_intern_response.ok) {
+            document.querySelector('#edit-loading').style.display = 'none';
+            document.querySelector('#edit-loading-text').style.display = 'none';
+            document.querySelector('#edit-modal-body').style.opacity = '1';
+            const result = await edit_intern_response.json();
+            edit_alert.classList.add('alert-success');
+            edit_alert.innerText = result.message;
+            edit_alert.style.display = null;
+        } else {
+            document.querySelector('#edit-loading').style.display = 'none';
+            document.querySelector('#edit-loading-text').style.display = 'none';
+            document.querySelector('#edit-modal-body').style.opacity = '1';
+            const result = await edit_intern_response.json();
+            edit_alert.classList.add('alert-danger');
+            edit_alert.innerText = result.message;
+            edit_alert.style.display = null;
+        }
+    }
+}
 
+addInternForm.addEventListener('submit', handleAddSubmit, false);
+editForm.addEventListener('submit', handleEditSubmit, false);
