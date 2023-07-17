@@ -1,7 +1,7 @@
 // Loading in All Intern Data into Table
 const table_body = document.querySelector('#intern-data');
 const no_interns = document.querySelector('#no-interns-alert');
-var interns = []; // storing them in a global variable so we don't have to keep fetching them
+// var interns = []; // storing them in a global variable so we don't have to keep fetching them
 async function loadTable(firstTime) {
     const allInterns = await fetch('/all-interns', {  // from server
         method: 'POST',
@@ -18,6 +18,7 @@ async function loadTable(firstTime) {
             } else {
                 while (interns.length > 0) {
                     var intern = interns.pop();
+                    var user_data = JSON.stringify(intern);
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${intern.net_id}</td>
@@ -29,10 +30,10 @@ async function loadTable(firstTime) {
                         <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
                         <td class="text-center">
                             <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                                <a href="#" class="pl-4 pr-4 edit-intern" data-netid=${intern.net_id}><i class="fas fa-edit link-info"></i></a>
+                                <a href="#" class="pl-4 pr-4 edit-intern" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
                             </span>
                             <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                                <a href="#" class="pr-4 delete" data-netid=${intern.net_id}><i class="fas fa-trash-alt link-danger"></i></a>
+                                <a href="#" class="pr-4 delete-intern" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
                             </span>
                         </td>
                     `;
@@ -43,6 +44,7 @@ async function loadTable(firstTime) {
             table_body.textContent = '';
             while (interns.length > 0) {
                 var intern = interns.pop();
+                var user_data = JSON.stringify(intern);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${intern.net_id}</td>
@@ -54,10 +56,10 @@ async function loadTable(firstTime) {
                     <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
                     <td class="text-center">
                         <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                            <a href="#" class="pl-4 pr-4 edit-intern" data-netid=${intern.net_id}><i class="fas fa-edit link-info"></i></a>
+                            <a href="#" class="pl-4 pr-4 edit-intern" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
                         </span>
                         <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                            <a href="#" class="pr-4 delete" data-netid=${intern.net_id}><i class="fas fa-trash-alt link-danger"></i></a>
+                            <a href="#" class="pr-4 delete-intern" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
                         </span>
                     </td>
                 `;
@@ -84,7 +86,7 @@ $(document).ready(function() {
         $('#add-intern').modal('toggle');
         addInternForm.reset();
         addInternForm.classList.remove(...cls);
-        document.querySelector('.filter-option-inner-inner').innerText = "Intern";
+        document.querySelector('#add-intern .filter-option-inner-inner').innerText = "Intern";
         document.querySelector('#add-modal-body').style.opacity = '1';
         document.querySelector('#loading').style.display = 'none';
         document.querySelector('#loading-text').style.display = 'none';
@@ -104,16 +106,38 @@ $(document).ready(function() {
     $('.close-edit-modal-btn').click(_ => {
         $('#edit-intern-modal').modal('toggle');
     })
-    // $('#edit-intern-modal').on('show.bs.modal', function(event) {
-    //     console.log(event.relatedTarget);
-    // })
-    $(document).on('click', '.edit-intern', _ => {
-        // alert("Hello!")
-        // console.log("hi");
-        $('#edit-intern-modal').modal('toggle');
+    $(document).on('click', '.edit-intern', function() {
+        var user = $(this).attr('data-user')
+        $('#edit-intern-modal').attr("data-user", user).modal('toggle');
+        document.querySelector('#edit-intern-modal .filter-option-inner-inner').innerText = "Intern";
         editForm.reset();
-        console.log($('.edit-intern').data('netid'));
     });
+    // displays all users data in the form
+    $('#edit-intern-modal').on('shown.bs.modal', function(event) {
+        var modal = $(this);
+        var user = JSON.parse(modal.attr('data-user'));
+        var user_title = 'Edit ATLAS Intern : ' + user.name;
+        modal.find('.modal-title').text(user_title);
+        document.querySelector('#editNetID').value = user.net_id;
+        document.querySelector('#editFirstName').value = user.name.split(" ")[0];
+        document.querySelector('#editLastName').value = user.name.split(" ")[1];
+        var season = user.term.slice(0, -4);
+        if (season == "SU") {
+            document.querySelector('#editTerm').value = "Summer";
+        } else if (season == "SP") {
+            document.querySelector('#editTerm').value = "Spring";
+        } else {
+            document.querySelector('#editTerm').value = "Fall";
+        }
+        var year = user.term.slice(-4);
+        document.querySelector('#editYear').value = year;
+        document.querySelector('#editAttempts').value = user.attempts;
+        $('#editRoles').val(user.roles);
+        document.querySelector('#edit-intern-modal .filter-option-inner-inner').innerText = user.roles.join(", ");
+    })
+    //         console.log($(this))
+    // var uid = $(this).attr('data-netid');
+    // console.log(uid)
 });
 
 
