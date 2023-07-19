@@ -182,6 +182,8 @@ function getEditInternInputs() {
     };
 }
 
+// submit handler for Adding Intern Form
+
 const handleAddSubmit = async (e) => {
     e.preventDefault();
     const add_alert = document.querySelector('#add-alert');
@@ -233,6 +235,7 @@ const handleAddSubmit = async (e) => {
     }
 }
 
+// submit handler for Editing Intern Form
 const handleEditSubmit = async (e) => {
     e.preventDefault();
     const edit_alert = document.querySelector('#edit-alert');
