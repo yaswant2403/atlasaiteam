@@ -177,21 +177,50 @@ app.get("/about", ensureAuthenticated, (req, res) => {
 });
 app.get("/account", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/html/account.html"));
-  // res.render(path.join(__dirname, "../client/html/account.ejs"), req.user.user_id);
 });
-app.get("/account/paragraphs", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/paragraphs.html"));
+// using dynamic routing to serve all the subpages on /account
+app.get("/account/:pageName", ensureAuthenticated, (req, res) => {
+  const pageName = req.params.pageName;
+  res.sendFile(path.join(__dirname, `../client/html/account/${pageName}.html`));
 });
-app.get("/account/interns", ensureAuthenticated, (req, res) => {
-  // console.log(req);
-  res.sendFile(path.join(__dirname, "../client/html/interns.html"));
-});
-app.get("/account/staff", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/staff.html"));
-});
-app.get("/account/users", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/allusers.html"));
-});
+
+const existingNetID = async (net_id) => {
+  try {
+    const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
+      where: {
+        net_id: net_id
+      }
+    })
+    if (user) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log("There was an error checking if this intern exists or not: ", error);
+    return null;
+  }
+}
+
+const verifyNetID = async (net_id) => {
+  const inputEmail = net_id + "@illinois.edu";
+  const { valid, reason, validators } = await emailValidator.validate(inputEmail);
+  if (valid) {
+    const alreadyExists = await existingNetID(net_id);
+    if (alreadyExists != null) {
+      return alreadyExists ? {message: "User already exists! Please provide another NetID.", reason: "exists"} : {message: "valid", reason: null};
+    } else {
+      return {
+        message: "Something went wrong on our side. Please try again in a few moments or contact Admin if issue persists.", 
+        reason: "db-error"
+      };
+    }
+  } else {
+    return {
+      message: "Please provide a valid NetID!",
+      reason: reason
+    };
+  }
+}
 
 app.post('/all-interns', ensureAuthenticated, async(req, res) => {
   try {
@@ -270,44 +299,6 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
     }) 
   }
 })
-
-const existingNetID = async (net_id) => {
-  try {
-    const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
-      where: {
-        net_id: net_id
-      }
-    })
-    if (user) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.log("There was an error checking if this intern exists or not: ", error);
-    return null;
-  }
-}
-
-const verifyNetID = async (net_id) => {
-  const inputEmail = net_id + "@illinois.edu";
-  const { valid, reason, validators } = await emailValidator.validate(inputEmail);
-  if (valid) {
-    const alreadyExists = await existingNetID(net_id);
-    if (alreadyExists != null) {
-      return alreadyExists ? {message: "User already exists! Please provide another NetID.", reason: "exists"} : {message: "valid", reason: null};
-    } else {
-      return {
-        message: "Something went wrong on our side. Please try again in a few moments or contact Admin if issue persists.", 
-        reason: "db-error"
-      };
-    }
-  } else {
-    return {
-      message: "Please provide a valid NetID!",
-      reason: reason
-    };
-  }
-}
 
 app.post('/add-intern', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
@@ -450,6 +441,8 @@ app.post('/delete-intern', ensureAuthenticated, async(req, res) => {
     return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
   }
 })
+
+
 /*****************************
  * Form Submission POST Routes
  *****************************/
