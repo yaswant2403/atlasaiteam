@@ -2,7 +2,7 @@
 const table_body = document.querySelector('#intern-data');
 const no_interns = document.querySelector('#no-interns-alert');
 // var interns = []; // storing them in a global variable so we don't have to keep fetching them
-async function loadTable(firstTime) {
+async function loadTable() {
     const allInterns = await fetch('/all-interns', {  // from server
         method: 'POST',
         headers: {
@@ -12,46 +12,18 @@ async function loadTable(firstTime) {
     })
     const interns = await allInterns.json();
     if (allInterns.ok) {
-        if (firstTime) {
-            if (interns[0].net_id == null) { // no interns found
-                no_interns.style.display = null;
-            } else {
-                const totalPages = Math.ceil(interns.length/15);
-                $('#page-selection').bootpag({
-                    total: totalPages,
-                    maxVisible: 5
-                }).on('page', function(e, num) {
-                    $("#test").html("Page " + num);
-                })
-                $("#page-selection li").addClass('page-item');
-                $("#page-selection a").addClass('page-link');
-                while (interns.length > 0) {
-                    var intern = interns.pop();
-                    var user_data = JSON.stringify(intern);
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-name', intern.name);
-                    tr.innerHTML = `
-                        <td>${intern.net_id}</td>
-                        <td>${intern.name}</td>
-                        <td>${intern.term}</td>
-                        <td>${intern.roles.join(', ')}</td>
-                        <td>${intern.attempts} of 3</td>
-                        <td>${intern.updatedBy}</td>
-                        <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
-                        <td class="text-center">
-                            <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                                <a href="#" class="pl-4 pr-4 edit-intern" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
-                            </span>
-                            <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                                <a href="#" class="pr-4 delete-intern" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
-                            </span>
-                        </td>
-                    `;
-                    table_body.appendChild(tr);
-                }
-            }
+        if (interns[0].net_id == null) { // no interns found
+            no_interns.style.display = null;
         } else {
-            table_body.textContent = '';
+            const totalPages = Math.ceil(interns.length/15);
+            $('#page-selection').bootpag({
+                total: totalPages,
+                maxVisible: 5
+            }).on('page', function(e, num) {
+                $("#test").html("Page " + num);
+            })
+            $("#page-selection li").addClass('page-item');
+            $("#page-selection a").addClass('page-link');
             while (interns.length > 0) {
                 var intern = interns.pop();
                 var user_data = JSON.stringify(intern);
@@ -83,7 +55,7 @@ async function loadTable(firstTime) {
         no_interns.innerText = errMessage.error + " Please refresh the page again.";
     }
 }
-window.onload = loadTable(true);
+window.onload = loadTable();
 
 // grabbing the forms
 const addInternForm = document.querySelector('#new-intern');
@@ -280,7 +252,8 @@ const handleAddSubmit = async (e) => {
                 add_alert.innerText = result.message;
                 add_alert.style.display = null;
                 document.querySelector('#continue-add').style.display = 'none';
-                loadTable();
+                table_body.textContent = ''; // clear the current table
+                loadTable(); // load the table again
             } else {
                 document.querySelector('#loading').style.display = 'none';
                 document.querySelector('#loading-text').style.display = 'none';
@@ -327,6 +300,7 @@ const handleEditSubmit = async (e) => {
             edit_alert.classList.add('alert-success');
             edit_alert.innerText = result.message;
             edit_alert.style.display = null;
+            table_body.textContent = ''; //clear the current table
             loadTable(); // update the table
         } else {
             document.querySelector('#edit-loading').style.display = 'none';
@@ -369,6 +343,7 @@ const handleDeleteSubmit = async (e) => {
         delete_alert.classList.add('alert-success');
         delete_alert.innerText = result.message;
         delete_alert.style.display = null;
+        table_body.textContent = ''; // clear the current table
         loadTable(); // update the table
         $('#delete-intern-modal').modal('toggle');
     } else {

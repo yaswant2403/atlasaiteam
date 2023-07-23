@@ -92,7 +92,7 @@ app.use(expressSession({
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // expiration data of cookie (will delete itself from our database)
+    maxAge: 1000 * 60 * 60 * 24 * 5, // expiration data of cookie (will delete itself from our database) after 5 days
     secure: false // set to true if using https
   }
 }))
