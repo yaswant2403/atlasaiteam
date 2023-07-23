@@ -38,7 +38,7 @@ passport = auth.passport;
 /******************************************************************************
  * Database Models
  *****************************************************************************/
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 var User = auth.User;
 var Action = auth.Action;
 var Role = auth.Role;
@@ -246,7 +246,7 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
           updatedDate = intern.created_date;
         } else {
           updatedBy = intern.last_modified_by;
-          updatedDate = intern.created_date; // change this
+          updatedDate = intern.last_modified_date;
         }
         response.push ({
           net_id: intern.net_id,
@@ -270,32 +270,6 @@ app.post('/all-interns', ensureAuthenticated, async(req, res) => {
     }) 
   }
 })
-
-// const isEmailValid = async (email) => {
-//   return emailValidator.validate(email);
-// }
-
-
-
-// app.post('/verify_net_id', ensureAuthenticated, async(req, res) => {
-//   const inputEmail = req.body.net_id + "@illinois.edu"
-//   const { valid, reason, validators } = await isEmailValid(inputEmail);
-//   if (valid) {
-//     const exists = await existingNetID(req.body.net_id);
-//     if (exists != null) {
-//       var response = exists ? {message: "User already exists! Please provide another NetID."} : {message: "valid"};
-//       return res.status(200).send(response);
-//     }
-//     return res.status(500).send({
-//       message: "Something is wrong with our database. Please try again later or contact an Admin.", 
-//       reason: "db-error"});
-//   } else {
-//     return res.status(500).send({
-//       message: "Please provide a valid NetID!",
-//       reason: reason
-//     })
-//   }
-// })
 
 const existingNetID = async (net_id) => {
   try {
@@ -398,9 +372,9 @@ app.post('/add-intern', ensureAuthenticated, async(req, res) => {
 
 app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
-  console.log(req.body);
   const verification = await existingNetID(net_id);
   if (verification) {
+    let message = "";
     const name = req.body.name;
     const season = req.body.term.slice(0, -4);
     const year = req.body.term.slice(-4);
@@ -414,92 +388,67 @@ app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
     }
     const spotlight_attempts = parseInt(req.body.attempts);
     const last_modified_by = req.session.passport.user;
-    const roles = [];
-    for (const role of req.body.roles) {
-      var user_role = {
-        role: role,
-        last_modified_by: last_modified_by
-      };
-      roles.push(user_role);
-    }
     const updateIntern = await User.update({
       net_id: net_id,
       name: name,
       term: term,
       last_modified_by: last_modified_by,
-      attempts: [{ 
-          spotlight_attempts: spotlight_attempts,
-          last_modified_by: last_modified_by,
-      }],
-      user_roles: roles
-    }, {
-      where: {
-        net_id: net_id
-      }
-    },{
-      include: [{ model: Action, as: 'attempts'},
-                { model: UserRole, as: 'user_roles'}]
+      last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP') 
+    },
+    {
+      where: { net_id: net_id }
     });
-    return res.status(200).send({message: "User has been edited!"});
+    if (updateIntern[0] == 1) {
+      const editedUser = await User.findOne({
+        where: {
+          net_id: net_id
+        },
+        attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']}
+      });
+      const editUserAttempts = await Action.update({
+        spotlight_attempts: spotlight_attempts,
+        message_attempts: 3,
+        last_modified_by: last_modified_by,
+        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      {
+        where: { user_id: editedUser.user_id } 
+      });
+      const editUserRoles = await editedUser.setRoles(req.body.roles, {
+        through: {created_by: last_modified_by, 
+                  created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
+                  last_modified_by: last_modified_by,  
+                  last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+                }
+      });
+      if (editUserRoles) {
+        message = "User " + net_id + " has been edited successfully!"
+      } else {
+        message = "There was an error updating user " + net_id + "'s roles!"
+      }
+    } else {
+      message = "We couldn't. Please double check the NetID and try again!"
+    }
+    return res.status(200).send({message: message});
   } else {
     return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
   }
-  // if (verification.message == "valid") {
-  //   const name = req.body.name;
-  //   const season = req.body.term.slice(0, -4);
-  //   const year = req.body.term.slice(-4);
-  //   let term = "1" + year;
-  //   if (season == "Fall") {
-  //     term += "8";
-  //   } else if (season == "Summer") {
-  //     term += "5";
-  //   } else {
-  //     term += "1";
-  //   }
-  //   const spotlight_attempts = parseInt(req.body.attempts);
-  //   const created_by = req.session.passport.user;
-  //   const roles = [];
-  //   for (const role of req.body.roles) {
-  //     var user_role = {
-  //       role: role,
-  //       created_by: 'yse2',
-  //       last_modified_by: null,
-  //       last_modified_date: null
-  //     };
-  //     roles.push(user_role);
-  //   }
-  //   const newIntern = await User.create({
-  //     net_id: net_id,
-  //     name: name,
-  //     term: term,
-  //     created_by: created_by,
-  //     last_modified_by: null,
-  //     last_modified_date: null,
-  //     attempts: [{ 
-  //         spotlight_attempts: spotlight_attempts,
-  //         message_attempts: 0,
-  //         created_by: created_by,
-  //         last_modified_by: null,
-  //         last_modified_date: null
-  //     }],
-  //     user_roles: roles
-  //   }, {
-  //     include: [{ model: Action, as: 'attempts'},
-  //               { model: UserRole, as: 'user_roles'}]
-  //   });
-  //   let response = "";
-  //   if (newIntern) {
-  //     response = "User " + newIntern.net_id + " has been created!";
-  //     return res.status(200).send({message: response});
-  //   } else {
-  //     return res.status(500).send({
-  //       message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
-  //       reason: "db-error"
-  //     });
-  //   }
-  // } else {
-  //   return res.status(500).send(verification);
-  // }
+})
+
+app.post('/delete-intern', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  console.log(net_id);
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    await User.destroy(
+    {
+      where: { net_id: net_id }
+    });
+    const message = "User " + req.body.net_id + " has been deleted!";
+    return res.status(200).send({message: message});
+  } else {
+    return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
+  }
 })
 /*****************************
  * Form Submission POST Routes

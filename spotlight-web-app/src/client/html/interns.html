@@ -116,15 +116,13 @@
             </div>
             <form id="new-intern" clas="needs-validation" novalidate>
               <h4 id="loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Adding Intern</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Adding Intern</h4>
               <div id="loading" class="loader" style="display: none;"></div>
               <div id="add-modal-body" class="modal-body">
                 <div class="form-row">
                   <div class="form-group col-md-4">
                     <label for="newNetID">NetID:</label>
                     <input type="text" class="form-control" id="newNetID" placeholder="johndoe2" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the intern's netID.</div>
                   </div>
                   <div class="form-group col-md-4">
                     <label for="inputFirstName">First Name:</label>
@@ -223,7 +221,7 @@
             </div>
             <form id="edit-intern-form" clas="needs-validation" novalidate>
               <h4 id="edit-loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 40%; z-index: 1;">Editing Intern</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Intern</h4>
               <div id="edit-loading" class="loader" style="display: none;"></div>
               <div id="edit-modal-body" class="modal-body">
                 <div class="form-row">
@@ -312,6 +310,69 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
                 <button id="save-edit" type="submit" form="edit-intern-form" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Delete Intern Modal -->
+      <div class="modal fade" id="delete-intern-modal">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" style="color: red;"></h5>
+              <button type="button" class="close close-delete" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form id="delete-intern-form">
+              <h4 id="delete-loading-text" class="text-center justify-content-center" 
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Deleting Intern</h4>
+              <div id="delete-loading" class="loader" style="display: none;"></div>
+              <div id="delete-modal-body" class="modal-body">
+                <div class="form-row">
+                  <h5 class="warning p-2">
+                    This data will NOT be recoverable.
+                    This action also <span style="text-decoration: underline">deletes their</span><span style="color: red"> paragraph</span> and all the following info: 
+                  </h5>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="deleteNetID">NetID:</label>
+                    <input type="text" class="form-control" id="deleteNetID" disabled required>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="deleteFirstName">First Name:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="deleteLastName">Last Name:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                </div>
+                <div class="form-row pt-2">
+                  <div class="form-group col-md-3">
+                    <label for="deleteTerm">Term:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="deleteYear">Year:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="deleteAttempts">Spotlight Attempts:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="deleteRoles" class="pr-2">Roles:</label>
+                    <input type="text" class="form-control" disabled>
+                  </div>
+                </div>
+                <div class="alert container-fluid text-center" id="delete-alert" style="display: none;"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-delete-modal-btn">Close</button>
+                <button id="delete-btn" type="submit" form="delete-intern-form" class="btn btn-danger">DELETE Intern</button>
               </div>
             </form>
           </div>
