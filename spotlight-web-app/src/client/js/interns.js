@@ -13,9 +13,18 @@ async function loadTable(firstTime) {
     const interns = await allInterns.json();
     if (allInterns.ok) {
         if (firstTime) {
-            if (interns[0].net_id == null) {
+            if (interns[0].net_id == null) { // no interns found
                 no_interns.style.display = null;
             } else {
+                const totalPages = Math.ceil(interns.length/15);
+                $('#page-selection').bootpag({
+                    total: totalPages,
+                    maxVisible: 5
+                }).on('page', function(e, num) {
+                    $("#test").html("Page " + num);
+                })
+                $("#page-selection li").addClass('page-item');
+                $("#page-selection a").addClass('page-link');
                 while (interns.length > 0) {
                     var intern = interns.pop();
                     var user_data = JSON.stringify(intern);
