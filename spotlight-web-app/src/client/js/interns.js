@@ -6,6 +6,7 @@ const no_interns = document.querySelector('#no-interns-alert');
  * Appends all the interns in intern_arr to the table_body
  */
 function appendToTable(intern_arr) {
+    console.log("This is the array being sent to appendToTable: ", JSON.stringify(intern_arr));
     table_body.textContent = ''; // clear the current table since this function is called multiple times when using pagination
     while (intern_arr.length > 0) {
         var intern = intern_arr.pop();
@@ -44,11 +45,13 @@ async function loadTable() {
         credentials: 'same-origin'
     })
     const interns = await allInterns.json();
-    // const interns = [{net_id: null}];
     const totalPages = Math.ceil(interns.length/15); 
     const pagination = $('#page-selection').bootpag({
         total: totalPages, // 15 interns on each page
         page: 1,
+        firstLastUse: true,
+        first: '⇤',
+        last: '⇥',
         maxVisible: 5
     })
     $("#page-selection li").addClass('page-item');
@@ -67,11 +70,12 @@ async function loadTable() {
                 appendToTable(first15); // on window load, display only the first 15
                 pagination.on('page', function(e, pg_num) {
                     if (pg_num == 1) {
-                        appendToTable(first15);
+                        console.log("This is the first page!", typeof(pg_num));
+                        appendToTable(interns.slice(0, 15));
                     } else {
                         // if the arr > 15 * pg_num, then add the multiple of 15 to current page and add the rest to the next page
                         // otherwise add the remaining of arr to the current page.
-                        const overflow = (15*pg_num) - interns.length;
+                        const overflow = (15 * pg_num) - interns.length;
                         if (overflow >= 0) {
                             const intern_group = interns.slice((pg_num - 1) * 15, interns.length);
                             appendToTable(intern_group);
@@ -82,22 +86,6 @@ async function loadTable() {
                     }
                 })
             }
-            // Dynamic Pagination
-            //const totalPages = Math.ceil(interns.length/15);
-            //.on('page', function(e, num) {
-            //     if (num < 2) {
-            //         // do nothing
-            //     }
-            //     if (interns.length)
-            //     $("#test").html("Page " + num);
-            // })
-            // $("#page-selection li").addClass('page-item');
-            // $("#page-selection a").addClass('page-link');
-            // Grabbing the first 15 interns and displaying them
-            // if (interns.length > 15) {
-            //     const first15 = interns.slice(0, 15);
-            // }
-
         }
     } else {
         const errMessage = await allInterns.json();
@@ -105,6 +93,7 @@ async function loadTable() {
         no_interns.innerText = errMessage.error + " Please refresh the page again.";
     }
 }
+
 window.onload = loadTable();
 
 // grabbing the forms
