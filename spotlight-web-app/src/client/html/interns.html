@@ -81,23 +81,14 @@
       <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">ATLAS Interns</h2>
       <!-- Input search, filter, add button -->
       <div class="row pb-2">
-        <div class="col-md-5 pb-sm-2">
+        <div class="col-md-10 pb-sm-2">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text text-bg-primary"><i class="fas fa-search"></i></span>
             </div>
-            <input type="text" class="form-control" placeholder="Search by Name">
+            <input id="search" type="text" class="form-control" placeholder="Search by Name">
           </div>
         </div>
-        <div class="col-md-5 pb-sm-2">
-          <select id="sort" class="form-control">
-            <option value="" disabled selected hidden>Filter By</option>
-            <option value="name-a-z">Name</option>
-            <option value="term">Term</option>
-            <option value="role">Role</option>
-            <option value="other">Other</option>
-          </select>
-        </div> 
         <div class="col-md-2 text-center">
           <button id="add-intern-btn" class="btn btn-success">
             Add Intern

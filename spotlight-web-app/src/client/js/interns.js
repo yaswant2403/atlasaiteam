@@ -20,6 +20,7 @@ async function loadTable(firstTime) {
                     var intern = interns.pop();
                     var user_data = JSON.stringify(intern);
                     const tr = document.createElement('tr');
+                    tr.setAttribute('data-name', intern.name);
                     tr.innerHTML = `
                         <td>${intern.net_id}</td>
                         <td>${intern.name}</td>
@@ -46,6 +47,7 @@ async function loadTable(firstTime) {
                 var intern = interns.pop();
                 var user_data = JSON.stringify(intern);
                 const tr = document.createElement('tr');
+                tr.setAttribute('data-name', intern.name);
                 tr.innerHTML = `
                     <td>${intern.net_id}</td>
                     <td>${intern.name}</td>
@@ -80,8 +82,16 @@ const editForm = document.querySelector('#edit-intern-form');
 const deleteForm = document.querySelector('#delete-intern-form');
 const cls = ['was-validated', 'alert-success', 'alert-danger'];
 
-// manually toggling modals because using data-target/dismiss doesn't work well with our logic of verification
 $(document).ready(function() {
+    // search function
+    $('#search').on("keyup", function() {
+        var search_term = $(this).val().toLowerCase();
+        $('#intern-data tr').filter(function() {
+            var intern_name = $(this).attr('data-name').toLowerCase();
+            $(this).toggle(intern_name.includes(search_term));
+        })
+    })
+    // manually toggling modals because using data-target/dismiss doesn't work well with our logic of verification
     // ensuring the modal is back to default everytime user clicks on Add Intern
     $('#add-intern-btn').click(_ => {
         $('#add-intern').modal('toggle');
