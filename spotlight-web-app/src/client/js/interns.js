@@ -1,8 +1,41 @@
 // Loading in All Intern Data into Table
 const table_body = document.querySelector('#intern-data');
 const no_interns = document.querySelector('#no-interns-alert');
-// var interns = []; // storing them in a global variable so we don't have to keep fetching them
+/**
+ * @param {Array} intern_arr - an array of interns we need to append to the table
+ * Appends all the interns in intern_arr to the table_body
+ */
+function appendToTable(intern_arr) {
+    table_body.textContent = ''; // clear the current table since this function is called multiple times when using pagination
+    while (intern_arr.length > 0) {
+        var intern = intern_arr.pop();
+        var user_data = JSON.stringify(intern);
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-name', intern.name);
+        tr.innerHTML = `
+            <td>${intern.net_id}</td>
+            <td>${intern.name}</td>
+            <td>${intern.term}</td>
+            <td>${intern.roles.join(', ')}</td>
+            <td>${intern.attempts} of 3</td>
+            <td>${intern.updatedBy}</td>
+            <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
+            <td class="text-center">
+                <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
+                    <a href="#" class="pl-4 pr-4 edit-intern" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
+                </span>
+                <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
+                    <a href="#" class="pr-4 delete-intern" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
+                </span>
+            </td>
+        `;
+        table_body.appendChild(tr);
+    }
+}
+
 async function loadTable() {
+    no_interns.style.display = 'none'; // hide the alert if visible
+    table_body.textContent = ''; //clear the current table
     const allInterns = await fetch('/all-interns', {  // from server
         method: 'POST',
         headers: {
@@ -11,43 +44,60 @@ async function loadTable() {
         credentials: 'same-origin'
     })
     const interns = await allInterns.json();
+    // const interns = [{net_id: null}];
+    const totalPages = Math.ceil(interns.length/15); 
+    const pagination = $('#page-selection').bootpag({
+        total: totalPages, // 15 interns on each page
+        page: 1,
+        maxVisible: 5
+    })
+    $("#page-selection li").addClass('page-item');
+    $("#page-selection a").addClass('page-link');
     if (allInterns.ok) {
         if (interns[0].net_id == null) { // no interns found
             no_interns.style.display = null;
         } else {
-            const totalPages = Math.ceil(interns.length/15);
-            $('#page-selection').bootpag({
-                total: totalPages,
-                maxVisible: 5
-            }).on('page', function(e, num) {
-                $("#test").html("Page " + num);
-            })
-            $("#page-selection li").addClass('page-item');
-            $("#page-selection a").addClass('page-link');
-            while (interns.length > 0) {
-                var intern = interns.pop();
-                var user_data = JSON.stringify(intern);
-                const tr = document.createElement('tr');
-                tr.setAttribute('data-name', intern.name);
-                tr.innerHTML = `
-                    <td>${intern.net_id}</td>
-                    <td>${intern.name}</td>
-                    <td>${intern.term}</td>
-                    <td>${intern.roles.join(', ')}</td>
-                    <td>${intern.attempts} of 3</td>
-                    <td>${intern.updatedBy}</td>
-                    <td>${intern.updatedDate.substring(0,10).concat(" ", intern.updatedDate.substring(11,19))}</td>
-                    <td class="text-center">
-                        <span data-toggle="tooltip" data-placement="top" title="Edit Intern">
-                            <a href="#" class="pl-4 pr-4 edit-intern" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
-                        </span>
-                        <span data-toggle="tooltip" data-placement="top" title="Delete Intern">
-                            <a href="#" class="pr-4 delete-intern" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
-                        </span>
-                    </td>
-                `;
-                table_body.appendChild(tr);
+            // if there are <=15 interns
+            if (totalPages == 1) {
+                appendToTable(interns);
             }
+            // if there are > 15 interns, split them up into groups of 15 or less.
+            if (totalPages > 1) {
+                const first15 = interns.slice(0, 15);
+                appendToTable(first15); // on window load, display only the first 15
+                pagination.on('page', function(e, pg_num) {
+                    if (pg_num == 1) {
+                        appendToTable(first15);
+                    } else {
+                        // if the arr > 15 * pg_num, then add the multiple of 15 to current page and add the rest to the next page
+                        // otherwise add the remaining of arr to the current page.
+                        const overflow = (15*pg_num) - interns.length;
+                        if (overflow >= 0) {
+                            const intern_group = interns.slice((pg_num - 1) * 15, interns.length);
+                            appendToTable(intern_group);
+                        } else {
+                            const intern_group = interns.slice((pg_num - 1) * 15, pg_num * 15);
+                            appendToTable(intern_group);
+                        }
+                    }
+                })
+            }
+            // Dynamic Pagination
+            //const totalPages = Math.ceil(interns.length/15);
+            //.on('page', function(e, num) {
+            //     if (num < 2) {
+            //         // do nothing
+            //     }
+            //     if (interns.length)
+            //     $("#test").html("Page " + num);
+            // })
+            // $("#page-selection li").addClass('page-item');
+            // $("#page-selection a").addClass('page-link');
+            // Grabbing the first 15 interns and displaying them
+            // if (interns.length > 15) {
+            //     const first15 = interns.slice(0, 15);
+            // }
+
         }
     } else {
         const errMessage = await allInterns.json();
@@ -252,7 +302,6 @@ const handleAddSubmit = async (e) => {
                 add_alert.innerText = result.message;
                 add_alert.style.display = null;
                 document.querySelector('#continue-add').style.display = 'none';
-                table_body.textContent = ''; // clear the current table
                 loadTable(); // load the table again
             } else {
                 document.querySelector('#loading').style.display = 'none';
@@ -300,7 +349,6 @@ const handleEditSubmit = async (e) => {
             edit_alert.classList.add('alert-success');
             edit_alert.innerText = result.message;
             edit_alert.style.display = null;
-            table_body.textContent = ''; //clear the current table
             loadTable(); // update the table
         } else {
             document.querySelector('#edit-loading').style.display = 'none';
@@ -343,7 +391,6 @@ const handleDeleteSubmit = async (e) => {
         delete_alert.classList.add('alert-success');
         delete_alert.innerText = result.message;
         delete_alert.style.display = null;
-        table_body.textContent = ''; // clear the current table
         loadTable(); // update the table
         $('#delete-intern-modal').modal('toggle');
     } else {
