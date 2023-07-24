@@ -1,31 +1,28 @@
 // Loading in All Intern Data into Table
-const table_body = document.querySelector('#staff-data');
-const no_staff = document.querySelector('#no-staff-alert');
+const table_body = document.querySelector('#admin-data');
+const no_admin = document.querySelector('#no-admin-alert');
 
 /**
- * @param {Array} staff_arr - an array of staff we need to append to the table
- * Appends all the staff in staff_arr to the table_body
+ * @param {Array} admin_arr - an array of admins we need to append to the table
+ * Appends all the admins in admin_arr to the table_body
  */
-function appendToTable(staff_arr) {
+function appendToTable(admin_arr) {
     table_body.textContent = ''; // clear the current table since this function is called multiple times when using pagination
-    while (staff_arr.length > 0) {
-        var staff = staff_arr.pop();
-        var user_data = JSON.stringify(staff);
+    while (admin_arr.length > 0) {
+        var admin = admin_arr.pop();
+        var user_data = JSON.stringify(admin);
         const tr = document.createElement('tr');
-        tr.setAttribute('data-name', staff.name);
+        tr.setAttribute('data-name', admin.name);
         tr.innerHTML = `
-            <td>${staff.net_id}</td>
-            <td>${staff.name}</td>
-            <td>${staff.term}</td>
-            <td>${staff.roles.join(', ')}</td>
-            <td>${staff.updatedBy}</td>
-            <td>${staff.updatedDate.substring(0,10).concat(" ", staff.updatedDate.substring(11,19))}</td>
+            <td>${admin.net_id}</td>
+            <td>${admin.name}</td>
+            <td>${admin.term}</td>
+            <td>${admin.roles.join(', ')}</td>
+            <td>${admin.updatedBy}</td>
+            <td>${admin.updatedDate.substring(0,10).concat(" ", admin.updatedDate.substring(11,19))}</td>
             <td class="text-center">
-                <span data-toggle="tooltip" data-placement="top" title="Edit Staff">
-                    <a href="#" class="pl-4 pr-4 edit-staff" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
-                </span>
-                <span data-toggle="tooltip" data-placement="top" title="Delete Staff">
-                    <a href="#" class="pr-4 delete-staff" data-user='${user_data}'><i class="fas fa-trash-alt link-danger"></i></a>
+                <span data-toggle="tooltip" data-placement="top" title="Edit Admin">
+                    <a href="#" class="pl-4 pr-4 edit-admin" data-user='${user_data}'><i class="fas fa-edit link-info"></i></a>
                 </span>
             </td>
         `;
@@ -34,23 +31,23 @@ function appendToTable(staff_arr) {
 }
 
 /**
- * Loads the table by grabbing all the staff from the database
- * Also includes pagination logic showing only 15 staff at once
+ * Loads the table by grabbing all the admin from the database
+ * Also includes pagination logic showing only 15 admin at once
 */
 async function loadTable() {
-    no_staff.style.display = 'none'; // hide the alert if visible
+    no_admin.style.display = 'none'; // hide the alert if visible
     table_body.textContent = ''; //clear the current table
-    const allStaff = await fetch('/all-staff', {  // from server
+    const allAdmin = await fetch('/all-admin', {  // from server
         method: 'POST',
         headers: {
         'Content-Type': 'application/json'
         },
         credentials: 'same-origin'
     })
-    const staff = await allStaff.json();
-    const totalPages = Math.ceil(staff.length/15); 
+    const admin = await allAdmin.json();
+    const totalPages = Math.ceil(admin.length/15); 
     const pagination = $('#page-selection').bootpag({
-        total: totalPages, // 15 staff on each page
+        total: totalPages, // 15 admin on each page
         page: 1, // always start with page 1
         firstLastUse: true, // used to get FIRST and END buttons working
         first: '⇤',
@@ -59,69 +56,68 @@ async function loadTable() {
     })
     $("#page-selection li").addClass('page-item');
     $("#page-selection a").addClass('page-link');
-    if (allStaff.ok) {
-        if (staff[0].net_id == null) { // no staff found
-            no_staff.style.display = null;
+    if (allAdmin.ok) {
+        if (admin[0].net_id == null) { // no admin found
+            no_admin.style.display = null;
         } else {
-            // if there are <=15 staff
+            // if there are <=15 admin
             if (totalPages == 1) {
-                appendToTable(staff);
+                appendToTable(admin);
             }
-            // if there are > 15 staff, split them up into groups of 15 or less.
+            // if there are > 15 admin, split them up into groups of 15 or less.
             if (totalPages > 1) {
-                const first15 = staff.slice(0, 15);
+                const first15 = admin.slice(0, 15);
                 appendToTable(first15); // on window load, display only the first 15
                 pagination.on('page', function(e, pg_num) {
                     if (pg_num == 1) {
-                        appendToTable(staff.slice(0, 15));
+                        appendToTable(admin.slice(0, 15));
                     } else {
                         // if the arr > 15 * pg_num, then add the multiple of 15 to current page and add the rest to the next page
                         // otherwise add the remaining of arr to the current page.
-                        const overflow = (15 * pg_num) - staff.length;
+                        const overflow = (15 * pg_num) - admin.length;
                         if (overflow >= 0) {
-                            const staff_group = staff.slice((pg_num - 1) * 15, staff.length);
-                            appendToTable(staff_group);
+                            const admin_group = admin.slice((pg_num - 1) * 15, admin.length);
+                            appendToTable(admin_group);
                         } else {
-                            const staff_group = staff.slice((pg_num - 1) * 15, pg_num * 15);
-                            appendToTable(staff_group);
+                            const admin_group = admin.slice((pg_num - 1) * 15, pg_num * 15);
+                            appendToTable(admin_group);
                         }
                     }
                 })
             }
         }
     } else {
-        const errMessage = await allStaff.json();
-        no_staff.style.display = null;
-        no_staff.innerText = errMessage.error + " Please refresh the page again.";
+        const errMessage = await allAdmin.json();
+        no_admin.style.display = null;
+        no_admin.innerText = errMessage.error + " Please refresh the page again.";
     }
 }
 
 window.onload = loadTable();
 
 // grabbing the forms
-const addForm = document.querySelector('#new-staff');
-const editForm = document.querySelector('#edit-staff-form');
-const deleteForm = document.querySelector('#delete-staff-form');
+const addForm = document.querySelector('#new-admin');
+const editForm = document.querySelector('#edit-admin-form');
 const cls = ['was-validated', 'alert-success', 'alert-danger'];
 
 $(document).ready(function() {
     // search function
     $('#search').on("keyup", function() {
         var search_term = $(this).val().toLowerCase();
-        $('#staff-data tr').filter(function() {
-            var staff_name = $(this).attr('data-name').toLowerCase();
-            $(this).toggle(staff_name.includes(search_term));
+        $('#admin-data tr').filter(function() {
+            var admin_name = $(this).attr('data-name').toLowerCase();
+            $(this).toggle(admin_name.includes(search_term));
         })
     })
     /**
      * Manually toggling modals because using data-target/dismiss doesn't work well with our logic of verification.
      */ 
-    // all the following code ensures the modal is back to default everytime user clicks on Add Staff
-    $('#add-staff-btn').click(_ => {
-        $('#add-staff').modal('toggle');
+    // all the following code ensures the modal is back to default everytime user clicks on Add Admin
+    $('#add-admin-btn').click(_ => {
+        $('#add-admin').modal('toggle');
         addForm.reset();
         addForm.classList.remove(...cls);
-        document.querySelector('#add-staff .filter-option-inner-inner').innerText = "Staff";
+        document.querySelector('#add-admin .filter-option-inner-inner').innerText = "Admin";
         document.querySelector('#add-modal-body').style.opacity = '1';
         document.querySelector('#loading').style.display = 'none';
         document.querySelector('#loading-text').style.display = 'none';
@@ -131,29 +127,23 @@ $(document).ready(function() {
     })
     // close manual toggles 
     $('.close-add').click(_ => {
-        $('#add-staff').modal('toggle');
+        $('#add-admin').modal('toggle');
     })
     $('.close-add-modal-btn').click(_ => {
-        $('#add-staff').modal('toggle');
+        $('#add-admin').modal('toggle');
     })
     $('.close-edit').click(_ => {
-        $('#edit-staff-modal').modal('toggle');
+        $('#edit-admin-modal').modal('toggle');
     })
     $('.close-edit-modal-btn').click(_ => {
-        $('#edit-staff-modal').modal('toggle');
-    })
-    $('.close-delete').click(_ => {
-        $('#delete-staff-modal').modal('toggle');
-    })
-    $('.close-delete-modal-btn').click(_ => {
-        $('#delete-staff-modal').modal('toggle');
+        $('#edit-admin-modal').modal('toggle');
     })
     // toggle edit user modal
-    $(document).on('click', '.edit-staff', function() {
+    $(document).on('click', '.edit-admin', function() {
         var user = $(this).attr('data-user')
-        $('#edit-staff-modal').attr("data-user", user).modal('toggle');
+        $('#edit-admin-modal').attr("data-user", user).modal('toggle');
         editForm.reset();
-        document.querySelector('#edit-staff-modal .filter-option-inner-inner').innerText = "Staff";
+        document.querySelector('#edit-admin-modal .filter-option-inner-inner').innerText = "Admin";
         editForm.classList.remove(...cls);
         document.querySelector('#edit-modal-body').style.opacity = '1';
         document.querySelector('#edit-loading').style.display = 'none';
@@ -162,10 +152,10 @@ $(document).ready(function() {
         document.querySelector('#edit-alert').classList.remove(...cls);
     });
     // displays all users data in the edit form
-    $('#edit-staff-modal').on('shown.bs.modal', function() {
+    $('#edit-admin-modal').on('shown.bs.modal', function() {
         var modal = $(this);
         var user = JSON.parse(modal.attr('data-user'));
-        var user_title = 'Edit ATLAS Staff: ' + user.name;
+        var user_title = 'Edit ATLAS Admin: ' + user.name;
         modal.find('.modal-title').text(user_title);
         document.querySelector('#editNetID').value = user.net_id;
         document.querySelector('#editFirstName').value = user.name.split(" ")[0];
@@ -181,51 +171,19 @@ $(document).ready(function() {
         var year = user.term.slice(-4);
         document.querySelector('#editYear').value = year;
         $('#editRoles').val(user.roles);
-        document.querySelector('#edit-staff-modal .filter-option-inner-inner').innerText = user.roles.join(", ");
-    })
-    //toggle delete user modal
-    $(document).on('click', '.delete-staff', function() {
-        var user = $(this).attr('data-user')
-        $('#delete-staff-modal').attr("data-user", user).modal('toggle');
-        deleteForm.reset();
-        document.querySelector('#delete-modal-body').style.opacity = '1';
-        document.querySelector('#delete-loading').style.display = 'none';
-        document.querySelector('#delete-loading-text').style.display = 'none';
-        document.querySelector('#delete-alert').style.display = 'none';
-        document.querySelector('#delete-alert').classList.remove(...cls);
-    });
-    // displays all users data in the delete form
-    $('#delete-staff-modal').on('shown.bs.modal', function() {
-        var modal = $(this);
-        var user = JSON.parse(modal.attr('data-user'));
-        var user_title = 'Deleting Staff: ' + user.name;
-        modal.find('.modal-title').text(user_title);
-        document.querySelector('#deleteNetID').value = user.net_id;
-        document.querySelector('label[for="deleteFirstName"] + input').value = user.name.split(" ")[0];
-        document.querySelector('label[for="deleteLastName"] + input').value = user.name.split(" ")[1];
-        var season = user.term.slice(0, -4);
-        if (season == "SU") {
-            document.querySelector('label[for="deleteTerm"] + input').value = "Summer";
-        } else if (season == "SP") {
-            document.querySelector('label[for="deleteTerm"] + input').value = "Spring";
-        } else {
-            document.querySelector('label[for="deleteTerm"] + input').value = "Fall";
-        }
-        var year = user.term.slice(-4);
-        document.querySelector('label[for="deleteYear"] + input').value = year;
-        document.querySelector('label[for="deleteRoles"] + input').value = user.roles.join(", ");
+        document.querySelector('#edit-admin-modal .filter-option-inner-inner').innerText = user.roles.join(", ");
     })
 });
 
 
-// getting all the new staff form inputs
-function getNewStaffInputs() {
+// getting all the new admin form inputs
+function getNewAdminInputs() {
     const net_id = document.querySelector('#newNetID').value.trim();
     const name = document.querySelector('#inputFirstName').value.trim() + ' ' +
         document.querySelector('#inputLastName').value.trim();
     const term = document.querySelector('#inputTerm').value + 
         document.querySelector('#inputYear').value;
-    var roles = ['Staff'];
+    var roles = ['Admin'];
     roles = roles.concat($('#inputRoles').val());
     return {
         net_id: net_id,
@@ -236,13 +194,13 @@ function getNewStaffInputs() {
 }
 
 // getting all the edit form inputs
-function getEditStaffInputs() {
+function getEditAdminInputs() {
     const net_id = document.querySelector('#editNetID').value.trim();
     const name = document.querySelector('#editFirstName').value.trim() + ' ' +
         document.querySelector('#editLastName').value.trim();
     const term = document.querySelector('#editTerm').value + 
         document.querySelector('#editYear').value;
-    var roles = ['Staff'];
+    var roles = ['Admin'];
     roles = roles.concat($('#editRoles').val());
     return {
         net_id: net_id,
@@ -252,7 +210,7 @@ function getEditStaffInputs() {
     };
 }
 
-// submit handler for Adding Staff Form
+// submit handler for Adding Admin Form
 const handleAddSubmit = async (e) => {
     e.preventDefault();
     const add_alert = document.querySelector('#add-alert');
@@ -264,7 +222,7 @@ const handleAddSubmit = async (e) => {
         addForm.classList.add('was-validated');
     } else {
         addForm.classList.remove('was-validated');
-        const allInputs = getNewStaffInputs();
+        const allInputs = getNewAdminInputs();
         const warning_message = "Are you sure you want to add " + allInputs.name + 
             " and grant them the following roles: " + allInputs.roles.join(" ") + "?";
         if(confirm(warning_message)) {
@@ -272,7 +230,7 @@ const handleAddSubmit = async (e) => {
             document.querySelector('#loading').style.display = null;
             document.querySelector('#loading-text').style.display = null;
             document.querySelector('#add-modal-body').style.opacity = '0';
-            const add_staff_response = await fetch('/add-staff', {  // from server
+            const add_admin_response = await fetch('/add-admin', {  // from server
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json'
@@ -280,11 +238,11 @@ const handleAddSubmit = async (e) => {
                 credentials: 'same-origin',
                 body: JSON.stringify(allInputs) 
             })
-            if (add_staff_response.ok) {
+            if (add_admin_response.ok) {
                 document.querySelector('#loading').style.display = 'none';
                 document.querySelector('#loading-text').style.display = 'none';
                 document.querySelector('#add-modal-body').style.opacity = '1';
-                const result = await add_staff_response.json();
+                const result = await add_admin_response.json();
                 addForm.reset();
                 add_alert.classList.add('alert-success');
                 add_alert.innerText = result.message;
@@ -295,7 +253,7 @@ const handleAddSubmit = async (e) => {
                 document.querySelector('#loading').style.display = 'none';
                 document.querySelector('#loading-text').style.display = 'none';
                 document.querySelector('#add-modal-body').style.opacity = '1';
-                const result = await add_staff_response.json();
+                const result = await add_admin_response.json();
                 add_alert.classList.add('alert-danger');
                 add_alert.innerText = result.message;
                 add_alert.style.display = null;
@@ -304,7 +262,7 @@ const handleAddSubmit = async (e) => {
     }
 }
 
-// submit handler for Editing Staff Form
+// submit handler for Editing Admin Form
 const handleEditSubmit = async (e) => {
     e.preventDefault();
     const edit_alert = document.querySelector('#edit-alert');
@@ -320,8 +278,8 @@ const handleEditSubmit = async (e) => {
         document.querySelector('#edit-loading').style.display = null;
         document.querySelector('#edit-loading-text').style.display = null;
         document.querySelector('#edit-modal-body').style.opacity = '0';
-        const allInputs = getEditStaffInputs();
-        const edit_staff_response = await fetch('/edit-staff', {  // from server
+        const allInputs = getEditAdminInputs();
+        const edit_admin_response = await fetch('/edit-admin', {  // from server
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -329,11 +287,11 @@ const handleEditSubmit = async (e) => {
             credentials: 'same-origin',
             body: JSON.stringify(allInputs) 
         })
-        if (edit_staff_response.ok) {
+        if (edit_admin_response.ok) {
             document.querySelector('#edit-loading').style.display = 'none';
             document.querySelector('#edit-loading-text').style.display = 'none';
             document.querySelector('#edit-modal-body').style.opacity = '1';
-            const result = await edit_staff_response.json();
+            const result = await edit_admin_response.json();
             edit_alert.classList.add('alert-success');
             edit_alert.innerText = result.message;
             edit_alert.style.display = null;
@@ -342,7 +300,7 @@ const handleEditSubmit = async (e) => {
             document.querySelector('#edit-loading').style.display = 'none';
             document.querySelector('#edit-loading-text').style.display = 'none';
             document.querySelector('#edit-modal-body').style.opacity = '1';
-            const result = await edit_staff_response.json();
+            const result = await edit_admin_response.json();
             edit_alert.classList.add('alert-danger');
             edit_alert.innerText = result.message;
             edit_alert.style.display = null;
@@ -350,49 +308,6 @@ const handleEditSubmit = async (e) => {
     }
 }
 
-// submit handler for Deleting Intern
-const handleDeleteSubmit = async (e) => {
-    e.preventDefault();
-    const delete_alert = document.querySelector('#delete-alert');
-    delete_alert.classList.remove(...cls);
-    delete_alert.classList.display = 'none';
-    delete_alert.innerText = null;
-    // loading animation enabled
-    document.querySelector('#delete-loading').style.display = null;
-    document.querySelector('#delete-loading-text').style.display = null;
-    document.querySelector('#delete-modal-body').style.opacity = '0';
-    const delete_staff_response = await fetch('/delete-user', {  // from server
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-            net_id: document.querySelector('#deleteNetID').value.trim(),
-        }) 
-    })
-    if (delete_staff_response.ok) {
-        document.querySelector('#delete-loading').style.display = 'none';
-        document.querySelector('#delete-loading-text').style.display = 'none';
-        document.querySelector('#delete-modal-body').style.opacity = '1';
-        const result = await delete_staff_response.json();
-        delete_alert.classList.add('alert-success');
-        delete_alert.innerText = result.message;
-        delete_alert.style.display = null;
-        loadTable(); // update the table
-        $('#delete-staff-modal').modal('toggle'); // close the modal since we don't want user to delete non-existent user
-    } else {
-        document.querySelector('#delete-loading').style.display = 'none';
-        document.querySelector('#delete-loading-text').style.display = 'none';
-        document.querySelector('#delete-modal-body').style.opacity = '1';
-        const result = await delete_staff_response.json();
-        delete_alert.classList.add('alert-danger');
-        delete_alert.innerText = result.message;
-        delete_alert.style.display = null;
-    }
-}
-
 // Using our handleSubmitFunctions as the function for the submit eventListeners of these forms
 addForm.addEventListener('submit', handleAddSubmit, false);
 editForm.addEventListener('submit', handleEditSubmit, false);
-deleteForm.addEventListener('submit', handleDeleteSubmit, false);

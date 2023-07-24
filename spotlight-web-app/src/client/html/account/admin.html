@@ -77,7 +77,7 @@
   </head>
   <body>
     <div class="container-fluid">
-      <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">ATLAS Staff</h2>
+      <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">ATLAS Admin</h2>
       <!-- Input search, filter, add button -->
       <div class="row pb-2">
         <div class="col-md-10 pb-sm-2">
@@ -89,24 +89,24 @@
           </div>
         </div>
         <div class="col-md-2 text-center">
-          <button id="add-staff-btn" class="btn btn-success">
-            Add Staff
+          <button id="add-admin-btn" class="btn btn-success">
+            Add Admin
           </button>
         </div>
       </div>
-      <!-- Add New Staff Modal -->
-      <div class="modal fade" id="add-staff" role="dialog" aria-hidden="true">
+      <!-- Add New Admin Modal -->
+      <div class="modal fade" id="add-admin" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Add New ATLAS Staff</h5>
+              <h5 class="modal-title">Add New ATLAS Admin</h5>
               <button type="button" class="close close-add" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <form id="new-staff" class="needs-validation" novalidate>
+            <form id="new-admin" class="needs-validation" novalidate>
               <h4 id="loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Adding Staff</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Adding Admin</h4>
               <div id="loading" class="loader" style="display: none;"></div>
               <div id="add-modal-body" class="modal-body">
                 <div class="form-row">
@@ -163,13 +163,12 @@
                     <label for="inputRoles" class="pr-2">Roles:</label>
                     <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
                       data-selected-text-format="count > 3" data-actions-box="true">
-                      <option selected disabled value="Staff">Staff
+                      <option selected disabled value="Admin">Admin
                       </option>
-                      <option value="Intern">Intern</option>
-                      <option value="Admin">Admin</option>
                     </select>
                     <small class="form-text text-muted">
-                        Every new Staff will have Staff role. Other roles are optional.
+                        Every new Admin will have Admin role. New admins are NOT allowed to have the Intern or Staff role.
+                        Other roles are optional.
                     </small>
                   </div>
                 </div>
@@ -177,25 +176,25 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
-                <button id="continue-add" type="submit" form="new-staff" class="btn btn-primary">Continue</button>
+                <button id="continue-add" type="submit" form="new-admin" class="btn btn-primary">Continue</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <!-- Edit Staff Modal -->
-      <div class="modal fade" id="edit-staff-modal" role="dialog" aria-hidden="true">
+      <!-- Edit Admin Modal -->
+      <div class="modal fade" id="edit-admin-modal" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Edit ATLAS Staff</h5>
+              <h5 class="modal-title">Edit ATLAS Admin</h5>
               <button type="button" class="close close-edit" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <form id="edit-staff-form" clas="needs-validation" novalidate>
+            <form id="edit-admin-form" clas="needs-validation" novalidate>
               <h4 id="edit-loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Staff</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Admin</h4>
               <div id="edit-loading" class="loader" style="display: none;"></div>
               <div id="edit-modal-body" class="modal-body">
                 <div class="form-row">
@@ -253,13 +252,11 @@
                     <label for="editRoles" class="pr-2">Roles:</label>
                     <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
                       data-selected-text-format="count > 3" data-actions-box="true">
-                      <option selected disabled value="Staff">Staff
+                      <option selected disabled value="Admin">Admin
                       </option>
-                      <option value="Intern">Intern</option>
-                      <option value="Admin">Admin</option>
                     </select>
                     <small class="form-text text-muted">
-                        Every new Staff will have Staff role. Other roles are optional.
+                        With this page, you cannot remove the Admin role or modify Intern/Staff role.
                     </small>
                   </div>
                 </div>
@@ -267,73 +264,14 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
-                <button id="save-edit" type="submit" form="edit-staff-form" class="btn btn-primary">Save Changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- Delete Staff Modal -->
-      <div class="modal fade" id="delete-staff-modal">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" style="color: red;"></h5>
-              <button type="button" class="close close-delete" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form id="delete-staff-form">
-              <h4 id="delete-loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Deleting Staff</h4>
-              <div id="delete-loading" class="loader" style="display: none;"></div>
-              <div id="delete-modal-body" class="modal-body">
-                <div class="form-row">
-                  <h5 class="warning p-2">
-                    This data will NOT be recoverable. The staff member will no longer be able to
-                    view, edit or delete interns. This action will delete
-                    <span style="color: red"> ALL</span> the following info: 
-                  </h5>
-                </div>
-                <div class="form-row">
-                  <div class="form-group col-md-4">
-                    <label for="deleteNetID">NetID:</label>
-                    <input type="text" class="form-control" id="deleteNetID" disabled required>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="deleteFirstName">First Name:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="deleteLastName">Last Name:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                </div>
-                <div class="form-row pt-2">
-                  <div class="form-group col-md-4">
-                    <label for="deleteTerm">Term:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="deleteYear">Year:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="deleteRoles" class="pr-2">Roles:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                </div>
-                <div class="alert container-fluid text-center" id="delete-alert" style="display: none;"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-delete-modal-btn">Close</button>
-                <button id="delete-btn" type="submit" form="delete-staff-form" class="btn btn-danger">DELETE Staff</button>
+                <button id="save-edit" type="submit" form="edit-admin-form" class="btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>
         </div>
       </div>
       <!-- Table -->
+      <h5>To delete an admin, you will need to do so through phpMyAdmin in cPanel.</h5>
       <div class="row">
         <div class="col-xs-6">
           <div class="table-responsive-md">
@@ -349,17 +287,17 @@
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
-              <tbody id="staff-data">
+              <tbody id="admin-data">
               </tbody>
             </table>
-            <div class="alert alert-danger container-fluid text-center" id="no-staff-alert" style="display: none;">No Staff found! Please add staff by clicking Add Staff!</div>
+            <div class="alert alert-danger container-fluid text-center" id="no-admin-alert" style="display: none;">No Admin found! Please add admin by clicking Add Admin!</div>
           </div>
         </div>
       </div>
       <div id="test"></div>
       <div id="page-selection" class="pagination justify-content-center"></div>
     </div>
-    <script src="js/staff.js"></script>
+    <script src="js/admin.js"></script>
     <!-- Bootstrap + jQuery CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>

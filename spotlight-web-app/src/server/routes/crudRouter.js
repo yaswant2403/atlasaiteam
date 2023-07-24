@@ -481,7 +481,7 @@ router.post('/edit-staff', ensureAuthenticated, async(req, res) => {
         term += "1";
       }
       const last_modified_by = req.session.passport.user;
-      const updateIntern = await User.update({
+      const updateStaff = await User.update({
         net_id: net_id,
         name: name,
         term: term,
@@ -491,7 +491,7 @@ router.post('/edit-staff', ensureAuthenticated, async(req, res) => {
       {
         where: { net_id: net_id }
       });
-      if (updateIntern[0] == 1) {
+      if (updateStaff[0] == 1) {
         const editedUser = await User.findOne({
           where: {
             net_id: net_id
@@ -525,21 +525,259 @@ router.post('/edit-staff', ensureAuthenticated, async(req, res) => {
       return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
     }
 })
-  
-router.post('/delete-user', ensureAuthenticated, async(req, res) => {
-    const net_id = req.body.net_id;
-    console.log(net_id);
-    const verification = await existingNetID(net_id);
-    if (verification) {
-      await User.destroy(
-      {
-        where: { net_id: net_id }
-      });
-      const message = "User " + req.body.net_id + " has been deleted!";
-      return res.status(200).send({message: message});
+
+router.post('/all-admin', ensureAuthenticated, async(req, res) => {
+  try {
+    var response = [];
+    var admin = await User.findAll({
+      include: [
+        {
+          model: Role,
+          attributes: ['role'],
+          where: {
+            'role': 'Admin'
+          },
+          through: {
+            attributes: []
+          }
+        }
+      ]
+    });
+    if (admin.length > 0) {
+      for (const admin_member of admin) {
+        const user_id = admin_member.user_id;
+        var term = "";
+        var additional_roles = await UserRole.findAll({
+          attributes: ['role'],
+          where: {
+            'user_id': user_id,
+            'role': {
+              [Op.ne]: 'Admin'
+            }
+          },
+          raw: true
+        });
+        var roles = ["Admin"];
+        additional_roles.forEach((role) => {
+          roles.push(Object.values(role)[0]);
+        })
+        if (admin_member.term.endsWith("5")) {
+          term = "SU" + admin_member.term.substring(1,5);
+        } else if (admin_member.term.endsWith("8")) {
+          term = "FA" + admin_member.term.substring(1,5);
+        } else {
+          term = "SP" + admin_member.term.substring(1,5);
+        }
+        var updatedBy = "";
+        var updatedDate;
+        if (admin_member.last_modified_by == null) {
+          updatedBy = admin_member.created_by;
+          updatedDate = admin_member.created_date;
+        } else {
+          updatedBy = admin_member.last_modified_by;
+          updatedDate = admin_member.last_modified_date;
+        }
+        response.push ({
+          net_id: admin_member.net_id,
+          name: admin_member.name,
+          term: term,
+          updatedBy: updatedBy,
+          updatedDate: updatedDate,
+          roles: roles
+        });
+      }
     } else {
-      return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
+      response.push({net_id: null}); // no admin found in database
     }
+    res.status(200).send(response);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      error: 'There was an error fetching the admin data!'
+    }) 
+  }
+})
+
+router.post('/add-admin', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const inputEmail = net_id + "@illinois.edu";
+  const { valid, reason, validators } = await emailValidator.validate(inputEmail);
+  const created_by = req.session.passport.user;
+  // if valid netID
+  if (valid) {
+    const user = await User.findOne({ 
+      where: {
+        net_id: net_id
+      },
+      include: [
+        {
+          model: Role,
+          attributes: ['role'],
+          through: {
+            attributes: []
+          }
+        }
+      ]
+    })
+    // if user already exists, give the user the Admin role too
+    // if user doesn't exist, then we can add them as a new Admin member
+    if (user) { 
+      console.log("User " + user.net_id +" already exists!");
+      let is_admin;
+      let existing_roles = [];
+      user.Roles.forEach((role_model) => {
+        existing_roles.push(role_model.role);
+        is_admin = (role_model.role == 'Admin');
+      })
+      if (is_admin) {
+        return res.status(200).send({
+          message: "User is already a admin!"
+        })
+      } else {
+        const roles_to_add = [...new Set([...req.body.roles, ...existing_roles])];
+        await user.setRoles(roles_to_add, {
+          through: {
+            created_by: created_by, 
+            created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
+            last_modified_by: null,
+            last_modified_date: null
+          }
+        });
+        const response = "User " + net_id + " was an existing user and has been granted the Admin Role!";
+        return res.status(200).send({message: response});
+      }
+    } else { 
+      const name = req.body.name;
+      const season = req.body.term.slice(0, -4);
+      const year = req.body.term.slice(-4);
+      let term = "1" + year;
+      if (season == "Fall") {
+        term += "8";
+      } else if (season == "Summer") {
+        term += "5";
+      } else {
+        term += "1";
+      }
+      const roles = [];
+      for (const role of req.body.roles) {
+        var user_role = {
+          role: role,
+          created_by: created_by,
+          last_modified_by: null,
+          last_modified_date: null
+        };
+        roles.push(user_role);
+      }
+      const newAdmin = await User.create({
+        net_id: net_id,
+        name: name,
+        term: term,
+        created_by: created_by,
+        last_modified_by: null,
+        last_modified_date: null,
+        user_roles: roles
+      },{
+        include: [{ model: UserRole, as: 'user_roles'}]
+      });
+      if (newAdmin) {
+        const response = "User " + newAdmin.net_id + " has been created!";
+        return res.status(200).send({message: response});
+      } else {
+        return res.status(500).send({
+          message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
+          reason: "db-error"
+        });
+      }
+    }
+  } else {
+    return res.status(500).send({
+      message: "Please provide a valid NetID!",
+      reason: reason
+    });
+  }
+})
+
+router.post('/edit-admin', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    let message = "";
+    const name = req.body.name;
+    const season = req.body.term.slice(0, -4);
+    const year = req.body.term.slice(-4);
+    let term = "1" + year;
+    if (season == "Fall") {
+      term += "8";
+    } else if (season == "Summer") {
+      term += "5";
+    } else {
+      term += "1";
+    }
+    const last_modified_by = req.session.passport.user;
+    const updateAdmin = await User.update({
+      net_id: net_id,
+      name: name,
+      term: term,
+      last_modified_by: last_modified_by,
+      last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP') 
+    },
+    {
+      where: { net_id: net_id }
+    });
+    if (updateAdmin[0] == 1) {
+      // grabbing the user so we can update their roles too
+      const editedUser = await User.findOne({
+        where: {
+          net_id: net_id
+        },
+        attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']},
+        include: [
+          {
+            model: models.Role,
+            attributes: ['role'],
+            through: {
+              attributes: []
+            }
+          }
+        ]
+      });
+      let existing_roles = [];
+      editedUser.Roles.forEach((role_model) => {
+        existing_roles.push(role_model.role)
+      })
+      // To prevent duplicates, does a union for the existing roles and the roles the user wants to add
+      const roles_to_add = [...new Set([...req.body.roles, ...existing_roles])];
+      const editUserRoles = await editedUser.setRoles(roles_to_add, {
+        through: {created_by: last_modified_by, 
+                  created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
+                  last_modified_by: last_modified_by,  
+                  last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+                }
+      });
+      message = "User " + net_id + " has been edited successfully!"
+    } else {
+      message = "We couldn't. Please double check the NetID and try again!"
+    }
+    return res.status(200).send({message: message});
+  } else {
+    return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
+  }
+})
+
+router.post('/delete-user', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  console.log(net_id);
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    await User.destroy(
+    {
+      where: { net_id: net_id }
+    });
+    const message = "User " + req.body.net_id + " has been deleted!";
+    return res.status(200).send({message: message});
+  } else {
+    return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
+  }
 })
 
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
