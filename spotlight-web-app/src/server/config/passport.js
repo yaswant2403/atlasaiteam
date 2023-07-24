@@ -11,10 +11,10 @@ const sequelize = require('./db.config');
 var initModels = require('../db_models/init-models');
 var models = initModels(sequelize);
 var User = models.User;
-var Action = models.Action;
-var Role = models.Role;
-var UserRole = models.UserRole;
-var Paragraph = models.Paragraph;
+// var Action = models.Action;
+// var Role = models.Role;
+// var UserRole = models.UserRole;
+// var Paragraph = models.Paragraph;
 
 // checking database connection
 try {
@@ -163,14 +163,25 @@ router.post('/logout', function(req, res) {
   res.redirect(`https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectURL}`);
 });
 
+function ensureAuthenticated(req, res, next) {
+  console.log("In the ensureAuth function, request is ", req.isAuthenticated());
+  if(req.isAuthenticated()) { 
+    // console.log("In the ensureAuth function, the request headers are: \n", req.headers);
+    return next(); 
+  }
+  return res.redirect('/login');
+}
+
 
 //exporting passport object
 module.exports.passport = passport;
 // exporting router
 module.exports.router = router;
-// exporting the User, Action, Role
-module.exports.User = User;
-module.exports.Action = Action;
-module.exports.Role = Role;
-module.exports.UserRole = UserRole;
-module.exports.Paragraph = Paragraph;
+// exporting the ensureAuthenticated middleware
+module.exports.authMiddleware = ensureAuthenticated;
+// exporting the User, Action, Role, UserRole, Paragraph Models
+// module.exports.User = User;
+// module.exports.Action = Action;
+// module.exports.Role = Role;
+// module.exports.UserRole = UserRole;
+// module.exports.Paragraph = Paragraph;
