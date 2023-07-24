@@ -221,7 +221,7 @@ const handleSubmit = async (e) => {
         const data = await chatResponse.json();
         const finalResponse = data.bot.trim();
         console.log("How the response is in frontend: " + finalResponse);
-        response.innerText = message; // displaying response
+        response.innerText = finalResponse; // displaying response
       } else {  // Means ChatGPT is down or API Key has run out of credits
         document.querySelector('#loading').style.display = "none";
         const err = await chatResponse.json();

@@ -22,6 +22,7 @@ app.use(cors());
 // Creating an config object through a constructor containing a property called apiKey
 const configuration = new Configuration({
   apiKey: process.env.OPEN_API_KEY, // from .env file
+  organization: process.env.ORGANIZATION_ID
 });
 
 // Creating an open api object using the configuration
@@ -427,6 +428,226 @@ app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
 })
 
 app.post('/delete-intern', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  console.log(net_id);
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    await User.destroy(
+    {
+      where: { net_id: net_id }
+    });
+    const message = "User " + req.body.net_id + " has been deleted!";
+    return res.status(200).send({message: message});
+  } else {
+    return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
+  }
+})
+
+app.post('/all-staff', ensureAuthenticated, async(req, res) => {
+  try {
+    var response = [];
+    var interns = await User.findAll({
+      include: [{
+          model: Action,
+          as: 'attempts',
+          attributes: ['spotlight_attempts'] 
+        },
+        {
+          model: Role,
+          attributes: ['role'],
+          where: {
+            'role': 'Intern'
+          },
+          through: {
+            attributes: []
+          }
+        }
+      ]
+    });
+    if (interns.length > 0) {
+      for (const intern of interns) {
+        const user_id = intern.user_id;
+        var term = "";
+        var additional_roles = await UserRole.findAll({
+          attributes: ['role'],
+          where: {
+            'user_id': user_id,
+            'role': {
+              [Op.ne]: 'Intern'
+            }
+          },
+          raw: true
+        });
+        var roles = ["Intern"];
+        additional_roles.forEach((role) => {
+          roles.push(Object.values(role)[0]);
+        })
+        if (intern.term.endsWith("5")) {
+          term = "SU" + intern.term.substring(1,5);
+        } else if (intern.term.endsWith("8")) {
+          term = "FA" + intern.term.substring(1,5);
+        } else {
+          term = "SP" + intern.term.substring(1,5);
+        }
+        var updatedBy = "";
+        var updatedDate;
+        if (intern.last_modified_by == null) {
+          updatedBy = intern.created_by;
+          updatedDate = intern.created_date;
+        } else {
+          updatedBy = intern.last_modified_by;
+          updatedDate = intern.last_modified_date;
+        }
+        response.push ({
+          net_id: intern.net_id,
+          name: intern.name,
+          term: term,
+          attempts: intern.attempts[0].spotlight_attempts,
+          updatedBy: updatedBy,
+          updatedDate: updatedDate,
+          roles: roles
+        });
+      }
+    } else {
+      response.push({net_id: null}); // no interns found in database
+    }
+    // console.log(interns);
+    res.status(200).send(response);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      error: 'There was an error fetching the intern data!'
+    }) 
+  }
+})
+
+app.post('/add-staff', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const verification = await verifyNetID(net_id);
+  if (verification.message == "valid") {
+    const name = req.body.name;
+    const season = req.body.term.slice(0, -4);
+    const year = req.body.term.slice(-4);
+    let term = "1" + year;
+    if (season == "Fall") {
+      term += "8";
+    } else if (season == "Summer") {
+      term += "5";
+    } else {
+      term += "1";
+    }
+    const spotlight_attempts = parseInt(req.body.attempts);
+    const created_by = req.session.passport.user;
+    const roles = [];
+    for (const role of req.body.roles) {
+      var user_role = {
+        role: role,
+        created_by: created_by,
+        last_modified_by: null,
+        last_modified_date: null
+      };
+      roles.push(user_role);
+    }
+    const newIntern = await User.create({
+      net_id: net_id,
+      name: name,
+      term: term,
+      created_by: created_by,
+      last_modified_by: null,
+      last_modified_date: null,
+      attempts: [{ 
+          spotlight_attempts: spotlight_attempts,
+          message_attempts: 0,
+          created_by: created_by,
+          last_modified_by: null,
+          last_modified_date: null
+      }],
+      user_roles: roles
+    }, {
+      include: [{ model: Action, as: 'attempts'},
+                { model: UserRole, as: 'user_roles'}]
+    });
+    let response = "";
+    if (newIntern) {
+      response = "User " + newIntern.net_id + " has been created!";
+      return res.status(200).send({message: response});
+    } else {
+      return res.status(500).send({
+        message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
+        reason: "db-error"
+      });
+    }
+  } else {
+    return res.status(500).send(verification);
+  }
+})
+
+app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
+  const net_id = req.body.net_id;
+  const verification = await existingNetID(net_id);
+  if (verification) {
+    let message = "";
+    const name = req.body.name;
+    const season = req.body.term.slice(0, -4);
+    const year = req.body.term.slice(-4);
+    let term = "1" + year;
+    if (season == "Fall") {
+      term += "8";
+    } else if (season == "Summer") {
+      term += "5";
+    } else {
+      term += "1";
+    }
+    const spotlight_attempts = parseInt(req.body.attempts);
+    const last_modified_by = req.session.passport.user;
+    const updateIntern = await User.update({
+      net_id: net_id,
+      name: name,
+      term: term,
+      last_modified_by: last_modified_by,
+      last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP') 
+    },
+    {
+      where: { net_id: net_id }
+    });
+    if (updateIntern[0] == 1) {
+      const editedUser = await User.findOne({
+        where: {
+          net_id: net_id
+        },
+        attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']}
+      });
+      const editUserAttempts = await Action.update({
+        spotlight_attempts: spotlight_attempts,
+        message_attempts: 3,
+        last_modified_by: last_modified_by,
+        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      {
+        where: { user_id: editedUser.user_id } 
+      });
+      const editUserRoles = await editedUser.setRoles(req.body.roles, {
+        through: {created_by: last_modified_by, 
+                  created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
+                  last_modified_by: last_modified_by,  
+                  last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+                }
+      });
+      if (editUserRoles) {
+        message = "User " + net_id + " has been edited successfully!"
+      } else {
+        message = "There was an error updating user " + net_id + "'s roles!"
+      }
+    } else {
+      message = "We couldn't. Please double check the NetID and try again!"
+    }
+    return res.status(200).send({message: message});
+  } else {
+    return res.status(500).send({message: "User doesn't exist! Please add the user or enter an existing user's NetID."});
+  }
+})
+
+app.post('/delete-staff', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
   console.log(net_id);
   const verification = await existingNetID(net_id);
