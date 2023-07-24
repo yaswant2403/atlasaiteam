@@ -368,7 +368,7 @@ const handleDeleteSubmit = async (e) => {
     document.querySelector('#delete-loading').style.display = null;
     document.querySelector('#delete-loading-text').style.display = null;
     document.querySelector('#delete-modal-body').style.opacity = '0';
-    const delete_intern_response = await fetch('/delete-intern', {  // from server
+    const delete_intern_response = await fetch('/delete-user', {  // from server
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

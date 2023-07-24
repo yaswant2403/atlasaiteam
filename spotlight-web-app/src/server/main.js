@@ -44,6 +44,7 @@ var User = auth.User;
 var Action = auth.Action;
 var Role = auth.Role;
 var UserRole = auth.UserRole;
+var Paragraph = auth.Paragraph;
 
 /******************************************************************************
  * Session Store Setup
@@ -119,6 +120,7 @@ app.use(passport.session());
 const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
+const Paragraph = require("./db_models/Paragraph");
 const authRouter = auth.router;
 
 let count = 0;
@@ -427,36 +429,18 @@ app.post('/edit-intern', ensureAuthenticated, async(req, res) => {
   }
 })
 
-app.post('/delete-intern', ensureAuthenticated, async(req, res) => {
-  const net_id = req.body.net_id;
-  console.log(net_id);
-  const verification = await existingNetID(net_id);
-  if (verification) {
-    await User.destroy(
-    {
-      where: { net_id: net_id }
-    });
-    const message = "User " + req.body.net_id + " has been deleted!";
-    return res.status(200).send({message: message});
-  } else {
-    return res.status(500).send({message: "User can't be deleted as they don't exist! Please try again."});
-  }
-})
+
 
 app.post('/all-staff', ensureAuthenticated, async(req, res) => {
   try {
     var response = [];
-    var interns = await User.findAll({
-      include: [{
-          model: Action,
-          as: 'attempts',
-          attributes: ['spotlight_attempts'] 
-        },
+    var staff = await User.findAll({
+      include: [
         {
           model: Role,
           attributes: ['role'],
           where: {
-            'role': 'Intern'
+            'role': 'Staff'
           },
           through: {
             attributes: []
@@ -464,59 +448,58 @@ app.post('/all-staff', ensureAuthenticated, async(req, res) => {
         }
       ]
     });
-    if (interns.length > 0) {
-      for (const intern of interns) {
-        const user_id = intern.user_id;
+    if (staff.length > 0) {
+      for (const staff_member of staff) {
+        const user_id = staff_member.user_id;
         var term = "";
         var additional_roles = await UserRole.findAll({
           attributes: ['role'],
           where: {
             'user_id': user_id,
             'role': {
-              [Op.ne]: 'Intern'
+              [Op.ne]: 'Staff'
             }
           },
           raw: true
         });
-        var roles = ["Intern"];
+        var roles = ["Staff"];
         additional_roles.forEach((role) => {
           roles.push(Object.values(role)[0]);
         })
-        if (intern.term.endsWith("5")) {
-          term = "SU" + intern.term.substring(1,5);
-        } else if (intern.term.endsWith("8")) {
-          term = "FA" + intern.term.substring(1,5);
+        if (staff_member.term.endsWith("5")) {
+          term = "SU" + staff_member.term.substring(1,5);
+        } else if (staff_member.term.endsWith("8")) {
+          term = "FA" + staff_member.term.substring(1,5);
         } else {
-          term = "SP" + intern.term.substring(1,5);
+          term = "SP" + staff_member.term.substring(1,5);
         }
         var updatedBy = "";
         var updatedDate;
-        if (intern.last_modified_by == null) {
-          updatedBy = intern.created_by;
-          updatedDate = intern.created_date;
+        if (staff_member.last_modified_by == null) {
+          updatedBy = staff_member.created_by;
+          updatedDate = staff_member.created_date;
         } else {
-          updatedBy = intern.last_modified_by;
-          updatedDate = intern.last_modified_date;
+          updatedBy = staff_member.last_modified_by;
+          updatedDate = staff_member.last_modified_date;
         }
         response.push ({
-          net_id: intern.net_id,
-          name: intern.name,
+          net_id: staff_member.net_id,
+          name: staff_member.name,
           term: term,
-          attempts: intern.attempts[0].spotlight_attempts,
           updatedBy: updatedBy,
           updatedDate: updatedDate,
           roles: roles
         });
       }
     } else {
-      response.push({net_id: null}); // no interns found in database
+      response.push({net_id: null}); // no staff found in database
     }
     // console.log(interns);
     res.status(200).send(response);
   } catch (error) {
     console.log(error);
     return res.status(500).send({
-      error: 'There was an error fetching the intern data!'
+      error: 'There was an error fetching the staff data!'
     }) 
   }
 })
@@ -536,7 +519,6 @@ app.post('/add-staff', ensureAuthenticated, async(req, res) => {
     } else {
       term += "1";
     }
-    const spotlight_attempts = parseInt(req.body.attempts);
     const created_by = req.session.passport.user;
     const roles = [];
     for (const role of req.body.roles) {
@@ -548,7 +530,7 @@ app.post('/add-staff', ensureAuthenticated, async(req, res) => {
       };
       roles.push(user_role);
     }
-    const newIntern = await User.create({
+    const newStaff = await User.create({
       net_id: net_id,
       name: name,
       term: term,
@@ -556,8 +538,6 @@ app.post('/add-staff', ensureAuthenticated, async(req, res) => {
       last_modified_by: null,
       last_modified_date: null,
       attempts: [{ 
-          spotlight_attempts: spotlight_attempts,
-          message_attempts: 0,
           created_by: created_by,
           last_modified_by: null,
           last_modified_date: null
@@ -568,8 +548,8 @@ app.post('/add-staff', ensureAuthenticated, async(req, res) => {
                 { model: UserRole, as: 'user_roles'}]
     });
     let response = "";
-    if (newIntern) {
-      response = "User " + newIntern.net_id + " has been created!";
+    if (newStaff) {
+      response = "User " + newStaff.net_id + " has been created!";
       return res.status(200).send({message: response});
     } else {
       return res.status(500).send({
@@ -598,7 +578,6 @@ app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
     } else {
       term += "1";
     }
-    const spotlight_attempts = parseInt(req.body.attempts);
     const last_modified_by = req.session.passport.user;
     const updateIntern = await User.update({
       net_id: net_id,
@@ -616,15 +595,6 @@ app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
           net_id: net_id
         },
         attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']}
-      });
-      const editUserAttempts = await Action.update({
-        spotlight_attempts: spotlight_attempts,
-        message_attempts: 3,
-        last_modified_by: last_modified_by,
-        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      {
-        where: { user_id: editedUser.user_id } 
       });
       const editUserRoles = await editedUser.setRoles(req.body.roles, {
         through: {created_by: last_modified_by, 
@@ -647,7 +617,7 @@ app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
   }
 })
 
-app.post('/delete-staff', ensureAuthenticated, async(req, res) => {
+app.post('/delete-user', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
   console.log(net_id);
   const verification = await existingNetID(net_id);
@@ -663,6 +633,31 @@ app.post('/delete-staff', ensureAuthenticated, async(req, res) => {
   }
 })
 
+app.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
+  const net_id = req.session.passport.user;
+  try {
+    const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
+      where: {
+        net_id: net_id
+      }
+    })
+    if (user) {
+      await Paragraph.create({
+        user_id: user.user_id,
+        term: req.body.term,
+        created_by: net_id,
+        last_modified_by: null,
+        last_modified_date: null
+      });
+      let message = "Paragraph has been added for " + net_id;
+      return res.status(500).send({message: message});
+    } else {
+      return res.status(500).send({message: "Can't add paragraph as you don't exist! Please contact staff."});
+    }
+  } catch (error) {
+    return res.status(500).send({message: "There was an error checking if you exist in our database! Please try again."});
+  }
+})
 
 /*****************************
  * Form Submission POST Routes

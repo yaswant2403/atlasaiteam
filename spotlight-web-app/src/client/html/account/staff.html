@@ -128,50 +128,50 @@
                   </div>
                 </div>
                 <div class="form-row pt-2">
-                    <div class="form-group col-md-4">
-                        <label for="inputTerm">Term:</label>
-                        <select id="inputTerm" class="form-control" required>
-                            <option value="" disabled selected hidden>Select Term</option>
-                            <option value="Fall">Fall</option>
-                            <option value="Spring">Spring</option>
-                            <option value="Summer">Summer</option>
-                        </select>
-                        <div class="valid-feedback">Looks Good!</div>
-                        <div class="invalid-feedback">Please select a term.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="inputYear">Year:</label>
-                        <select id="inputYear" class="form-control" required>
-                            <option value="" disabled selected hidden>Select Year</option>
-                            <!-- Adds current year and 4 after -->
-                            <script>
-                                let dataDropdown = document.querySelector('#inputYear');
-                                let currentYear = new Date().getFullYear();
-                                for (let i = 0; i < 4; i++) {
-                                    let option = document.createElement('option');
-                                    option.value = currentYear;
-                                    option.text = currentYear;
-                                    dataDropdown.add(option);
-                                    currentYear++;
-                                }
-                            </script>
-                        </select>
-                        <div class="valid-feedback">Looks Good!</div>
-                        <div class="invalid-feedback">Please select a year.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="inputRoles" class="pr-2">Roles:</label>
-                        <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
-                        data-selected-text-format="count > 3" data-actions-box="true">
-                            <option selected disabled value="staff">Staff
-                            </option>
-                            <option value="Admin">Admin</option>
-                            <option value="Staff">Staff</option>
-                        </select>
-                        <small class="form-text text-muted">
-                            Every new Staff will have Staff role. Other roles are optional.
-                        </small>
-                    </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputTerm">Term:</label>
+                    <select id="inputTerm" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Term</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a term.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputYear">Year:</label>
+                    <select id="inputYear" class="form-control" required>
+                        <option value="" disabled selected hidden>Select Year</option>
+                        <!-- Adds current year and 4 after -->
+                        <script>
+                            let dataDropdown = document.querySelector('#inputYear');
+                            let currentYear = new Date().getFullYear();
+                            for (let i = 0; i < 4; i++) {
+                                let option = document.createElement('option');
+                                option.value = currentYear;
+                                option.text = currentYear;
+                                dataDropdown.add(option);
+                                currentYear++;
+                            }
+                        </script>
+                    </select>
+                    <div class="valid-feedback">Looks Good!</div>
+                    <div class="invalid-feedback">Please select a year.</div>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="inputRoles" class="pr-2">Roles:</label>
+                    <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
+                      data-selected-text-format="count > 3" data-actions-box="true">
+                      <option selected disabled value="staff">Staff
+                      </option>
+                      <option value="Intern">Intern</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Every new Staff will have Staff role. Other roles are optional.
+                    </small>
+                  </div>
                 </div>
                 <div class="alert container-fluid text-center" id="add-alert" style="display: none;"></div>
               </div>
@@ -203,7 +203,7 @@
                     <label for="editNetID">NetID:</label>
                     <input type="text" class="form-control" id="editNetID" required>
                     <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the intern's netID.</div>
+                    <div class="invalid-feedback">Please enter the netID.</div>
                   </div>
                   <div class="form-group col-md-4">
                     <label for="editFirstName">First Name:</label>
@@ -219,7 +219,7 @@
                   </div>
                 </div>
                 <div class="form-row pt-2">
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-4">
                     <label for="editTerm">Term:</label>
                     <select id="editTerm" class="form-control" required>
                         <option selected value="Fall">Fall</option>
@@ -229,7 +229,7 @@
                     <div class="valid-feedback">Looks Good!</div>
                     <div class="invalid-feedback">Please select a term.</div>
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-4">
                     <label for="editYear">Year:</label>
                     <select id="editYear" class="form-control" required>
                         <option value="" disabled selected hidden>Select Year</option>
@@ -249,33 +249,17 @@
                     <div class="valid-feedback">Looks Good!</div>
                     <div class="invalid-feedback">Please select a year.</div>
                   </div>
-                  <div class="form-group col-md-6">
-                    <label for="editAttempts">Spotlight Attempts:</label>
-                    <select id="editAttempts" class="form-control">
-                        <option value="3">3</option>
-                        <option value="2">2</option>
-                        <option value="1">1</option>
-                    </select>
-                    <small class="form-text text-muted">
-                        One attempt generates Three paragraphs
-                    </small>
-                    <small class="form-text text-muted">
-                        Three attempts generates Nine paragraphs
-                    </small>
-                  </div>
-                </div>
-                <div class="form-row pt-1">
-                  <div class="form-group col-md-5">
+                  <div class="form-group col-md-4">
                     <label for="editRoles" class="pr-2">Roles:</label>
                     <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
-                    data-selected-text-format="count > 3" data-actions-box="true">
-                        <option selected disabled value="staff">Intern
-                        </option>
-                        <option value="Admin">Admin</option>
-                        <option value="Staff">Staff</option>
+                      data-selected-text-format="count > 3" data-actions-box="true">
+                      <option selected disabled value="staff">Staff
+                      </option>
+                      <option value="Intern">Intern</option>
+                      <option value="Admin">Admin</option>
                     </select>
                     <small class="form-text text-muted">
-                        Every new Intern will have Intern role. Other roles are optional.
+                        Every new Staff will have Staff role. Other roles are optional.
                     </small>
                   </div>
                 </div>
@@ -283,14 +267,14 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
-                <button id="save-edit" type="submit" form="edit-intern-form" class="btn btn-primary">Save Changes</button>
+                <button id="save-edit" type="submit" form="edit-staff-form" class="btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <!-- Delete Intern Modal -->
-      <div class="modal fade" id="delete-intern-modal">
+      <!-- Delete Staff Modal -->
+      <div class="modal fade" id="delete-staff-modal">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -299,15 +283,16 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <form id="delete-intern-form">
+            <form id="delete-staff-form">
               <h4 id="delete-loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Deleting Intern</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Deleting Staff</h4>
               <div id="delete-loading" class="loader" style="display: none;"></div>
               <div id="delete-modal-body" class="modal-body">
                 <div class="form-row">
                   <h5 class="warning p-2">
-                    This data will NOT be recoverable.
-                    This action also <span style="text-decoration: underline">deletes their</span><span style="color: red"> paragraph</span> and all the following info: 
+                    This data will NOT be recoverable. The staff member will no longer be able to
+                    view, edit or delete interns. This action will delete
+                    <span style="color: red"> ALL</span> the following info: 
                   </h5>
                 </div>
                 <div class="form-row">
@@ -325,19 +310,15 @@
                   </div>
                 </div>
                 <div class="form-row pt-2">
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-4">
                     <label for="deleteTerm">Term:</label>
                     <input type="text" class="form-control" disabled>
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-4">
                     <label for="deleteYear">Year:</label>
                     <input type="text" class="form-control" disabled>
                   </div>
-                  <div class="form-group col-md-3">
-                    <label for="deleteAttempts">Spotlight Attempts:</label>
-                    <input type="text" class="form-control" disabled>
-                  </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-4">
                     <label for="deleteRoles" class="pr-2">Roles:</label>
                     <input type="text" class="form-control" disabled>
                   </div>
@@ -346,7 +327,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-delete-modal-btn">Close</button>
-                <button id="delete-btn" type="submit" form="delete-intern-form" class="btn btn-danger">DELETE Intern</button>
+                <button id="delete-btn" type="submit" form="delete-staff-form" class="btn btn-danger">DELETE Staff</button>
               </div>
             </form>
           </div>
@@ -363,16 +344,15 @@
                   <th scope="col">Full Name</th>
                   <th scope="col">Term</th>
                   <th scope="col">Role</th>
-                  <th scope="col">Attempts</th>
                   <th scope="col">Updated By</th>
                   <th scope="col">Updated Date</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
-              <tbody id="intern-data">
+              <tbody id="staff-data">
               </tbody>
             </table>
-            <div class="alert alert-danger container-fluid text-center" id="no-interns-alert" style="display: none;">No interns found! Please add an intern by clicking Add Intern!</div>
+            <div class="alert alert-danger container-fluid text-center" id="no-staff-alert" style="display: none;">No Staff found! Please add staff by clicking Add Staff!</div>
           </div>
         </div>
       </div>
