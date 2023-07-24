@@ -98,7 +98,6 @@ function createPromptandDisplayInputs() {
   console.log(prompt);
 
   // Displaying their inputs
-  form.reset(); // clears form
   if (document.querySelectorAll('.rm').length != 0) { // removing extra tasks if > 3 tasks were added previously 
     var extra = document.querySelectorAll('.rm');
     Array.prototype.forEach.call(extra, function(node) {

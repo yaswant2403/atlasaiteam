@@ -120,7 +120,6 @@ app.use(passport.session());
 const assetsRouter = require("./routes/assetsRouter");
 const cssRouter = require("./routes/cssRouter");
 const jsRouter = require("./routes/jsRouter");
-const Paragraph = require("./db_models/Paragraph");
 const authRouter = auth.router;
 
 let count = 0;
@@ -494,7 +493,6 @@ app.post('/all-staff', ensureAuthenticated, async(req, res) => {
     } else {
       response.push({net_id: null}); // no staff found in database
     }
-    // console.log(interns);
     res.status(200).send(response);
   } catch (error) {
     console.log(error);
@@ -506,59 +504,125 @@ app.post('/all-staff', ensureAuthenticated, async(req, res) => {
 
 app.post('/add-staff', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
-  const verification = await verifyNetID(net_id);
-  if (verification.message == "valid") {
-    const name = req.body.name;
-    const season = req.body.term.slice(0, -4);
-    const year = req.body.term.slice(-4);
-    let term = "1" + year;
-    if (season == "Fall") {
-      term += "8";
-    } else if (season == "Summer") {
-      term += "5";
-    } else {
-      term += "1";
-    }
-    const created_by = req.session.passport.user;
-    const roles = [];
-    for (const role of req.body.roles) {
-      var user_role = {
-        role: role,
-        created_by: created_by,
-        last_modified_by: null,
-        last_modified_date: null
-      };
-      roles.push(user_role);
-    }
-    const newStaff = await User.create({
-      net_id: net_id,
-      name: name,
-      term: term,
-      created_by: created_by,
-      last_modified_by: null,
-      last_modified_date: null,
-      attempts: [{ 
+  const inputEmail = net_id + "@illinois.edu";
+  const { valid, reason, validators } = await emailValidator.validate(inputEmail);
+  const created_by = req.session.passport.user;
+  // if valid netID
+  if (valid) {
+    const user = await User.findOne({ 
+      where: {
+        net_id: net_id
+      },
+      include: [
+        {
+          model: Role,
+          attributes: ['role'],
+          through: {
+            attributes: []
+          }
+        }
+      ]
+    })
+    // if user already exists, give the user the Staff role too
+    // if user doesn't exist, then we can add them as a new Staff member
+    if (user) { 
+      console.log("User " + user.net_id +" already exists!");
+      let is_staff;
+      let existing_roles = [];
+      user.Roles.forEach((role_model) => {
+        existing_roles.push(role_model.role);
+        is_staff = (role_model.role == 'Staff');
+      })
+      if (is_staff) {
+        return res.status(200).send({
+          message: "User is already a staff member!"
+        })
+      } else {
+        const roles_to_add = [...new Set([...req.body.roles, ...existing_roles])];
+        // console.log(roles_to_add);
+        await user.setRoles(roles_to_add, {
+          through: {
+            created_by: created_by, 
+            created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
+            last_modified_by: null,
+            last_modified_date: null
+          }
+        });
+        const response = "User " + net_id + " was an existing user and has been granted the Staff Role!";
+        return res.status(200).send({message: response});
+      }
+    } else { 
+      const name = req.body.name;
+      const season = req.body.term.slice(0, -4);
+      const year = req.body.term.slice(-4);
+      let term = "1" + year;
+      if (season == "Fall") {
+        term += "8";
+      } else if (season == "Summer") {
+        term += "5";
+      } else {
+        term += "1";
+      }
+      const roles = [];
+      let hasInternRole;
+      for (const role of req.body.roles) {
+        hasInternRole = (role == 'Intern');
+        var user_role = {
+          role: role,
           created_by: created_by,
           last_modified_by: null,
           last_modified_date: null
-      }],
-      user_roles: roles
-    }, {
-      include: [{ model: Action, as: 'attempts'},
-                { model: UserRole, as: 'user_roles'}]
-    });
-    let response = "";
-    if (newStaff) {
-      response = "User " + newStaff.net_id + " has been created!";
-      return res.status(200).send({message: response});
-    } else {
-      return res.status(500).send({
-        message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
-        reason: "db-error"
-      });
+        };
+        roles.push(user_role);
+      }
+      let newStaff;
+      // if one of the roles is Intern, then they do need 3 attempts
+      if (hasInternRole) {
+        newStaff = await User.create({
+          net_id: net_id,
+          name: name,
+          term: term,
+          created_by: created_by,
+          last_modified_by: null,
+          last_modified_date: null,
+          attempts: [{ 
+            created_by: created_by,
+            last_modified_by: null,
+            last_modified_date: null
+          }],
+          user_roles: roles,
+        }, {
+          include: [{ model: Action, as: 'attempts'},
+                    { model: UserRole, as: 'user_roles'}]
+        });
+      } else { // otherwise they don't get any attempts 
+        newStaff = await User.create({
+          net_id: net_id,
+          name: name,
+          term: term,
+          created_by: created_by,
+          last_modified_by: null,
+          last_modified_date: null,
+          user_roles: roles
+        }, {
+          include: [{ model: UserRole, as: 'user_roles'}]
+        });
+      }
+      if (newStaff) {
+        const response = "User " + newStaff.net_id + " has been created!";
+        return res.status(200).send({message: response});
+      } else {
+        return res.status(500).send({
+          message: "Something went wrong on our side. User could not be created. Please try again later or contact Admin.", 
+          reason: "db-error"
+        });
+      }
     }
   } else {
-    return res.status(500).send(verification);
+    return res.status(500).send({
+      message: "Please provide a valid NetID!",
+      reason: reason
+    });
   }
 })
 
@@ -596,6 +660,17 @@ app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
         },
         attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']}
       });
+      // if we edit a staff member and give them the Intern role, then we need to add attempts to them
+      if (req.body.roles.includes('Intern')) {
+        await Action.create({
+          user_id: editedUser.user_id,
+          spotlight_attempts: 3,
+          message_attempts: 3,
+          created_by: last_modified_by,
+          last_modified_by: null,
+          last_modified_date: null
+        });
+      }
       const editUserRoles = await editedUser.setRoles(req.body.roles, {
         through: {created_by: last_modified_by, 
                   created_date: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -603,11 +678,7 @@ app.post('/edit-staff', ensureAuthenticated, async(req, res) => {
                   last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
                 }
       });
-      if (editUserRoles) {
-        message = "User " + net_id + " has been edited successfully!"
-      } else {
-        message = "There was an error updating user " + net_id + "'s roles!"
-      }
+      message = "User " + net_id + " has been edited successfully!"
     } else {
       message = "We couldn't. Please double check the NetID and try again!"
     }
@@ -850,15 +921,27 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
               bot: violation,
           })
       } else { // creating message with ChatGPT because not flagged as harmful content
-          const response = await openai.createChatCompletion({
+          const paragraph1 = await openai.createChatCompletion({
               model: "gpt-3.5-turbo",
               messages: p_messages,
               temperature: 0.1,
           });
+          const paragraph2 = await openai.createChatCompletion({
+              model: "gpt-3.5-turbo",
+              messages: p_messages,
+              temperature: 0.5,
+          });
+          const paragraph3 = await openai.createChatCompletion({
+              model: "gpt-3.5-turbo",
+              messages: p_messages,
+              temperature: 0.9,
+          });
           // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
           // sending the message to frontend as JSON response
           return res.status(200).send({
-              bot: response.data.choices[0].message.content,
+              paragraphs: [paragraph1.data.choices[0].message.content,
+                          paragraph2.data.choices[0].message.content,
+                          paragraph3.data.choices[0].message.content]
           })
       }
   } catch (error) { // error with response

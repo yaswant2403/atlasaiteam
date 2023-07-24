@@ -162,7 +162,7 @@ $(document).ready(function() {
         document.querySelector('#edit-alert').style.display = 'none';
         document.querySelector('#edit-alert').classList.remove(...cls);
     });
-    // displays all users data in the edit form
+    // displays all user's data in the edit form
     $('#edit-intern-modal').on('shown.bs.modal', function() {
         var modal = $(this);
         var user = JSON.parse(modal.attr('data-user'));
@@ -196,7 +196,7 @@ $(document).ready(function() {
         document.querySelector('#delete-alert').style.display = 'none';
         document.querySelector('#delete-alert').classList.remove(...cls);
     });
-    // displays all users data in the delete form
+    // displays all user's data in the delete form
     $('#delete-intern-modal').on('shown.bs.modal', function() {
         var modal = $(this);
         var user = JSON.parse(modal.attr('data-user'));
