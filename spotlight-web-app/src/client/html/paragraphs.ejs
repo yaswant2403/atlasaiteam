@@ -99,88 +99,40 @@
           <p>If you have 0 attempts left, you will need to contact Staff to modify your paragraph.<p>
         <% } %>
       <!-- Edit Paragraph Modal -->
-      <div class="modal fade" id="edit-admin-modal" role="dialog" aria-hidden="true">
+      <div class="modal fade" id="edit-pg-modal" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Edit ATLAS Paragraph</h5>
+              <h5 class="modal-title">Edit Spotlight Paragraph</h5>
               <button type="button" class="close close-edit" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <form id="edit-admin-form" clas="needs-validation" novalidate>
+            <form id="edit-pg-form">
               <h4 id="edit-loading-text" class="text-center justify-content-center" 
               style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Paragraph</h4>
               <div id="edit-loading" class="loader" style="display: none;"></div>
               <div id="edit-modal-body" class="modal-body">
-                <div class="form-row">
-                  <div class="form-group col-md-4">
+                <div class="form-row justify-content-center">
+                  <div class="form-group col-md-5">
                     <label for="editNetID">NetID:</label>
-                    <input type="text" class="form-control" id="editNetID" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the netID.</div>
+                    <input type="text" class="form-control" id="editNetID" readonly required>
                   </div>
-                  <div class="form-group col-md-4">
-                    <label for="editFirstName">First Name:</label>
-                    <input type="text" class="form-control" id="editFirstName" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the first name.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="editLastName">Last Name:</label>
-                    <input type="text" class="form-control" id="editLastName" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the last name.</div>
+                  <div class="form-group col-md-5">
+                    <label for="editName">Name:</label>
+                    <input type="text" class="form-control" id="editName" readonly>
                   </div>
                 </div>
-                <div class="form-row pt-2">
-                  <div class="form-group col-md-4">
-                    <label for="editTerm">Term:</label>
-                    <select id="editTerm" class="form-control" required>
-                        <option selected value="Fall">Fall</option>
-                        <option value="Spring">Spring</option>
-                        <option value="Summer">Summer</option>
-                    </select>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please select a term.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="editYear">Year:</label>
-                    <select id="editYear" class="form-control" required>
-                        <option value="" disabled selected hidden>Select Year</option>
-                        <!-- Adds current year and 4 after -->
-                        <script>
-                          let editDataDropdown = document.querySelector('#editYear');
-                          let editCurrentYear = new Date().getFullYear();
-                          for (let i = 0; i < 4; i++) {
-                              let option = document.createElement('option');
-                              option.value = editCurrentYear;
-                              option.text = editCurrentYear;
-                              editDataDropdown.add(option);
-                              editCurrentYear++;
-                          }
-                        </script>
-                    </select>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please select a year.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="editRoles" class="pr-2">Roles:</label>
-                    <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
-                      data-selected-text-format="count > 3" data-actions-box="true">
-                      <option selected disabled value="Paragraph">Paragraph
-                      </option>
-                    </select>
-                    <small class="form-text text-muted">
-                        With this page, you cannot remove the Paragraph role or modify Intern/Staff role.
-                    </small>
+                <div class="form-row pt-2 justify-content-center">
+                  <div class="form-group col-md-10">
+                    <textarea class="form-control" id="editParagraph" rows="12" required></textarea>
                   </div>
                 </div>
                 <div class="alert container-fluid text-center" id="edit-alert" style="display: none;"></div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-edit-modal-btn">Close</button>
-                <button id="save-edit" type="submit" form="edit-admin-form" class="btn btn-primary">Save Changes</button>
+                <button id="save-edit" type="submit" form="edit-pg-form" class="btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>

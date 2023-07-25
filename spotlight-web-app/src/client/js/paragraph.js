@@ -23,7 +23,7 @@ function appendToTable(isIntern, user_data) {
             const tr = document.createElement('tr');
             var user = user_data.pop();
             tr.setAttribute('data-name', user.name);
-            var edit_user_data = JSON.stringify({name: user.name, paragraph: user.paragraph});
+            var edit_user_data = JSON.stringify({net_id: user.net_id, name: user.name, paragraph: user.paragraph});
             tr.innerHTML = `
                 <td>${user.net_id}</td>
                 <td>${user.name}</td>
@@ -33,7 +33,7 @@ function appendToTable(isIntern, user_data) {
                 <td>${user.updatedDate.substring(0,10).concat(" ", user.updatedDate.substring(11,19))}</td>
                 <td class="text-center">
                     <span data-toggle="tooltip" data-placement="top" title="Edit Paragraph">
-                        <a href="#" class="pl-4 pr-4 edit-user" data-user='${edit_user_data}'><i class="fas fa-edit link-info"></i></a>
+                        <a href="#" class="pl-4 pr-4 edit-pg" data-user='${edit_user_data}'><i class="fas fa-edit link-info"></i></a>
                     </span>
                 </td>
             `;
@@ -135,6 +135,10 @@ async function loadTable() {
 }
 window.onload = loadTable();
 
+// grabbing the forms
+const editForm = document.querySelector('#edit-pg-form');
+const cls = ['alert-success', 'alert-danger'];
+
 $(document).ready(function() {
     // search function
     $('#search').on("keyup", function() {
@@ -149,18 +153,16 @@ $(document).ready(function() {
      */ 
     // close manual toggles 
     $('.close-edit').click(_ => {
-        $('#edit-admin-modal').modal('toggle');
+        $('#edit-pg-modal').modal('toggle');
     })
     $('.close-edit-modal-btn').click(_ => {
-        $('#edit-admin-modal').modal('toggle');
+        $('#edit-pg-modal').modal('toggle');
     })
     // toggle edit user modal
-    $(document).on('click', '.edit-admin', function() {
+    $(document).on('click', '.edit-pg', function() {
         var user = $(this).attr('data-user')
-        $('#edit-admin-modal').attr("data-user", user).modal('toggle');
+        $('#edit-pg-modal').attr("data-user", user).modal('toggle');
         editForm.reset();
-        document.querySelector('#edit-admin-modal .filter-option-inner-inner').innerText = "Admin";
-        editForm.classList.remove(...cls);
         document.querySelector('#edit-modal-body').style.opacity = '1';
         document.querySelector('#edit-loading').style.display = 'none';
         document.querySelector('#edit-loading-text').style.display = 'none';
@@ -168,25 +170,79 @@ $(document).ready(function() {
         document.querySelector('#edit-alert').classList.remove(...cls);
     });
     // displays all users data in the edit form
-    $('#edit-admin-modal').on('shown.bs.modal', function() {
+    $('#edit-pg-modal').on('shown.bs.modal', function() {
         var modal = $(this);
         var user = JSON.parse(modal.attr('data-user'));
-        var user_title = 'Edit ATLAS Admin: ' + user.name;
+        var user_title = 'Edit ' + user.name + '\'s Spotlight Paragraph';
         modal.find('.modal-title').text(user_title);
         document.querySelector('#editNetID').value = user.net_id;
-        document.querySelector('#editFirstName').value = user.name.split(" ")[0];
-        document.querySelector('#editLastName').value = user.name.split(" ")[1];
-        var season = user.term.slice(0, -4);
-        if (season == "SU") {
-            document.querySelector('#editTerm').value = "Summer";
-        } else if (season == "SP") {
-            document.querySelector('#editTerm').value = "Spring";
-        } else {
-            document.querySelector('#editTerm').value = "Fall";
-        }
-        var year = user.term.slice(-4);
-        document.querySelector('#editYear').value = year;
-        $('#editRoles').val(user.roles);
-        document.querySelector('#edit-admin-modal .filter-option-inner-inner').innerText = user.roles.join(", ");
+        document.querySelector('#editName').value = user.name;
+        $('#editParagraph').val(user.paragraph);
     })
 });
+
+// getting all the edit form inputs
+function getEditAdminInputs() {
+    const net_id = document.querySelector('#editNetID').value.trim();
+    const name = document.querySelector('#editFirstName').value.trim() + ' ' +
+        document.querySelector('#editLastName').value.trim();
+    const term = document.querySelector('#editTerm').value + 
+        document.querySelector('#editYear').value;
+    var roles = ['Admin'];
+    roles = roles.concat($('#editRoles').val());
+    return {
+        net_id: net_id,
+        name: name,
+        term: term,
+        roles: roles
+    };
+}
+
+// submit handler for Editing Admin Form
+const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const edit_alert = document.querySelector('#edit-alert');
+    edit_alert.classList.remove(...cls);
+    edit_alert.classList.display = 'none';
+    edit_alert.innerText = null;
+    if (!editForm.checkValidity()) {
+        console.log("Form is Invalid!");
+        editForm.classList.add('was-validated');
+    } else {
+        editForm.classList.remove('was-validated');
+        // loading animation enabled
+        document.querySelector('#edit-loading').style.display = null;
+        document.querySelector('#edit-loading-text').style.display = null;
+        document.querySelector('#edit-modal-body').style.opacity = '0';
+        const allInputs = getEditAdminInputs();
+        const edit_admin_response = await fetch('/edit-admin', {  // from server
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(allInputs) 
+        })
+        if (edit_admin_response.ok) {
+            document.querySelector('#edit-loading').style.display = 'none';
+            document.querySelector('#edit-loading-text').style.display = 'none';
+            document.querySelector('#edit-modal-body').style.opacity = '1';
+            const result = await edit_admin_response.json();
+            edit_alert.classList.add('alert-success');
+            edit_alert.innerText = result.message;
+            edit_alert.style.display = null;
+            loadTable(); // update the table
+        } else {
+            document.querySelector('#edit-loading').style.display = 'none';
+            document.querySelector('#edit-loading-text').style.display = 'none';
+            document.querySelector('#edit-modal-body').style.opacity = '1';
+            const result = await edit_admin_response.json();
+            edit_alert.classList.add('alert-danger');
+            edit_alert.innerText = result.message;
+            edit_alert.style.display = null;
+        }
+    }
+}
+
+// Using our handleSubmitFunction as the function for the submit eventListeners of the edit form
+editForm.addEventListener('submit', handleEditSubmit, false);
