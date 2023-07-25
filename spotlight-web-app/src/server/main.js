@@ -178,7 +178,7 @@ app.get("/account/:pageName", ensureAuthenticated, async (req, res) => {
   } else if ((pageName == 'staff' || pageName == 'admin') && cu_roles.includes('Admin')) {
     res.render(`${pageName}`, {user: current_user});
   } else {
-    res.render('forbidden');
+    res.render('forbidden'); 
   }
 });
 
