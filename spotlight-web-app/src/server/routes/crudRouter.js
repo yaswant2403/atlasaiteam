@@ -780,6 +780,36 @@ router.post('/delete-user', ensureAuthenticated, async(req, res) => {
   }
 })
 
+router.get('/paragraph/:netID', ensureAuthenticated, async(req, res) => {
+  const net_id = req.params.netID;
+  try {
+    const user = await User.findOne({
+      where: {
+        net_id: net_id,
+      },
+      attributes: ['term'],
+      include: [
+          {
+            model: Paragraph,
+            as: 'paragraphs',
+            attributes: ['paragraph']
+          }
+      ],
+      plain: true
+    });
+    if (user.paragraphs.length > 0) {
+      const result = JSON.stringify(user, null, 2);
+      return res.status(200).send(result);
+    } else {
+      return res.status(200).send({
+        message: "No paragraph found! Please add a paragraph by going to CREATE SPOTLIGHT"
+      })
+    }
+  } catch(error) {
+    return res.status(500).send({message: "There was an error getting your paragraph! Please refresh the page."});
+  }
+})
+
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
     const net_id = req.session.passport.user;
     try {

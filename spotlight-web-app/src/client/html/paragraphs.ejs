@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="css/account-subpage.css"/>
     <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
     <script>
+      const current_user = <%- JSON.stringify(user) %>; // stores the user we get from the server in a variable that we can access in paragraph.js
       document.addEventListener('DOMContentLoaded', function() {
         var toggleButton = document.querySelector('#navbarToggle');
         toggleButton.addEventListener("click", function() {
@@ -77,124 +78,39 @@
   </head>
   <body>
     <div class="container-fluid">
-      <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">Spotlight Paragraphs</h2>
-      <!-- Input search, filter, add button -->
-      <div class="row pb-2">
-        <div class="col-md-10 pb-sm-2">
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text text-bg-primary"><i class="fas fa-search"></i></span>
+      <% if (user.roles.includes('Staff') || user.roles.includes('Admin')) { %>
+        <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">Spotlight Paragraphs</h2>
+        <!-- Input search by name -->
+        <div class="row pb-2">
+          <div class="col-md-12 pb-sm-2">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-bg-primary"><i class="fas fa-search"></i></span>
+              </div>
+              <input id="search" type="text" class="form-control" placeholder="Search by Name">
             </div>
-            <input id="search" type="text" class="form-control" placeholder="Search by Name">
           </div>
         </div>
-        <div class="col-md-2 text-center">
-          <button id="add-admin-btn" class="btn btn-success">
-            Add Admin
-          </button>
-        </div>
-      </div>
-      <!-- Add New Admin Modal -->
-      <div class="modal fade" id="add-admin" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Add New ATLAS Admin</h5>
-              <button type="button" class="close close-add" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form id="new-admin" class="needs-validation" novalidate>
-              <h4 id="loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Adding Admin</h4>
-              <div id="loading" class="loader" style="display: none;"></div>
-              <div id="add-modal-body" class="modal-body">
-                <div class="form-row">
-                  <div class="form-group col-md-4">
-                    <label for="newNetID">NetID:</label>
-                    <input type="text" class="form-control" id="newNetID" placeholder="johndoe2" required>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="inputFirstName">First Name:</label>
-                    <input type="text" class="form-control" id="inputFirstName" placeholder="John" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the first name.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="inputLastName">Last Name:</label>
-                    <input type="text" class="form-control" id="inputLastName" placeholder="Doe" required>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please enter the last name.</div>
-                  </div>
-                </div>
-                <div class="form-row pt-2">
-                  <div class="form-group col-md-4">
-                    <label for="inputTerm">Term:</label>
-                    <select id="inputTerm" class="form-control" required>
-                        <option value="" disabled selected hidden>Select Term</option>
-                        <option value="Fall">Fall</option>
-                        <option value="Spring">Spring</option>
-                        <option value="Summer">Summer</option>
-                    </select>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please select a term.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="inputYear">Year:</label>
-                    <select id="inputYear" class="form-control" required>
-                        <option value="" disabled selected hidden>Select Year</option>
-                        <!-- Adds current year and 4 after -->
-                        <script>
-                            let dataDropdown = document.querySelector('#inputYear');
-                            let currentYear = new Date().getFullYear();
-                            for (let i = 0; i < 4; i++) {
-                                let option = document.createElement('option');
-                                option.value = currentYear;
-                                option.text = currentYear;
-                                dataDropdown.add(option);
-                                currentYear++;
-                            }
-                        </script>
-                    </select>
-                    <div class="valid-feedback">Looks Good!</div>
-                    <div class="invalid-feedback">Please select a year.</div>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="inputRoles" class="pr-2">Roles:</label>
-                    <select id="inputRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
-                      data-selected-text-format="count > 3" data-actions-box="true">
-                      <option selected disabled value="Admin">Admin
-                      </option>
-                    </select>
-                    <small class="form-text text-muted">
-                        Every new Admin will have Admin role. New admins are NOT allowed to have the Intern or Staff role.
-                        Other roles are optional.
-                    </small>
-                  </div>
-                </div>
-                <div class="alert container-fluid text-center" id="add-alert" style="display: none;"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
-                <button id="continue-add" type="submit" form="new-admin" class="btn btn-primary">Continue</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- Edit Admin Modal -->
+        <% } else { %>
+          <h2 class="h-auto text-center" style="color: rgb(30, 30, 97);">Spotlight Paragraph</h2>
+          <h5>Hello <%= user.name %>! You can find your paragraphs here.</h5>
+          <p class="pt-2">If you wish to change this paragraph and still have attempts left, you can regenerate paragraphs by going to <span style="font-weight:bold;">CREATE SPOTLIGHT</span>
+          </p>
+          <p>If you have 0 attempts left, you will need to contact Staff to modify your paragraph.<p>
+        <% } %>
+      <!-- Edit Paragraph Modal -->
       <div class="modal fade" id="edit-admin-modal" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Edit ATLAS Admin</h5>
+              <h5 class="modal-title">Edit ATLAS Paragraph</h5>
               <button type="button" class="close close-edit" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <form id="edit-admin-form" clas="needs-validation" novalidate>
               <h4 id="edit-loading-text" class="text-center justify-content-center" 
-              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Admin</h4>
+              style="display: none; position: absolute; left: 40%; top: 35%; z-index: 1;">Editing Paragraph</h4>
               <div id="edit-loading" class="loader" style="display: none;"></div>
               <div id="edit-modal-body" class="modal-body">
                 <div class="form-row">
@@ -252,11 +168,11 @@
                     <label for="editRoles" class="pr-2">Roles:</label>
                     <select id="editRoles" class="selectpicker" title="Select Role(s)" multiple data-live-search="true" 
                       data-selected-text-format="count > 3" data-actions-box="true">
-                      <option selected disabled value="Admin">Admin
+                      <option selected disabled value="Paragraph">Paragraph
                       </option>
                     </select>
                     <small class="form-text text-muted">
-                        With this page, you cannot remove the Admin role or modify Intern/Staff role.
+                        With this page, you cannot remove the Paragraph role or modify Intern/Staff role.
                     </small>
                   </div>
                 </div>
@@ -271,9 +187,8 @@
         </div>
       </div>
       <!-- Table -->
-      <h5>To delete an admin, you will need to do so through phpMyAdmin in cPanel.</h5>
       <div class="row">
-        <div class="col-xs-3">
+        <div class="col-xs-6">
           <div class="table-responsive-md">
             <table class="table table-bordered table-hover">
               <% if (user.roles.includes('Staff') || user.roles.includes('Admin')) { %>
@@ -297,22 +212,17 @@
                   </tr>
                 </thead>
               <% } %>
-              <tbody id="admin-data">
-                <tr>
-                  <td>${admin.name}</td>
-                  <td>${admin.term}</td>
-                  <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Magna etiam tempor orci eu. Sit amet nulla facilisi morbi tempus iaculis urna id. Commodo odio aenean sed adipiscing. Sed sed risus pretium quam vulputate dignissim suspendisse in. Et malesuada fames ac turpis egestas. Sit amet consectetur adipiscing elit duis tristique sollicitudin. Auctor neque vitae tempus quam pellentesque nec nam aliquam. In fermentum et sollicitudin ac orci phasellus egestas tellus. Cum sociis natoque penatibus et magnis dis. Quis viverra nibh cras pulvinar mattis nunc sed blandit libero. Pretium nibh ipsum consequat nisl vel. Nunc sed velit dignissim sodales ut eu sem integer. In mollis nunc sed id semper risus in hendrerit gravida. Mauris pharetra et ultrices neque ornare aenean euismod. Massa ultricies mi quis hendrerit dolor magna eget est. Pharetra magna ac placerat vestibulum.</td>
-                </tr>
+              <tbody id="paragraphs">
               </tbody>
             </table>
-            <div class="alert alert-danger container-fluid text-center" id="no-admin-alert" style="display: none;">No Admin found! Please add admin by clicking Add Admin!</div>
+            <div class="alert alert-danger container-fluid text-center" id="no-paragraph-alert" style="display: none;"></div>
           </div>
         </div>
       </div>
       <div id="test"></div>
       <div id="page-selection" class="pagination justify-content-center"></div>
     </div>
-    <!-- <script src="js/admin.js"></script> -->
+    <script src="js/paragraph.js"></script>
     <!-- Bootstrap + jQuery CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
