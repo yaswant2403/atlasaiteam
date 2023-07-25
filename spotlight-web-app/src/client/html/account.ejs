@@ -70,7 +70,7 @@
   </head>
   <body>
     <div class="container-fluid">
-      <h4 class="text-center justify-content-center pb-2">Hello <%= user.name %>!</h4>
+      <h4 class="text-center justify-content-center pb-1">Hello <%= user.name %>!</h4>
       <% if (user.roles.length == 1 && user.roles[0] == "Intern") { %>
       <div class="row gx-md-5 gx-sm-2 gy-sm-4 justify-content-center">
       <% } else { %>
@@ -95,7 +95,7 @@
                 <img src="assets/interns.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
                 <h3 class="card-title">Manage Interns</h3>
                 <p class="card-text" style="padding-top: 10px;">
-                  Add Edit or Delete Interns
+                  Here, you can add new Interns or view, edit and delete existing Interns.
                 </p>
                 <a href="/account/interns" class="stretched-link"></a>
               </div>
@@ -111,7 +111,7 @@
                 <img src="assets/staff.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
                 <h3 class="card-title">Manage Staff</h3>
                 <p class="card-text" style="padding-top: 10px;">
-                    Add Edit or Delete Staff
+                  Here, you can add new Staff or view, edit and delete existing Staff.
                 </p>
                 <a href="/account/staff" class="stretched-link"></a>
               </div>
@@ -123,7 +123,7 @@
                 <img src="assets/admin.jpeg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
                 <h3 class="card-title">Manage Admin</h3>
                 <p class="card-text" style="padding-top: 10px;">
-                  Add Edit or Delete Admin
+                  Here, you can add new Admin or view and edit existing Admin.
                 </p>
                 <a href="/account/admin" class="stretched-link"></a>
               </div>

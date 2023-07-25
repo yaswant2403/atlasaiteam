@@ -154,8 +154,9 @@ app.use("/account/js", jsRouter);
 app.get("/message", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
 });
-app.get("/spotlight", ensureAuthenticated, (req, res) => {
-  res.render("spotlight");
+app.get("/spotlight", ensureAuthenticated, async (req, res) => {
+  const current_user = await getUser(req.session.passport.user);
+  res.render("spotlight", { user: current_user });
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.render("about");
@@ -168,7 +169,17 @@ app.get("/account", ensureAuthenticated, async (req, res) => {
 app.get("/account/:pageName", ensureAuthenticated, async (req, res) => {
   const pageName = req.params.pageName;
   const current_user = await getUser(req.session.passport.user);
-  res.render(`${pageName}`, { user: current_user });
+  var cu_roles = current_user.roles;
+  // this ensures that a user cannot access any of the account subpages without having the proper role
+  if (pageName == 'paragraphs') {
+    res.render(`${pageName}`, {user: current_user});
+  } else if (pageName == 'interns' && (cu_roles.includes('Staff') || cu_roles.includes('Admin'))) {
+    res.render(`${pageName}`, {user: current_user});
+  } else if ((pageName == 'staff' || pageName == 'admin') && cu_roles.includes('Admin')) {
+    res.render(`${pageName}`, {user: current_user});
+  } else {
+    res.render('forbidden');
+  }
 });
 
 /*****************************
