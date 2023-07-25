@@ -70,8 +70,12 @@
   </head>
   <body>
     <div class="container-fluid">
-      <h4 class="text-center justify-content-center">Hello <%= user.name %>!</h4>
+      <h4 class="text-center justify-content-center pb-2">Hello <%= user.name %>!</h4>
+      <% if (user.roles.length == 1 && user.roles[0] == "Intern") { %>
+      <div class="row gx-md-5 gx-sm-2 gy-sm-4 justify-content-center">
+      <% } else { %>
       <div class="row gx-md-5 gx-sm-2 gy-sm-4">
+      <% } %>
         <div class="col-md-6">
           <div class="card h-100" style="background-color: beige;">
             <div class="card-body">
@@ -84,7 +88,7 @@
             </div>
           </div>
         </div>
-        <% if (user.roles.includes('Staff')) { %>
+        <% if (user.roles.includes('Staff') || user.roles.includes('Admin')) { %>
           <div class="col-md-6">
             <div class="card h-100" style="background-color: beige;">
               <div class="card-body">
@@ -97,36 +101,36 @@
               </div>
             </div>
           </div>
-        <% } else { %>
-          <p>TEst works!</p>
         <% } %>
       </div>
+      <% if (user.roles.includes('Admin')) { %>
       <div class="row gx-md-5 gx-sm-2 pt-4 gy-sm-4">
-        <div class="col-md-6">
-          <div class="card h-100" style="background-color: beige;">
-            <div class="card-body">
-              <img src="assets/staff.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
-              <h3 class="card-title">Manage Staff</h3>
-              <p class="card-text" style="padding-top: 10px;">
-                  Add Edit or Delete Staff
-              </p>
-              <a href="/account/staff" class="stretched-link"></a>
+          <div class="col-md-6">
+            <div class="card h-100" style="background-color: beige;">
+              <div class="card-body">
+                <img src="assets/staff.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
+                <h3 class="card-title">Manage Staff</h3>
+                <p class="card-text" style="padding-top: 10px;">
+                    Add Edit or Delete Staff
+                </p>
+                <a href="/account/staff" class="stretched-link"></a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100" style="background-color: beige;">
+              <div class="card-body">
+                <img src="assets/admin.jpeg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
+                <h3 class="card-title">Manage Admin</h3>
+                <p class="card-text" style="padding-top: 10px;">
+                  Add Edit or Delete Admin
+                </p>
+                <a href="/account/admin" class="stretched-link"></a>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card h-100" style="background-color: beige;">
-            <div class="card-body">
-              <img src="assets/admin.jpeg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
-              <h3 class="card-title">Manage Admin</h3>
-              <p class="card-text" style="padding-top: 10px;">
-                Add Edit or Delete Admin
-              </p>
-              <a href="/account/admin" class="stretched-link"></a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <% } %>
     </div>
     <!-- Bootstrap CSS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
