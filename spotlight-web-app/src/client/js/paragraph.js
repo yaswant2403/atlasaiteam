@@ -48,8 +48,16 @@ function appendToTable(isIntern, user_data) {
 async function loadTable() {
     no_paragraphs.style.display = 'none'; // hide the alert if visible
     table_body.textContent = ''; //clear the current table
+    // user has Staff/Admin role
     if (current_user.roles.includes('Staff') || current_user.roles.includes('Admin')) {
-        console.log(current_user);
+        const allParagraphs = await fetch('/all-paragraphs', {
+            method: 'GET',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'  
+        })
+        // console.log(current_user);
     } else { // user is an Intern
         const userParagraph = await fetch(`/paragraph/${current_user.net_id}`, {  // from server
             method: 'GET',

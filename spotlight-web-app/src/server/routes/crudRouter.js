@@ -8,6 +8,7 @@ const router = express.Router();
 const emailValidator = require('deep-email-validator');
 const sequelize = require('../config/db.config');
 var initModels = require('../db_models/init-models');
+const { route } = require('./assetsRouter');
 
 // Initializing all the models
 var models = initModels(sequelize);
@@ -236,7 +237,7 @@ router.post('/edit-intern', ensureAuthenticated, async(req, res) => {
             where: {
             net_id: net_id
             },
-            attributes: {exclude: ['net_id', 'name', 'created_by', 'created_date', 'last_modified_by', 'term', 'last_modified_date']}
+            attributes: ['user_id']
         });
         const editUserAttempts = await Action.update({
             spotlight_attempts: spotlight_attempts,
@@ -808,6 +809,10 @@ router.get('/paragraph/:netID', ensureAuthenticated, async(req, res) => {
   } catch(error) {
     return res.status(500).send({message: "There was an error getting your paragraph! Please refresh the page."});
   }
+})
+
+router.get('/all-paragraphs', ensureAuthenticated, async(req, res) => {
+
 })
 
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
