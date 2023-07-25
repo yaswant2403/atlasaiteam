@@ -160,17 +160,15 @@ app.get("/spotlight", ensureAuthenticated, (req, res) => {
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.render("about");
 });
-app.get("/account", ensureAuthenticated, (req, res) => {
-  getUser(req.session.passport.user).then((user) => {
-    const current_user = user;
-    console.log(current_user);
-    res.render("account", { user: current_user });
-  });
+app.get("/account", ensureAuthenticated, async (req, res) => {
+  const current_user = await getUser(req.session.passport.user);
+  res.render("account", { user: current_user });
 });
 // using dynamic routing to serve all the subpages on /account
-app.get("/account/:pageName", ensureAuthenticated, (req, res) => {
+app.get("/account/:pageName", ensureAuthenticated, async (req, res) => {
   const pageName = req.params.pageName;
-  res.render(`${pageName}`);
+  const current_user = await getUser(req.session.passport.user);
+  res.render(`${pageName}`, { user: current_user });
 });
 
 /*****************************

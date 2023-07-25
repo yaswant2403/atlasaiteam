@@ -276,17 +276,29 @@
         <div class="col-xs-3">
           <div class="table-responsive-md">
             <table class="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Net ID</th>
-                  <th scope="col">Full Name</th>
-                  <th scope="col">Term</th>
-                  <th scope="col">Paragraph</th>
-                </tr>
-              </thead>
+              <% if (user.roles.includes('Staff') || user.roles.includes('Admin')) { %>
+                <thead>
+                  <tr>
+                    <th scope="col">Net ID</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Term</th>
+                    <th scope="col">Paragraph</th>
+                    <th scope="col">Updated By</th>
+                    <th scope="col">Updated Date</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+              <% } else { %>
+                <thead>
+                  <tr>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Term</th>
+                    <th scope="col">Paragraph</th>
+                  </tr>
+                </thead>
+              <% } %>
               <tbody id="admin-data">
                 <tr>
-                  <td>${admin.net_id}</td>
                   <td>${admin.name}</td>
                   <td>${admin.term}</td>
                   <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Magna etiam tempor orci eu. Sit amet nulla facilisi morbi tempus iaculis urna id. Commodo odio aenean sed adipiscing. Sed sed risus pretium quam vulputate dignissim suspendisse in. Et malesuada fames ac turpis egestas. Sit amet consectetur adipiscing elit duis tristique sollicitudin. Auctor neque vitae tempus quam pellentesque nec nam aliquam. In fermentum et sollicitudin ac orci phasellus egestas tellus. Cum sociis natoque penatibus et magnis dis. Quis viverra nibh cras pulvinar mattis nunc sed blandit libero. Pretium nibh ipsum consequat nisl vel. Nunc sed velit dignissim sodales ut eu sem integer. In mollis nunc sed id semper risus in hendrerit gravida. Mauris pharetra et ultrices neque ornare aenean euismod. Massa ultricies mi quis hendrerit dolor magna eget est. Pharetra magna ac placerat vestibulum.</td>
