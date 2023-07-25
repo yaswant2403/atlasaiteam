@@ -181,23 +181,6 @@ $(document).ready(function() {
     })
 });
 
-// getting all the edit form inputs
-function getEditAdminInputs() {
-    const net_id = document.querySelector('#editNetID').value.trim();
-    const name = document.querySelector('#editFirstName').value.trim() + ' ' +
-        document.querySelector('#editLastName').value.trim();
-    const term = document.querySelector('#editTerm').value + 
-        document.querySelector('#editYear').value;
-    var roles = ['Admin'];
-    roles = roles.concat($('#editRoles').val());
-    return {
-        net_id: net_id,
-        name: name,
-        term: term,
-        roles: roles
-    };
-}
-
 // submit handler for Editing Admin Form
 const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -205,42 +188,39 @@ const handleEditSubmit = async (e) => {
     edit_alert.classList.remove(...cls);
     edit_alert.classList.display = 'none';
     edit_alert.innerText = null;
-    if (!editForm.checkValidity()) {
-        console.log("Form is Invalid!");
-        editForm.classList.add('was-validated');
+    // loading animation enabled
+    document.querySelector('#edit-loading').style.display = null;
+    document.querySelector('#edit-loading-text').style.display = null;
+    document.querySelector('#edit-modal-body').style.opacity = '0';
+    const net_id = document.querySelector('#editNetID').value.trim();
+    const paragraph = document.querySelector('#editParagraph').value.trim();
+    const edit_pg_response = await fetch('/edit-paragraph', {  // from server
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+            net_id: net_id,
+            paragraph: paragraph
+        }) 
+    })
+    const result = await edit_pg_response.json();
+    if (edit_pg_response.ok) {
+        document.querySelector('#edit-loading').style.display = 'none';
+        document.querySelector('#edit-loading-text').style.display = 'none';
+        document.querySelector('#edit-modal-body').style.opacity = '1';
+        edit_alert.classList.add('alert-success');
+        edit_alert.innerText = result.message;
+        edit_alert.style.display = null;
+        loadTable(); // update the table
     } else {
-        editForm.classList.remove('was-validated');
-        // loading animation enabled
-        document.querySelector('#edit-loading').style.display = null;
-        document.querySelector('#edit-loading-text').style.display = null;
-        document.querySelector('#edit-modal-body').style.opacity = '0';
-        const allInputs = getEditAdminInputs();
-        const edit_admin_response = await fetch('/edit-admin', {  // from server
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify(allInputs) 
-        })
-        if (edit_admin_response.ok) {
-            document.querySelector('#edit-loading').style.display = 'none';
-            document.querySelector('#edit-loading-text').style.display = 'none';
-            document.querySelector('#edit-modal-body').style.opacity = '1';
-            const result = await edit_admin_response.json();
-            edit_alert.classList.add('alert-success');
-            edit_alert.innerText = result.message;
-            edit_alert.style.display = null;
-            loadTable(); // update the table
-        } else {
-            document.querySelector('#edit-loading').style.display = 'none';
-            document.querySelector('#edit-loading-text').style.display = 'none';
-            document.querySelector('#edit-modal-body').style.opacity = '1';
-            const result = await edit_admin_response.json();
-            edit_alert.classList.add('alert-danger');
-            edit_alert.innerText = result.message;
-            edit_alert.style.display = null;
-        }
+        document.querySelector('#edit-loading').style.display = 'none';
+        document.querySelector('#edit-loading-text').style.display = 'none';
+        document.querySelector('#edit-modal-body').style.opacity = '1';
+        edit_alert.classList.add('alert-danger');
+        edit_alert.innerText = result.message;
+        edit_alert.style.display = null;
     }
 }
 

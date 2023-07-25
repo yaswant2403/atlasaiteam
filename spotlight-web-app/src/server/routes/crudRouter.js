@@ -223,14 +223,14 @@ router.post('/edit-intern', ensureAuthenticated, async(req, res) => {
         const spotlight_attempts = parseInt(req.body.attempts);
         const last_modified_by = req.session.passport.user;
         const updateIntern = await User.update({
-        net_id: net_id,
-        name: name,
-        term: term,
-        last_modified_by: last_modified_by,
-        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP') 
+          net_id: net_id,
+          name: name,
+          term: term,
+          last_modified_by: last_modified_by,
+          last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP') 
         },
         {
-        where: { net_id: net_id }
+          where: { net_id: net_id }
         });
         if (updateIntern[0] == 1) {
         const editedUser = await User.findOne({
@@ -867,6 +867,36 @@ router.get('/all-paragraphs', ensureAuthenticated, async(req, res) => {
     return res.status(500).send({
       message: "Something went wrong with getting the paragraphs! Please refresh the page."
     })
+  }
+})
+
+router.post('/edit-paragraph', ensureAuthenticated, async(req, res) => {
+  const verification = await existingNetID(req.body.net_id);
+  if (verification) {
+    const last_modified_by = req.session.passport.user;
+    const editedUser = await User.findOne({
+      where: {
+        net_id: req.body.net_id
+      },
+      attributes: ['user_id']
+    });
+    const editUserParagraph = await Paragraph.update({
+      paragraph: req.body.paragraph,
+      last_modified_by: last_modified_by,
+      last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    {
+        where: { user_id: editedUser.user_id } 
+    });
+    if (editUserParagraph[0] == 1) {
+      const message = "User " + req.body.net_id + "\'s paragraph has been edited successfully!"
+      return res.status(200).send({message: message});
+    } else {
+      const message = "User " + net_id + "\'s paragraph couldn't be edited! Please try again!"
+      return res.status(500).send({message: message});
+    }
+  } else {
+    return res.status(500).send({message: "User doesn't exist! You can only edit existing interns."});
   }
 })
 
