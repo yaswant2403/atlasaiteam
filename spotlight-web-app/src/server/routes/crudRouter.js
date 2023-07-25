@@ -87,49 +87,49 @@ router.post('/all-interns', ensureAuthenticated, async(req, res) => {
         ]
         });
         if (interns.length > 0) {
-        for (const intern of interns) {
-            const user_id = intern.user_id;
-            var term = "";
-            var additional_roles = await UserRole.findAll({
-              attributes: ['role'],
-              where: {
-                  'user_id': user_id,
-                  'role': {
-                    [Op.ne]: 'Intern'
-                  }
-              },
-              raw: true
-            });
-            var roles = ["Intern"];
-            additional_roles.forEach((role) => {
-            roles.push(Object.values(role)[0]);
-            })
-            if (intern.term.endsWith("5")) {
-            term = "SU" + intern.term.substring(1,5);
-            } else if (intern.term.endsWith("8")) {
-            term = "FA" + intern.term.substring(1,5);
-            } else {
-            term = "SP" + intern.term.substring(1,5);
-            }
-            var updatedBy = "";
-            var updatedDate;
-            if (intern.last_modified_by == null) {
-              updatedBy = intern.created_by;
-              updatedDate = intern.created_date;
-            } else {
-              updatedBy = intern.last_modified_by;
-              updatedDate = intern.last_modified_date;
-            }
-            response.push ({
-              net_id: intern.net_id,
-              name: intern.name,
-              term: term,
-              attempts: intern.attempts[0].spotlight_attempts,
-              updatedBy: updatedBy,
-              updatedDate: updatedDate,
-              roles: roles
-            });
-        }
+          for (const intern of interns) {
+              const user_id = intern.user_id;
+              var term = "";
+              var additional_roles = await UserRole.findAll({
+                attributes: ['role'],
+                where: {
+                    'user_id': user_id,
+                    'role': {
+                      [Op.ne]: 'Intern'
+                    }
+                },
+                raw: true
+              });
+              var roles = ["Intern"];
+              additional_roles.forEach((role) => {
+              roles.push(Object.values(role)[0]);
+              })
+              if (intern.term.endsWith("5")) {
+              term = "SU" + intern.term.substring(1,5);
+              } else if (intern.term.endsWith("8")) {
+              term = "FA" + intern.term.substring(1,5);
+              } else {
+              term = "SP" + intern.term.substring(1,5);
+              }
+              var updatedBy = "";
+              var updatedDate;
+              if (intern.last_modified_by == null) {
+                updatedBy = intern.created_by;
+                updatedDate = intern.created_date;
+              } else {
+                updatedBy = intern.last_modified_by;
+                updatedDate = intern.last_modified_date;
+              }
+              response.push ({
+                net_id: intern.net_id,
+                name: intern.name,
+                term: term,
+                attempts: intern.attempts[0].spotlight_attempts,
+                updatedBy: updatedBy,
+                updatedDate: updatedDate,
+                roles: roles
+              });
+          }
         } else {
           response.push({net_id: null}); // no interns found in database
         }
@@ -812,7 +812,62 @@ router.get('/paragraph/:netID', ensureAuthenticated, async(req, res) => {
 })
 
 router.get('/all-paragraphs', ensureAuthenticated, async(req, res) => {
-
+  try {
+    const all_user_paragraphs = await User.findAll({
+      attributes: {exclude: ['user_id']},
+      include: [
+          {
+            model: Paragraph,
+            as: 'paragraphs',
+            attributes: ['paragraph'],
+            where: {
+              paragraph: {
+                [Op.ne]: null  
+              }
+            }
+          }
+      ]
+    });
+    if (all_user_paragraphs.length > 0) {
+      let response = [];
+      for (const user of all_user_paragraphs) {
+        var term = "";
+        if (user.term.endsWith("5")) {
+          term = "SU" + user.term.substring(1,5);
+        } else if (user.term.endsWith("8")) {
+          term = "FA" + user.term.substring(1,5);
+        } else {
+          term = "SP" + user.term.substring(1,5);
+        }
+        var updatedBy = "";
+        var updatedDate;
+        if (user.last_modified_by == null) {
+          updatedBy = user.created_by;
+          updatedDate = user.created_date;
+        } else {
+          updatedBy = user.last_modified_by;
+          updatedDate = user.last_modified_date;
+        }
+        response.push ({
+          net_id: user.net_id,
+          name: user.name,
+          term: term,
+          paragraph: user.paragraphs[0].paragraph,
+          updatedBy: updatedBy,
+          updatedDate: updatedDate
+        });
+      }
+      return res.status(200).send(response);
+    } else {
+      return res.status(200).send({
+        message: "No paragraphs found! Please tell interns to add their paragraphs by going to CREATE SPOTLIGHT"
+      })
+    }
+  } catch(error) {
+    return res.status(500).send({
+      message: "Something went wrong with getting the paragraphs! Please refresh the page."
+    })
+  }
 })
 
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
