@@ -11,10 +11,7 @@ const sequelize = require('./db.config');
 var initModels = require('../db_models/init-models');
 var models = initModels(sequelize);
 var User = models.User;
-// var Action = models.Action;
-// var Role = models.Role;
-// var UserRole = models.UserRole;
-// var Paragraph = models.Paragraph;
+var Role = models.Role;
 
 // checking database connection
 try {
@@ -40,19 +37,8 @@ var logger = bunyan.createLogger({
 // when deserializing.
 //-----------------------------------------------------------------------------
 passport.serializeUser(async function(user, done) {
-    // console.log("This is the user when serializing", user);
-    var json_roles = await user.getRoles({
-      attributes: ['role'],
-      joinTableAttributes: [],
-      raw: true
-    });
-    let roles = [];
-    // turning from JSON format to an array of roles
-    json_roles.forEach((role) => {
-      roles.push(Object.values(role)[0]);
-    })
     // serializing the user's net_id and all their roles to use them when they go to certain pages
-    done(null, [user.net_id, roles]);
+    done(null, user.net_id);
 });
   
 passport.deserializeUser(function(net_id, done) {
@@ -62,7 +48,6 @@ passport.deserializeUser(function(net_id, done) {
         }
     }).then(function(user) {
         if(user) {
-            // console.log("This is the user when deserializing", user);
             return done(null, user);
         }
     })
@@ -185,6 +170,33 @@ function ensureAuthenticated(req, res, next) {
   return res.redirect('/login');
 }
 
+async function getUser(net_id) {
+  const user_seq_format = await User.findOne({
+    attributes: ['net_id', 'name'],
+    where: {
+      'net_id': net_id
+    },
+    include: [
+        {
+          model: Role,
+          attributes: ['role'],
+          through: {
+              attributes: []
+          }
+        }
+      ]
+    })
+  let roles = [];
+  user_seq_format.dataValues.Roles.forEach(role => {
+    roles.push(role.dataValues.role)
+  });
+  const user = {
+    'net_id': user_seq_format.dataValues.net_id,
+    'name': user_seq_format.dataValues.name,
+    'roles': roles
+  }
+  return user;
+}
 
 //exporting passport object
 module.exports.passport = passport;
@@ -192,6 +204,7 @@ module.exports.passport = passport;
 module.exports.router = router;
 // exporting the ensureAuthenticated middleware
 module.exports.authMiddleware = ensureAuthenticated;
+module.exports.getUser = getUser;
 // exporting the User, Action, Role, UserRole, Paragraph Models
 // module.exports.User = User;
 // module.exports.Action = Action;

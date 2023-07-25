@@ -110,6 +110,7 @@ const authRouter = auth.router;
 const crudRouter = require("./routes/crudRouter");
 // grabbing ensureAuthentication middleware
 const ensureAuthenticated = auth.authMiddleware;
+const getUser = auth.getUser;
 
 
 /*****************************
@@ -155,22 +156,21 @@ app.get("/message", ensureAuthenticated, (req, res) => {
 });
 app.get("/spotlight", ensureAuthenticated, (req, res) => {
   res.render("spotlight");
-  // res.sendFile(path.join(__dirname, "../client/html/spotlight.html"));
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.render("about");
-  // res.sendFile(path.join(__dirname, "../client/html/about.html"));
 });
 app.get("/account", ensureAuthenticated, (req, res) => {
-  res.render("account");
-  // res.sendFile(path.join(__dirname, "../client/html/account.html"));
+  getUser(req.session.passport.user).then((user) => {
+    const current_user = user;
+    console.log(current_user);
+    res.render("account", { user: current_user });
+  });
 });
 // using dynamic routing to serve all the subpages on /account
 app.get("/account/:pageName", ensureAuthenticated, (req, res) => {
-  console.log(req.session.passport.user[1]);
   const pageName = req.params.pageName;
   res.render(`${pageName}`);
-  // res.sendFile(path.join(__dirname, `../client/html/account/${pageName}.html`));
 });
 
 /*****************************

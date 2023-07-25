@@ -70,7 +70,7 @@
   </head>
   <body>
     <div class="container-fluid">
-      <!-- <h5>Hello {{user!}}</h5> -->
+      <h4 class="text-center justify-content-center">Hello <%= user.name %>!</h4>
       <div class="row gx-md-5 gx-sm-2 gy-sm-4">
         <div class="col-md-6">
           <div class="card h-100" style="background-color: beige;">
@@ -84,18 +84,23 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card h-100" style="background-color: beige;">
-            <div class="card-body">
-              <img src="assets/interns.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
-              <h3 class="card-title">Manage Interns</h3>
-              <p class="card-text" style="padding-top: 10px;">
-                Add Edit or Delete Interns
-              </p>
-              <a href="/account/interns" class="stretched-link"></a>
+        <% console.log(user.roles.includes('Staff')) %>
+        <% if (user.roles.includes('Staff')) { %>
+          <div class="col-md-6">
+            <div class="card h-100" style="background-color: beige;">
+              <div class="card-body">
+                <img src="assets/interns.jpg" style="width: 100%; clip-path: polygon(0 0 ,100% 0, 100% 100%, 0 70%);"></img>
+                <h3 class="card-title">Manage Interns</h3>
+                <p class="card-text" style="padding-top: 10px;">
+                  Add Edit or Delete Interns
+                </p>
+                <a href="/account/interns" class="stretched-link"></a>
+              </div>
             </div>
           </div>
-        </div>
+        <% } else { %>
+          <p>TEst works!</p>
+        <% } %>
       </div>
       <div class="row gx-md-5 gx-sm-2 pt-4 gy-sm-4">
         <div class="col-md-6">
