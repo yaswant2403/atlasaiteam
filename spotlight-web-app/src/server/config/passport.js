@@ -39,8 +39,20 @@ var logger = bunyan.createLogger({
 // we are storing the user netID when serializing, and finding the user by netID 
 // when deserializing.
 //-----------------------------------------------------------------------------
-passport.serializeUser(function(user, done) {
-    done(null, user.net_id);
+passport.serializeUser(async function(user, done) {
+    // console.log("This is the user when serializing", user);
+    var json_roles = await user.getRoles({
+      attributes: ['role'],
+      joinTableAttributes: [],
+      raw: true
+    });
+    let roles = [];
+    // turning from JSON format to an array of roles
+    json_roles.forEach((role) => {
+      roles.push(Object.values(role)[0]);
+    })
+    // serializing the user's net_id and all their roles to use them when they go to certain pages
+    done(null, [user.net_id, roles]);
 });
   
 passport.deserializeUser(function(net_id, done) {
@@ -50,6 +62,7 @@ passport.deserializeUser(function(net_id, done) {
         }
     }).then(function(user) {
         if(user) {
+            // console.log("This is the user when deserializing", user);
             return done(null, user);
         }
     })

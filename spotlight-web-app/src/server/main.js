@@ -5,6 +5,7 @@ const express = require("express");
 const ViteExpress = require("vite-express"); // to be able to run vite frontend using Express as backend
 const cors = require("cors");
 const path = require("path");
+const ejs = require('ejs');
 require('dotenv').config();
 const expressSession = require("express-session"); // necessary to store the session of our user
 const {Configuration, OpenAIApi } = require("openai") // tuple object - necessary to send API requests to generate paragraphs
@@ -114,7 +115,8 @@ const ensureAuthenticated = auth.authMiddleware;
 /*****************************
  * Main GET Routes
  *****************************/
-
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../client/html/'));
 // Home Page is the Spotlight Page if Authenticated
 app.get("/", ensureAuthenticated, (req, res) => {
   console.log("User made it to the main page!");
@@ -130,7 +132,8 @@ app.get("/login", (req, res) => {
     // console.log("In the login function, the request headers are: \n", req.headers); 
     return res.redirect('/'); 
   }
-  return res.sendFile(path.join(__dirname, "../client/html/login.html"));
+  res.render("login");
+  // return res.sendFile(path.join(__dirname, "../client/html/login.html"));
 })
 
 // allow app to use our authenticate routes
@@ -151,18 +154,23 @@ app.get("/message", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
 });
 app.get("/spotlight", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/spotlight.html"));
+  res.render("spotlight");
+  // res.sendFile(path.join(__dirname, "../client/html/spotlight.html"));
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/about.html"));
+  res.render("about");
+  // res.sendFile(path.join(__dirname, "../client/html/about.html"));
 });
 app.get("/account", ensureAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/html/account.html"));
+  res.render("account");
+  // res.sendFile(path.join(__dirname, "../client/html/account.html"));
 });
 // using dynamic routing to serve all the subpages on /account
 app.get("/account/:pageName", ensureAuthenticated, (req, res) => {
+  console.log(req.session.passport.user[1]);
   const pageName = req.params.pageName;
-  res.sendFile(path.join(__dirname, `../client/html/account/${pageName}.html`));
+  res.render(`${pageName}`);
+  // res.sendFile(path.join(__dirname, `../client/html/account/${pageName}.html`));
 });
 
 /*****************************

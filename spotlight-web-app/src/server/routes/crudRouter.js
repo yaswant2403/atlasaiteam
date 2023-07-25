@@ -158,7 +158,7 @@ router.post('/add-intern', ensureAuthenticated, async(req, res) => {
         term += "1";
       }
       const spotlight_attempts = parseInt(req.body.attempts);
-      const created_by = req.session.passport.user;
+      const created_by = req.session.passport.user[0];
       const roles = [];
       for (const role of req.body.roles) {
         var user_role = {
@@ -220,7 +220,7 @@ router.post('/edit-intern', ensureAuthenticated, async(req, res) => {
         term += "1";
         }
         const spotlight_attempts = parseInt(req.body.attempts);
-        const last_modified_by = req.session.passport.user;
+        const last_modified_by = req.session.passport.user[0];
         const updateIntern = await User.update({
         net_id: net_id,
         name: name,
@@ -344,7 +344,7 @@ router.post('/add-staff', ensureAuthenticated, async(req, res) => {
     const net_id = req.body.net_id;
     const inputEmail = net_id + "@illinois.edu";
     const { valid, reason, validators } = await emailValidator.validate(inputEmail);
-    const created_by = req.session.passport.user;
+    const created_by = req.session.passport.user[0];
     // if valid netID
     if (valid) {
       const user = await User.findOne({ 
@@ -480,7 +480,7 @@ router.post('/edit-staff', ensureAuthenticated, async(req, res) => {
       } else {
         term += "1";
       }
-      const last_modified_by = req.session.passport.user;
+      const last_modified_by = req.session.passport.user[0];
       const updateStaff = await User.update({
         net_id: net_id,
         name: name,
@@ -602,7 +602,7 @@ router.post('/add-admin', ensureAuthenticated, async(req, res) => {
   const net_id = req.body.net_id;
   const inputEmail = net_id + "@illinois.edu";
   const { valid, reason, validators } = await emailValidator.validate(inputEmail);
-  const created_by = req.session.passport.user;
+  const created_by = req.session.passport.user[0];
   // if valid netID
   if (valid) {
     const user = await User.findOne({ 
@@ -713,7 +713,7 @@ router.post('/edit-admin', ensureAuthenticated, async(req, res) => {
     } else {
       term += "1";
     }
-    const last_modified_by = req.session.passport.user;
+    const last_modified_by = req.session.passport.user[0];
     const updateAdmin = await User.update({
       net_id: net_id,
       name: name,
@@ -781,7 +781,7 @@ router.post('/delete-user', ensureAuthenticated, async(req, res) => {
 })
 
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
-    const net_id = req.session.passport.user;
+    const net_id = req.session.passport.user[0];
     try {
       const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
         where: {
