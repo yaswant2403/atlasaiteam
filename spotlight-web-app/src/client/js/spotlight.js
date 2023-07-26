@@ -1,6 +1,8 @@
 // Grabbing Form and Response
 const form = document.getElementById('spotlight-details');
-const response = document.querySelector('#chat-response');
+const response1 = document.querySelector('#chat-response1');
+const response2 = document.querySelector('#chat-response2');
+const response3 = document.querySelector('#chat-response3');
 
 /**
  * Displaying other referral input if other reference is selected
@@ -172,7 +174,7 @@ function createPromptandDisplayInputs() {
       listInputs.querySelector('#tasksList').appendChild(p); // appends new tasks to tasksList li element
     }); 
   }
-  document.getElementById('inputs').appendChild(listInputs); // appends all ul element to inputs col
+  // document.getElementById('inputs').appendChild(listInputs); // appends all ul element to inputs col
   return prompt;
 }
 
@@ -190,18 +192,29 @@ const handleSubmit = async (e) => {
     form.classList.add('was-validated');
   } else {
     // Add loading animation and remove example text
-    response.innerHTML = "";
+    response1.innerHTML = "";
+    response2.innerHTML = "";
+    response3.innerHTML = "";
     document.querySelector('#loading').style.display = "block";
     form.classList.remove('was-validated');
     // Removing previous placeholder text and user inputs if they exists
-    if (document.querySelector('#placeholder-input')) {
-      document.querySelector('#placeholder-input').parentElement.removeChild(document.querySelector('#placeholder-input'));
-    }
-    const displayInputs = document.querySelector('#user-inputs');
-    if (displayInputs) {
-      displayInputs.parentElement.removeChild(displayInputs);
-    }
-    const prompt = createPromptandDisplayInputs();
+
+    // if (document.querySelector('#placeholder-input1')) {
+    //   document.querySelector('#placeholder-input1').parentElement.removeChild(document.querySelector('#placeholder-input1'));
+    // };
+    // if (document.querySelector('#placeholder-input2')) {
+    //   document.querySelector('#placeholder-input2').parentElement.removeChild(document.querySelector('#placeholder-input2'));
+    // };
+    // if (document.querySelector('#placeholder-input3')) {
+    //   document.querySelector('#placeholder-input3').parentElement.removeChild(document.querySelector('#placeholder-input3'));
+    // };
+
+
+    // const displayInputs = document.querySelector('#user-inputs');
+    // if (displayInputs) {
+    //   displayInputs.parentElement.removeChild(displayInputs);
+    // }
+    // const prompt = createPromptandDisplayInputs();
     
     // Sending prompt to server
     const chatResponse = await fetch('/spotlight',{ // from server
@@ -217,16 +230,33 @@ const handleSubmit = async (e) => {
     if (chatResponse.ok) {
         // Make loading animation invisible
         document.querySelector('#loading').style.display = "none";
+
         const data = await chatResponse.json();
-        const finalResponse = data.bot.trim();
-        console.log("How the response is in frontend: " + finalResponse);
-        response.innerText = finalResponse; // displaying response
+        const msg1 = data.paragraphs[0];
+        const msg2 = data.paragraphs[1];
+        const msg3 = data.paragraphs[2];
+
+        response1.innerHTML = `
+          <button type="submit" class="btn btn-primary">Select</button> 
+          <p>Paragraph 1:</p>
+          <p contentEditable="true">${msg1}</p>
+        `;
+        response2.innerHTML = `
+          <button type="submit" class="btn btn-primary">Select</button> 
+          <p>Paragraph 2:</p>
+          <p contentEditable="true">${msg2}</p>
+        `;
+        response3.innerHTML = `
+          <button type="submit" class="btn btn-primary">Select</button> 
+          <p>Paragraph 3:</p>
+          <p contentEditable="true">${msg3}</p>
+        `;
       } else {  // Means ChatGPT is down or API Key has run out of credits
         document.querySelector('#loading').style.display = "none";
         const err = await chatResponse.json();
         const message = err.bot.trim();
         console.log(message);
-        response.innerText = message;
+        response2.innerText = message;
     }
   }
 }
