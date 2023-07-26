@@ -10,11 +10,14 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
     crossorigin="anonymous"/>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
     <link rel="stylesheet" href="css/spotlight.css"/>
     <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
     <script>
+      const current_user = <%- JSON.stringify(user) %>;
       document.addEventListener('DOMContentLoaded', function() {
         var toggleButton = document.querySelector('#navbarToggle');
         toggleButton.addEventListener("click", function() {
@@ -72,7 +75,17 @@
       <form id="spotlight-details" class="needs-validation" novalidate>
         <div class="card-header">
           <h1>Generate an ATLAS Spotlight!</h1>
-          <h5>When you click Generate, ChatGPT will generate three different paragraphs. You can edit each one and select the one you prefer. If none of them look good, you can click Generate again to regenerate. You will have a total of three attempts giving you nine paragraphs in total to choose from.</h5>
+        <% if (user.roles.includes('Intern')) { %>  
+          <h5 class="text-center" style="color: rgb(198, 73, 73); font-weight: bolder; font-size: 48px">Hello <%= user.name %>! READ ME:</h5>
+          <p style="color: royalblue; font-weight: bold;"> You have <span id="header-attempts" style="text-decoration: underline;"><%= user.attempts %> attempts</span> total.</p>
+          <p style="color: royalblue; font-weight: bold;">When you click Generate, ChatGPT will generate <span style="text-decoration: underline;">3 different paragraphs</span> and you will <span style="text-decoration: underline;">LOSE 1 ATTEMPT</span>. <br>Generated paragraphs are <span style="text-decoration: underline;">EDITABLE</span>, and once you're satisfied with the paragraph, you can click SELECT and this will submit your paragraph for review! <br>Submissions are <span style="text-decoration:underline"> NOT EDITABLE</span> so choose wisely! <br>If you'd like to <span style="text-decoration: underline;">generate more paragraphs</span>, you can click Generate again BUT you will <span style="text-decoration: underline;">LOSE ANOTHER ATTEMPT</span> and <span style="text-decoration: underline;">DELETE the previously generated paragraphs.</span> 
+          <br>This means if you wanted to use up <span style="text-decoration: underline;">all your attempts</span>, you'd have <span style="text-decoration: underline;">9 paragraphs</span> in total to choose from.
+          <br><span style="color: rgb(212, 45, 45)">Attempts DO NOT RESET back to 3 until the current academic term is over. So use them wisely.</span> 
+          </p>
+        <% } else { %>
+          <p style="color: royalblue;"> You are <span style="font-weight: bold; text-decoration: underline;">NOT AUTHORIZED</span> to use this form as you are not an Intern.
+          </p>
+        <% } %>
         </div>
         <h4 class="text-center pt-3" style="text-decoration: underline;">About You</h4>
         <div class="form-row">
@@ -213,33 +226,58 @@
           <div class="invalid-feedback">Please explain your future goals or career aspirations.</div>
         </div>
         <div class="card-footer d-flex">
-          <button id="submit" type="submit" class="btn btn-primary btn-lg">Generate!</button>        
+          <% if (user.roles.includes('Intern')) { %>
+            <button id="submit" type="submit" class="btn btn-primary btn-lg">Generate!</button>
+            <p class="pl-3 mt-2" style="font-size: 20px;">You have <span id="footer-attempts" style="color: rgb(212, 45, 45); text-decoration: underline;"><%= user.attempts %></span> attempts remaining.</p>
+            <% } else { %>
+            <p style="font-size: 20px; color: rgb(212, 45, 45);">You are not allowed to submit this form as you are not an Intern!</p>        
+          <% } %>
         </div>
       </form>
     </div>
-    <div id="response" class="container-fluid">
+    <div id="responses" class="container-fluid">
       <h1 class="text-center mt-4">⭐Spotlight Paragraphs⭐</h1>
-      <h5 class="text-center mt-4">You can directly edit the paragraphs by simply clicking on them!</h5>
-      <hr>  
+      <!-- TODO: Generate the paragraphs without erasing previously generated paragraphs. -->
+      <h5 class="text-center">You can directly edit the generated paragraphs by simply clicking on them! Regenerating will <span style="font-weight: bold;">DELETE</span> the paragraphs that have already been generated. So, make sure to copy and paste elsewhere 
+      if you want to still see more options but already received a good paragraph.</h5>
+      <hr> 
       <h3 class="text-center" style="color:black">ChatGPT Generated Paragraphs:</h3>
-      <div class="row", id="paragraphRow">
-        <div class="col-md-4" id = "placeholder-input1">
-          <p id="chat-response1" class="text-center"> <span style="font-weight: bold;">Example:</span> Mary, a freshman studying statistics and computer science, discovered the ATLAS Internship Program through a friend and eagerly joined for her first semester. As a Virtual Event Planner and Social Media Specialist, she was assigned to work with the European Union Center (EUC). Tasked with expanding the EUC's online presence, Mary devoted her time to designing captivating graphics and posting engaging content on their Instagram page two to three times a week. Additionally, she focused on undergraduate outreach, using her analytical skills to analyze social media data and brainstorm innovative strategies for expansion. A valuable aspect of her role involved editing videos and uploading them to the website, allowing her to build an impressive portfolio and refine her video editing skills. Throughout her internship, Mary experienced significant personal growth, enhancing her communication and problem-solving abilities. The ATLAS Internship Program equipped her with valuable skills in video editing, graphic design, and marketing, setting a strong foundation for her future endeavors. Inspired by her experiences, Mary plans to pursue graduate school and obtain a Ph.D., driven by her passion for statistics and computer science. As she embarks on her academic journey, Mary cherishes the memories of her favorite travel destination, the Netherlands, which holds a special place in her heart.
+      <div class="row p-3">
+        <div class="col-md-4">
+          <p id="chat-response1"> <span style="font-weight: bold;">Example:</span> Mary, a freshman studying statistics and computer science, discovered the ATLAS Internship Program through a friend and eagerly joined for her first semester. As a Virtual Event Planner and Social Media Specialist, she was assigned to work with the European Union Center (EUC). Tasked with expanding the EUC's online presence, Mary devoted her time to designing captivating graphics and posting engaging content on their Instagram page two to three times a week. Additionally, she focused on undergraduate outreach, using her analytical skills to analyze social media data and brainstorm innovative strategies for expansion. A valuable aspect of her role involved editing videos and uploading them to the website, allowing her to build an impressive portfolio and refine her video editing skills. Throughout her internship, Mary experienced significant personal growth, enhancing her communication and problem-solving abilities. The ATLAS Internship Program equipped her with valuable skills in video editing, graphic design, and marketing, setting a strong foundation for her future endeavors. Inspired by her experiences, Mary plans to pursue graduate school and obtain a Ph.D., driven by her passion for statistics and computer science. As she embarks on her academic journey, Mary cherishes the memories of her favorite travel destination, the Netherlands, which holds a special place in her heart.
+          <div class="loader" style="display: none"></div>
         </div>
-        <div class="col-md-4" id = "placeholder-input2">
-          <p id="chat-response2" class="text-center"> <span style="font-weight: bold;">Example:</span> Mary, a freshman studying statistics and computer science, discovered the ATLAS Internship Program through a friend and eagerly joined for her first semester. As a Virtual Event Planner and Social Media Specialist, she was assigned to work with the European Union Center (EUC). Tasked with expanding the EUC's online presence, Mary devoted her time to designing captivating graphics and posting engaging content on their Instagram page two to three times a week. Additionally, she focused on undergraduate outreach, using her analytical skills to analyze social media data and brainstorm innovative strategies for expansion. A valuable aspect of her role involved editing videos and uploading them to the website, allowing her to build an impressive portfolio and refine her video editing skills. Throughout her internship, Mary experienced significant personal growth, enhancing her communication and problem-solving abilities. The ATLAS Internship Program equipped her with valuable skills in video editing, graphic design, and marketing, setting a strong foundation for her future endeavors. Inspired by her experiences, Mary plans to pursue graduate school and obtain a Ph.D., driven by her passion for statistics and computer science. As she embarks on her academic journey, Mary cherishes the memories of her favorite travel destination, the Netherlands, which holds a special place in her heart.
-          <div id="loading" class="loader" style="display: none"></div>
+        <div class="col-md-4">
+          <p id="chat-response2"> <span style="font-weight: bold;">Example:</span> Bob is a senior studying English and Creative Writing. He heard about the ATLAS Internship Program through the Humanities Professional Resource Center on campus and decided to join to gain some professional experience before he graduates. Mary is a digital marketing intern for Earnest Earth and he handles the social media and market research in order to find ways to organically grow the company’s social media accounts. At the beginning of his internship he was handling social media posts and researching possible ways to build up the company’s social media profiles. He then transitioned into developing an instructional website that will improve the company’s Search Engine Optimization. He has learned how to properly research keywords in a specific niche using a keyword research tool. As he moves forward with his future plans in marketing, he will take his newly learned technology skills along with better time management skills, consistency, good working habits and overall increased self-awareness. He believes that his internship has allowed him to grow as a professional and become ready for responsibilities that will come with a full-time position.
+          <div class="loader" style="display: none"></div>
         </div>
-        <div class="col-md-4" id = "placeholder-input3">
-          <p id="chat-response3" class="text-center"> <span style="font-weight: bold;">Example:</span> Mary, a freshman studying statistics and computer science, discovered the ATLAS Internship Program through a friend and eagerly joined for her first semester. As a Virtual Event Planner and Social Media Specialist, she was assigned to work with the European Union Center (EUC). Tasked with expanding the EUC's online presence, Mary devoted her time to designing captivating graphics and posting engaging content on their Instagram page two to three times a week. Additionally, she focused on undergraduate outreach, using her analytical skills to analyze social media data and brainstorm innovative strategies for expansion. A valuable aspect of her role involved editing videos and uploading them to the website, allowing her to build an impressive portfolio and refine her video editing skills. Throughout her internship, Mary experienced significant personal growth, enhancing her communication and problem-solving abilities. The ATLAS Internship Program equipped her with valuable skills in video editing, graphic design, and marketing, setting a strong foundation for her future endeavors. Inspired by her experiences, Mary plans to pursue graduate school and obtain a Ph.D., driven by her passion for statistics and computer science. As she embarks on her academic journey, Mary cherishes the memories of her favorite travel destination, the Netherlands, which holds a special place in her heart.
+        <div class="col-md-4">
+          <p id="chat-response3"> <span style="font-weight: bold;">Example:</span> Sue is a senior studying English and Creative Writing. She heard about the ATLAS Internship Program her freshman year and then her advisor recommended it her junior year. Mary decided to join the program to have the opportunity to get professional work experience. She knew ATLAS has a lot of established connections at the university so she decided to sign up. Mary is a Team Leader for the Business Process Improvement Team. Some of her responsibilities include, helping to build forms for clients based on specifications, she is on-call for the FormBuilder Help Desk to assist any clients having issues with their forms, and she is the first line of communication between their new clients and the team. She has currently finished working with a Help Desk client from the Less Commonly Taught Language Program. They were having issues with the text merge fields in the confirmation/reviewal phases, as well as the emails being sent to the form submitter and admins. She met with them to help make sure their text merge fields were all working properly and to discuss their concerns with routing triggers. Mary's future career plan has recently changed, she was previously planning on going to law school, but now she is preparing to apply for admissions to English graduate/PhD programs for Fall 2023. After she gets her graduate degree, she hopes to teach English Literature at any level. Mary will bring newly learned skills and experience, including the ability to effectively communicate very technical information, to the rest of her professional life.
+          <div class="loader" style="display: none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="add-modal" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <button type="button" class="close close-add" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <p id="add-message" style="padding: 20px; font-size: large;"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
+            <button id="clear-form" class="btn btn-danger">Clear Form</button>
+          </div>
         </div>
       </div>
     </div>
     <script src="js/spotlight.js"></script>
     <!-- Bootstrap CSS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
     crossorigin="anonymous"></script>

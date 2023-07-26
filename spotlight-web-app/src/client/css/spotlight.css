@@ -79,7 +79,7 @@
 
 /* Spotlight PAGE Styling */
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
     padding: 100px;
 }
 
@@ -90,7 +90,6 @@ body {
   color: #212529;
   text-align: left;
   box-sizing: border-box;
-  margin-top: 100px;
   margin-bottom: 100px;
   border-radius: 10px;
   border: 2px solid #c1baba;
@@ -140,26 +139,30 @@ select {
   border-color: #D61A46;
 }
 
-#response {
+#responses {
   margin-top: 100px;
   margin-bottom: 100px;
   padding: 1em;
-  border-radius: 5px;
+  border-radius: 10px;
   border: 3px solid #c1baba !important;
 }
 
-#response hr {
+#responses hr {
   border-color: #7f7f7f;
   border-width: 2px !important;
 }
 
-#response .col {
-  padding-top: 10px;
-}
-
-.border-right {
-  border-right-width: 2px !important;
-  border-right-color: #7f7f7f !important;
+#responses p {
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 3px solid #34a9d3 !important;
+  border-radius: 10px;
+  transition: 0.25s;
+  &:hover {
+    border-color: #32a1ca; 
+    box-shadow: 0 0 1em 0.2em #32a1ca;
+    transform: translateY(-0.25em);
+  }
 }
 
 /* loading animation */
@@ -167,7 +170,7 @@ select {
 .loader {
   position: absolute;
   top: 15%;
-  left: 50%;
+  left: 40%;
   transform: translate(-50%, -50%);
   width: 50px;
   height: 10px;

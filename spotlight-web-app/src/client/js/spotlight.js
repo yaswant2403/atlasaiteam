@@ -1,3 +1,5 @@
+// keeping track of how many times form has been submitted
+
 // Grabbing Form and Response
 const form = document.getElementById('spotlight-details');
 const response1 = document.querySelector('#chat-response1');
@@ -22,6 +24,7 @@ refSelect.addEventListener('change', function () {
   }
 });
 
+let submit = 0;
 /**
  * Displaying New Input Fields when Add More is Clicked
  */
@@ -55,7 +58,7 @@ document.addEventListener("click", function(e) {
   }
 });
 
-function createPromptandDisplayInputs() {
+function createPrompt() {
   // Grabbing all form inputs
   const name = document.querySelector('#inputName').value.trim();
   const major = document.querySelector('#inputMajor').value.trim();
@@ -109,6 +112,64 @@ function createPromptandDisplayInputs() {
   return prompt;
 }
 
+const selectButton = `
+<div class="select" style="text-align: right;">
+  <button type="submit" class="btn btn-primary mb-2">Select</button> 
+</div>
+`;
+
+
+$(document).ready(function() {
+    // when user clicks on select button we are grabbing the corresponding paragraph
+    $(document).on('click', '.mb-2', async function() {
+    console.log("goes here!")
+    const warning_message = "For " + current_user.name + ", are you sure you want to send this paragraph for review? Once selected, it can no longer be edited by you. You will be able to select other paragraphs or generate new ones if you have attempts.";
+    if(confirm(warning_message)) {
+      let parentColumn = ($(this).parent()).parent(); // finds the parent col of the button
+      let paragraph = (parentColumn.find('> p')).text(); // finds the p tag of the col and grabs the paragraph
+      const addParagraph = await fetch('/add-paragraph',{ // from server
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          net_id: current_user.net_id,
+          paragraph: paragraph,
+        }) 
+      })
+      var response = await addParagraph.json();
+      if (addParagraph.ok) {
+        // if successfully added, toggle modal with success message
+        var user_title = 'Spotlight Paragraph Success 💯';
+        $('#add-modal').find('.modal-title').text(user_title);
+        $('#add-modal').find('#add-message').css("color", 'rgb(29 151 74)');
+        var full_message = response.message + " Go to Account -> View Paragraph to see it!"
+        $('#add-modal').find('#add-message').text(full_message);
+        $('#add-modal').modal('toggle');
+      } else {
+        var user_title = 'Spotlight Paragraph Failure';
+        $('#add-modal').find('.modal-title').text(user_title);
+        $('#add-modal').find('#add-message').css("color", 'rgb(29 151 74)');
+        $('#add-modal').find('#add-message').text(response.message);
+        $('#add-modal').modal('toggle');
+      }
+    }
+  });
+  $('#clear-form').click(_ => {
+    form.reset();
+    $('#add-modal').modal('toggle');
+  })
+  // manually toggling the modal close
+  $('.close-add').click(_ => {
+    $('#add-modal').modal('toggle');
+  })
+  $('.close-add-modal-btn').click(_ => {
+      $('#add-modal').modal('toggle');
+  })
+})
+
+
 /**
  * Defines an asynchronous process that occurs when user submits form
  * Returns Promise Object
@@ -122,54 +183,100 @@ const handleSubmit = async (e) => {
     console.log("Form is Invalid!");
     form.classList.add('was-validated');
   } else {
-    // Add loading animation and remove example text
-    response1.innerHTML = "";
-    response2.innerHTML = "";
-    response3.innerHTML = "";
-    document.querySelector('#loading').style.display = "block";
     form.classList.remove('was-validated');
-    
-    // Sending prompt to server
-    const chatResponse = await fetch('/spotlight',{ // from server
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        message_prompt: prompt,
-      }) 
+    // Add loading animation and remove example text
+    document.querySelectorAll('.loader').forEach((loader) => {
+      loader.style.display = null;
     })
-    if (chatResponse.ok) {
-        // Make loading animation invisible
-        document.querySelector('#loading').style.display = "none";
-
-        const data = await chatResponse.json();
-        const msg1 = data.paragraphs[0];
-        const msg2 = data.paragraphs[1];
-        const msg3 = data.paragraphs[2];
-
-        response1.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 1:</p>
-          <p contentEditable="true">${msg1}</p>
-        `;
-        response2.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 2:</p>
-          <p contentEditable="true">${msg2}</p>
-        `;
-        response3.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 3:</p>
-          <p contentEditable="true">${msg3}</p>
-        `;
+    response1.style.opacity = 0;
+    response2.style.opacity = 0;
+    response3.style.opacity = 0;
+    // remove any select buttons if they exist
+    document.querySelectorAll('.select').forEach((button) => {
+      button.remove();
+    })
+    // if the user has attempts left
+    if (current_user.attempts > 0) {
+      const prompt = createPrompt();
+      // Sending prompt to server
+      const chatResponse = await fetch('/spotlight',{ // from server
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          message_prompt: prompt,
+        }) 
+      })
+      const data = await chatResponse.json();
+      if (chatResponse.ok) {
+        // Make loading animations invisible and our boxes visible
+        document.querySelectorAll('.loader').forEach((loader) => {
+          loader.style.display = 'none';
+        })
+        // if violation by OpenAI
+        if (data.error) {
+          // don't dock user of attempt
+          response2.style.opacity = 1;
+          response2.innerText = data.error.trim();
+        } else {
+          // continue as normal and dock user of attempt
+          const paragraph1 = data.paragraphs[0];
+          const paragraph2 = data.paragraphs[1];
+          const paragraph3 = data.paragraphs[2];
+          // make paragraphs visible and editable
+          response1.style.opacity = 1;
+          response1.innerText = paragraph1;
+          response1.setAttribute("contenteditable", true);
+          response2.style.opacity = 1;
+          response2.innerText = paragraph2;
+          response2.setAttribute("contenteditable", true);
+          response3.style.opacity = 1;
+          response3.innerText = paragraph3;
+          response3.setAttribute("contenteditable", true);
+          // adding the select button
+          var parentColumn1 = response1.parentElement;
+          var parentColumn2 = response2.parentElement;
+          var parentColumn3 = response3.parentElement;
+          parentColumn1.insertAdjacentHTML('afterbegin', selectButton);
+          parentColumn2.insertAdjacentHTML('afterbegin', selectButton);
+          parentColumn3.insertAdjacentHTML('afterbegin', selectButton);
+          // updating user attempts
+          current_user.attempts--;
+          const updateAttempts = await fetch('/update-attempts',{ // from server
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              net_id: current_user.net_id,
+              attempts: current_user.attempts
+            }) 
+          })
+          const update = await updateAttempts.json();
+          if (updateAttempts.ok) { // if update attempts is successful, update the heading and footer with the current attempts
+            document.querySelector('#header-attempts').textContent = `${current_user.attempts} attempts`;
+            document.querySelector('#footer-attempts').textContent = `${current_user.attempts}`;
+          } else { // TODO: better error handling 
+            console.log(update.message);
+          }
+        }
       } else {  // Means ChatGPT is down or API Key has run out of credits
-        document.querySelector('#loading').style.display = "none";
-        const err = await chatResponse.json();
-        const message = err.bot.trim();
-        console.log(message);
-        response2.innerText = message;
+        // dont dock user of an attempt
+        document.querySelectorAll('.loader').forEach((loader) => {
+          loader.style.display = 'none';
+        })
+        response2.style.opacity = 1;
+        response2.innerText = data.error.trim();
+      }
+    } else {
+      document.querySelectorAll('.loader').forEach((loader) => {
+        loader.style.display = 'none';
+      })
+      response2.style.opacity = 1;
+      response2.innerText = "You have NO ATTEMPTS REMAINING!!";
     }
   }
 }
