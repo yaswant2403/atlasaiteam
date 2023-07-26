@@ -901,29 +901,49 @@ router.post('/edit-paragraph', ensureAuthenticated, async(req, res) => {
 })
 
 router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
-    const net_id = req.session.passport.user;
-    try {
-      const user = await User.findOne({ // use Sequelize model's built-in method to find a single entry where net_id = req.net_id
-        where: {
-          net_id: net_id
+  let message = "";
+  try {
+    // grab the user
+    const user = await User.findOne({ 
+      where: {
+        net_id: req.body.net_id
+      },
+      attributes: ['user_id', 'term'],
+      include: [
+        {
+          model: Paragraph,
+          as: 'paragraphs',
+          attributes: ['paragraph']
         }
-      })
-      if (user) {
-        await Paragraph.create({
-          user_id: user.user_id,
-          term: req.body.term,
-          created_by: net_id,
-          last_modified_by: null,
-          last_modified_date: null
-        });
-        let message = "Paragraph has been added for " + net_id;
-        return res.status(500).send({message: message});
-      } else {
-        return res.status(500).send({message: "Can't add paragraph as you don't exist! Please contact staff."});
-      }
-    } catch (error) {
-      return res.status(500).send({message: "There was an error checking if you exist in our database! Please try again."});
+      ]
+    })
+    if (user.paragraphs.length <= 0) {
+      // user has no paragraphs so we make one
+      await Paragraph.create({
+        user_id: user.user_id,
+        term: user.term,
+        paragraph: req.body.paragraph,
+        created_by: req.body.net_id,
+        last_modified_by: null,
+        last_modified_date: null
+      });
+      message = "Paragraph has been added for " + req.body.net_id + ".";
+    } else {
+      // user does have a paragraph so we update the existing one
+      await Paragraph.update({
+        paragraph: req.body.paragraph,
+        last_modified_by: req.body.net_id,
+        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      {
+          where: { user_id: user.user_id } 
+      });
+      message = "You " + req.body.net_id + " already had a paragraph, so we updated it!";
     }
+    return res.status(200).send({message: message});
+  } catch (error) {
+    return res.status(500).send({message: "There was an error checking our database! Please try again."});
+  }
 })
 
 router.post('/update-attempts', ensureAuthenticated, async(req, res) => {

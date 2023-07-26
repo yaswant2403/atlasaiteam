@@ -113,10 +113,62 @@ function createPrompt() {
 }
 
 const selectButton = `
-<div style="text-align: right;">
+<div class="select" style="text-align: right;">
   <button type="submit" class="btn btn-primary mb-2">Select</button> 
 </div>
 `;
+
+
+$(document).ready(function() {
+    // when user clicks on select button we are grabbing the corresponding paragraph
+    $(document).on('click', '.mb-2', async function() {
+    console.log("goes here!")
+    const warning_message = "For " + current_user.name + ", are you sure you want to send this paragraph for review? Once selected, it can no longer be edited by you. You will be able to select other paragraphs or generate new ones if you have attempts.";
+    if(confirm(warning_message)) {
+      let parentColumn = ($(this).parent()).parent(); // finds the parent col of the button
+      let paragraph = (parentColumn.find('> p')).text(); // finds the p tag of the col and grabs the paragraph
+      const addParagraph = await fetch('/add-paragraph',{ // from server
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          net_id: current_user.net_id,
+          paragraph: paragraph,
+        }) 
+      })
+      var response = await addParagraph.json();
+      if (addParagraph.ok) {
+        // if successfully added, toggle modal with success message
+        var user_title = 'Spotlight Paragraph Success 💯';
+        $('#add-modal').find('.modal-title').text(user_title);
+        $('#add-modal').find('#add-message').css("color", 'rgb(29 151 74)');
+        var full_message = response.message + " Go to Account -> View Paragraph to see it!"
+        $('#add-modal').find('#add-message').text(full_message);
+        $('#add-modal').modal('toggle');
+      } else {
+        var user_title = 'Spotlight Paragraph Failure';
+        $('#add-modal').find('.modal-title').text(user_title);
+        $('#add-modal').find('#add-message').css("color", 'rgb(29 151 74)');
+        $('#add-modal').find('#add-message').text(response.message);
+        $('#add-modal').modal('toggle');
+      }
+    }
+  });
+  $('#clear-form').click(_ => {
+    form.reset();
+    $('#add-modal').modal('toggle');
+  })
+  // manually toggling the modal close
+  $('.close-add').click(_ => {
+    $('#add-modal').modal('toggle');
+  })
+  $('.close-add-modal-btn').click(_ => {
+      $('#add-modal').modal('toggle');
+  })
+})
+
 
 /**
  * Defines an asynchronous process that occurs when user submits form
@@ -139,6 +191,10 @@ const handleSubmit = async (e) => {
     response1.style.opacity = 0;
     response2.style.opacity = 0;
     response3.style.opacity = 0;
+    // remove any select buttons if they exist
+    document.querySelectorAll('.select').forEach((button) => {
+      button.remove();
+    })
     // if the user has attempts left
     if (current_user.attempts > 0) {
       const prompt = createPrompt();

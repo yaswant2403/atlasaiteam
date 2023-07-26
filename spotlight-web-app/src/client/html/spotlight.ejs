@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
     crossorigin="anonymous"/>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Our Own CSS File (Must always go after Bootstrap as that gives our CSS highest priority) -->
     <link rel="stylesheet" href="css/spotlight.css"/>
@@ -226,8 +228,8 @@
         <div class="card-footer d-flex">
           <% if (user.roles.includes('Intern')) { %>
             <button id="submit" type="submit" class="btn btn-primary btn-lg">Generate!</button>
-            <p class="pl-3 mt-2" style="font-size: 20px;">You have <span id="footer-attempts" style="color: rgb(212, 45, 45); text-decoration: underline;"><%= user.attempts %></span> attempts remaining.</p>        
-          <% } else { %>
+            <p class="pl-3 mt-2" style="font-size: 20px;">You have <span id="footer-attempts" style="color: rgb(212, 45, 45); text-decoration: underline;"><%= user.attempts %></span> attempts remaining.</p>
+            <% } else { %>
             <p style="font-size: 20px; color: rgb(212, 45, 45);">You are not allowed to submit this form as you are not an Intern!</p>        
           <% } %>
         </div>
@@ -255,11 +257,27 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="add-modal" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <button type="button" class="close close-add" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <p id="add-message" style="padding: 20px; font-size: large;"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary close-add-modal-btn">Close</button>
+            <button id="clear-form" class="btn btn-danger">Clear Form</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="js/spotlight.js"></script>
     <!-- Bootstrap CSS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNVQ8ew"
     crossorigin="anonymous"></script>
