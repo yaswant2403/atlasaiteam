@@ -11,6 +11,7 @@ const sequelize = require('./db.config');
 var initModels = require('../db_models/init-models');
 var models = initModels(sequelize);
 var User = models.User;
+var Action = models.Action;
 var Role = models.Role;
 
 // checking database connection
@@ -198,16 +199,45 @@ async function getUser(net_id) {
   return user;
 }
 
+async function getUserAndAttempts(net_id) {
+  const user_seq_format = await User.findOne({
+    attributes: ['net_id', 'name'],
+    where: {
+      'net_id': net_id
+    },
+    include: [
+        {
+          model: Action,
+          as: 'attempts',
+          attributes: ['spotlight_attempts'] 
+        },
+        {
+          model: Role,
+          attributes: ['role'],
+          through: {
+              attributes: []
+          }
+        }
+      ]
+  })
+  let roles = [];
+  user_seq_format.dataValues.Roles.forEach(role => {
+    roles.push(role.dataValues.role)
+  });
+  const user = {
+    'net_id': user_seq_format.net_id,
+    'name': user_seq_format.name,
+    'roles': roles,
+    'attempts': user_seq_format.attempts[0].spotlight_attempts
+  }
+  return user;
+}
+
 //exporting passport object
 module.exports.passport = passport;
 // exporting router
 module.exports.router = router;
-// exporting the ensureAuthenticated middleware
+// exporting the ensureAuthenticated middleware and getUser helpers
 module.exports.authMiddleware = ensureAuthenticated;
 module.exports.getUser = getUser;
-// exporting the User, Action, Role, UserRole, Paragraph Models
-// module.exports.User = User;
-// module.exports.Action = Action;
-// module.exports.Role = Role;
-// module.exports.UserRole = UserRole;
-// module.exports.Paragraph = Paragraph;
+module.exports.getUserAndAttempts = getUserAndAttempts;

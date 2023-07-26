@@ -55,7 +55,7 @@ document.addEventListener("click", function(e) {
   }
 });
 
-function createPromptandDisplayInputs() {
+function createPrompt() {
   // Grabbing all form inputs
   const name = document.querySelector('#inputName').value.trim();
   const major = document.querySelector('#inputMajor').value.trim();
@@ -122,13 +122,15 @@ const handleSubmit = async (e) => {
     console.log("Form is Invalid!");
     form.classList.add('was-validated');
   } else {
-    // Add loading animation and remove example text
-    response1.innerHTML = "";
-    response2.innerHTML = "";
-    response3.innerHTML = "";
-    document.querySelector('#loading').style.display = "block";
     form.classList.remove('was-validated');
-    
+    // Add loading animation and remove example text
+    document.querySelectorAll('.loader').forEach((loader) => {
+      loader.style.display = null;
+    })
+    response1.innerText = "";
+    response2.innerText = "";
+    response3.innerText = "";
+    const prompt = createPrompt();
     // Sending prompt to server
     const chatResponse = await fetch('/spotlight',{ // from server
       method: 'POST',
@@ -140,36 +142,48 @@ const handleSubmit = async (e) => {
         message_prompt: prompt,
       }) 
     })
+    const data = await chatResponse.json();
     if (chatResponse.ok) {
-        // Make loading animation invisible
-        document.querySelector('#loading').style.display = "none";
-
-        const data = await chatResponse.json();
-        const msg1 = data.paragraphs[0];
-        const msg2 = data.paragraphs[1];
-        const msg3 = data.paragraphs[2];
-
-        response1.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 1:</p>
-          <p contentEditable="true">${msg1}</p>
-        `;
-        response2.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 2:</p>
-          <p contentEditable="true">${msg2}</p>
-        `;
-        response3.innerHTML = `
-          <button type="submit" class="btn btn-primary">Select</button> 
-          <p>Paragraph 3:</p>
-          <p contentEditable="true">${msg3}</p>
-        `;
-      } else {  // Means ChatGPT is down or API Key has run out of credits
-        document.querySelector('#loading').style.display = "none";
-        const err = await chatResponse.json();
-        const message = err.bot.trim();
-        console.log(message);
-        response2.innerText = message;
+      // Make loading animations invisible
+      document.querySelectorAll('.loader').forEach((loader) => {
+        loader.style.display = 'none';
+      })
+      // if violation by OpenAI
+      if (data.error) {
+        response2.innerText = data.error.trim();
+      } else {
+        // continue as normal and dock user of attempt
+        const paragraph1 = data.paragraphs[0];
+        const paragraph2 = data.paragraphs[1];
+        const paragraph3 = data.paragraphs[2];
+        response1.innerText = paragraph1;
+        response2.innerText = paragraph2;
+        response3.innerText = paragraph3;
+        var parentColumn1 = response1.parentElement;
+        var parentColumn2 = response2.parentElement;
+        var parentColumn3 = response3.parentElement;
+        parentColumn1.insertAdjacentHTML('afterbegin', `
+          <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary mb-2">Select</button> 
+          </div>
+        `)
+        parentColumn2.insertAdjacentHTML('afterbegin', `
+          <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary mb-2">Select</button> 
+          </div>
+        `)
+        parentColumn3.insertAdjacentHTML('afterbegin', `
+          <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary mb-2">Select</button> 
+          </div>
+        `)
+      }
+    } else {  // Means ChatGPT is down or API Key has run out of credits
+      // dont dock user of an attempt
+      document.querySelectorAll('.loader').forEach((loader) => {
+        loader.style.display = 'none';
+      })
+      response2.innerText = data.error.trim();
     }
   }
 }

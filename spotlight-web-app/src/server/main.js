@@ -111,6 +111,7 @@ const crudRouter = require("./routes/crudRouter");
 // grabbing ensureAuthentication middleware
 const ensureAuthenticated = auth.authMiddleware;
 const getUser = auth.getUser;
+const getUserAndAttempts = auth.getUserAndAttempts;
 
 
 /*****************************
@@ -155,7 +156,7 @@ app.get("/message", ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, "../../index.html"));
 });
 app.get("/spotlight", ensureAuthenticated, async (req, res) => {
-  const current_user = await getUser(req.session.passport.user);
+  const current_user = await getUserAndAttempts(req.session.passport.user);
   res.render("spotlight", { user: current_user });
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
@@ -351,7 +352,6 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
   Margins: Ensure the spotlight is professional and consists of a single paragraph with less than 400 words.\
   Perspective: If you are capable, generate more than one spotlight for an intern.\
   Throughputs: Ensure that the output is grammatically correct, professional and concise.";
-  // console.log('\nHere is the req headers inside /spotlight: ', req.headers);
   try {
       // Receiving the request
       let message_prompt = req.body.message_prompt; // Grabbing the message_prompt from the request body
@@ -370,7 +370,7 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
       if ((await message_flag).data.results[0].flagged === true) {
           // Sending violation message back to frontend
           return res.status(200).send({
-              bot: violation,
+              error: violation,
           })
       } else { // creating message with ChatGPT because not flagged as harmful content
           const paragraph1 = await openai.createChatCompletion({
@@ -391,16 +391,15 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
           // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
           // sending the message to frontend as JSON response
           return res.status(200).send({
-              paragraphs: [paragraph1.data.choices[0].message.content,
-                          paragraph2.data.choices[0].message.content,
-                          paragraph3.data.choices[0].message.content]
+              paragraphs: [ paragraph1.data.choices[0].message.content,
+                            paragraph2.data.choices[0].message.content,
+                            paragraph3.data.choices[0].message.content ]
           })
       }
   } catch (error) { // error with response
-      console.log("It reaches here!")
       console.log("This is error: " + error)
       return res.status(500).send({
-          bot: limiting
+          error: limiting
       })
   }
 })
