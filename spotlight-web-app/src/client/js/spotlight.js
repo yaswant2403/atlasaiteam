@@ -99,82 +99,13 @@ function createPromptandDisplayInputs() {
   + "Remember to provide a cohesive and informative paragraph that highlights the intern's journey, growth, and connection to the ATLAS Internship Program.";
   console.log(prompt);
 
-  // Displaying their inputs
-  if (document.querySelectorAll('.rm').length != 0) { // removing extra tasks if > 3 tasks were added previously 
+// removing extra tasks if > 3 tasks were added previously 
+  if (document.querySelectorAll('.rm').length != 0) { 
     var extra = document.querySelectorAll('.rm');
     Array.prototype.forEach.call(extra, function(node) {
       node.parentNode.remove();
     });
   }
-  var listInputs = document.createElement('ul');
-  listInputs.setAttribute("id", "user-inputs");
-  listInputs.classList.add("ml-auto");
-  listInputs.innerHTML = `
-    <li id="name" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Name: </p>
-      <p style="display: inline-block;">${name}</p>
-    </li>
-    <li id="major" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Major: </p>
-      <p style="display: inline-block;">${major}</p>
-    </li>
-    <li id="year" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Year: </p>
-      <p style="display: inline-block;">${year}</p>
-    </li>
-    <li id="referral" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Referral: </p>
-      <p style="display: inline-block;">${reference}</p>
-    </li>
-    <li id="semesters" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Number of Semesters: </p>
-      <p style="display: inline-block;">${sems}</p>
-    </li>
-    <li id="why-atlas" class="input-item">
-      <p style="font-weight: bold;">Why ATLAS?</p>
-      <!-- White space normal wraps the text such that it fits in the parent container -->
-      <p style="white-space: normal;">${whyJoin}</p>
-    </li>
-    <li id="fun-fact" class="input-item">
-      <p style="font-weight: bold;">Fun Fact</p>
-      <p style="white-space: normal;">${funFact}</p>
-    </li>
-    <li id="title" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Official Title: </p>
-      <p style="display: inline-block;">${position}</p>
-    </li>
-    <li id="client" class="input-item">
-      <p style="display: inline-block; font-weight: bold;">Client: </p>
-      <p style="display: inline-block;">${client}</p>
-    </li>
-    <li id="tasksList" class="input-item">
-      <p style="font-weight: bold;">Tasks/Responsibilities: </p>
-      <p style="white-space: normal;">${task1}</p>
-      <p style="white-space: normal;">${task2}</p>
-      <p style="white-space: normal;">${task3}</p>
-    </li>
-    <li id="skills" class="input-item">
-      <p style="font-weight: bold;">Skills: </p>
-      <p style="white-space: normal;">${skills}</p>
-    </li>
-    <li id="experience" class="input-item">
-      <p style="font-weight: bold;">Experience: </p>
-      <p style="white-space: normal;">${exp}</p>
-    </li>
-    <li id="future-plans" class="input-item">
-      <p style="font-weight: bold;">Future Plans: </p>
-      <p style="white-space: normal;">${future}</p>
-    </li>
-  `
-  if (!(moreTasks.length === 0)) {
-    moreTasks.forEach(task => {
-      const p = document.createElement('p');
-      p.setAttribute('style','white-space: normal');
-      p.innerHTML = task;
-      listInputs.querySelector('#tasksList').appendChild(p); // appends new tasks to tasksList li element
-    }); 
-  }
-  // document.getElementById('inputs').appendChild(listInputs); // appends all ul element to inputs col
   return prompt;
 }
 
@@ -197,24 +128,6 @@ const handleSubmit = async (e) => {
     response3.innerHTML = "";
     document.querySelector('#loading').style.display = "block";
     form.classList.remove('was-validated');
-    // Removing previous placeholder text and user inputs if they exists
-
-    // if (document.querySelector('#placeholder-input1')) {
-    //   document.querySelector('#placeholder-input1').parentElement.removeChild(document.querySelector('#placeholder-input1'));
-    // };
-    // if (document.querySelector('#placeholder-input2')) {
-    //   document.querySelector('#placeholder-input2').parentElement.removeChild(document.querySelector('#placeholder-input2'));
-    // };
-    // if (document.querySelector('#placeholder-input3')) {
-    //   document.querySelector('#placeholder-input3').parentElement.removeChild(document.querySelector('#placeholder-input3'));
-    // };
-
-
-    // const displayInputs = document.querySelector('#user-inputs');
-    // if (displayInputs) {
-    //   displayInputs.parentElement.removeChild(displayInputs);
-    // }
-    // const prompt = createPromptandDisplayInputs();
     
     // Sending prompt to server
     const chatResponse = await fetch('/spotlight',{ // from server
