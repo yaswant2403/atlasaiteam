@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/spotlight.css"/>
     <!-- Script to Change Hamburger Icon to X Icon when user clicks on Navbar Menu -->
     <script>
+      const current_user = <%- JSON.stringify(user) %>;
       document.addEventListener('DOMContentLoaded', function() {
         var toggleButton = document.querySelector('#navbarToggle');
         toggleButton.addEventListener("click", function() {
@@ -72,11 +73,17 @@
       <form id="spotlight-details" class="needs-validation" novalidate>
         <div class="card-header">
           <h1>Generate an ATLAS Spotlight!</h1>
-          <h5 class="text-center" style="color: rgb(212, 45, 45); font-weight: bolder; font-size: 48px">Hello <%= user.name %>! READ ME:</h5>
-          <p style="color: royalblue; font-weight: bold;"> You have <span style="text-decoration: underline;"><%= user.attempts %> attempts</span> total. When you click Generate, ChatGPT will generate <span style="text-decoration: underline;">3 different paragraphs</span> and you will <span style="text-decoration: underline;">LOSE 1 ATTEMPT</span>. <br>Generated paragraphs are <span style="text-decoration: underline;">EDITABLE</span>, and once you're satisfied with the paragraph, you can click SELECT and this will submit your paragraph for review! <br>Submissions are <span style="text-decoration:underline"> NOT EDITABLE</span> so choose wisely! <br>If you'd like to <span style="text-decoration: underline;">generate more paragraphs</span>, you can click Generate again BUT you will <span style="text-decoration: underline;">LOSE ANOTHER ATTEMPT</span>. 
+        <% if (user.roles.includes('Intern')) { %>  
+          <h5 class="text-center" style="color: rgb(198, 73, 73); font-weight: bolder; font-size: 48px">Hello <%= user.name %>! READ ME:</h5>
+          <p style="color: royalblue; font-weight: bold;"> You have <span id="header-attempts" style="text-decoration: underline;"><%= user.attempts %> attempts</span> total.</p>
+          <p style="color: royalblue; font-weight: bold;">When you click Generate, ChatGPT will generate <span style="text-decoration: underline;">3 different paragraphs</span> and you will <span style="text-decoration: underline;">LOSE 1 ATTEMPT</span>. <br>Generated paragraphs are <span style="text-decoration: underline;">EDITABLE</span>, and once you're satisfied with the paragraph, you can click SELECT and this will submit your paragraph for review! <br>Submissions are <span style="text-decoration:underline"> NOT EDITABLE</span> so choose wisely! <br>If you'd like to <span style="text-decoration: underline;">generate more paragraphs</span>, you can click Generate again BUT you will <span style="text-decoration: underline;">LOSE ANOTHER ATTEMPT</span> and <span style="text-decoration: underline;">DELETE the previously generated paragraphs.</span> 
           <br>This means if you wanted to use up <span style="text-decoration: underline;">all your attempts</span>, you'd have <span style="text-decoration: underline;">9 paragraphs</span> in total to choose from.
           <br><span style="color: rgb(212, 45, 45)">Attempts DO NOT RESET back to 3 until the current academic term is over. So use them wisely.</span> 
           </p>
+        <% } else { %>
+          <p style="color: royalblue;"> You are <span style="font-weight: bold; text-decoration: underline;">NOT AUTHORIZED</span> to use this form as you are not an Intern.
+          </p>
+        <% } %>
         </div>
         <h4 class="text-center pt-3" style="text-decoration: underline;">About You</h4>
         <div class="form-row">
@@ -217,15 +224,21 @@
           <div class="invalid-feedback">Please explain your future goals or career aspirations.</div>
         </div>
         <div class="card-footer d-flex">
-          <button id="submit" type="submit" class="btn btn-primary btn-lg">Generate!</button>        
+          <% if (user.roles.includes('Intern')) { %>
+            <button id="submit" type="submit" class="btn btn-primary btn-lg">Generate!</button>
+            <p class="pl-3 mt-2" style="font-size: 20px;">You have <span id="footer-attempts" style="color: rgb(212, 45, 45); text-decoration: underline;"><%= user.attempts %></span> attempts remaining.</p>        
+          <% } else { %>
+            <p style="font-size: 20px; color: rgb(212, 45, 45);">You are not allowed to submit this form as you are not an Intern!</p>        
+          <% } %>
         </div>
       </form>
     </div>
     <div id="responses" class="container-fluid">
       <h1 class="text-center mt-4">⭐Spotlight Paragraphs⭐</h1>
-      <h5 class="text-center">You can directly edit the generated paragraphs by simply clicking on them!</h5>
-      <hr>  
-      <!-- border-radius: 5px; border-color: #98CA32; box-shadow: 0 0 1em 0.2em #32a1ca; -->
+      <!-- TODO: Generate the paragraphs without erasing previously generated paragraphs. -->
+      <h5 class="text-center">You can directly edit the generated paragraphs by simply clicking on them! Regenerating will <span style="font-weight: bold;">DELETE</span> the paragraphs that have already been generated. So, make sure to copy and paste elsewhere 
+      if you want to still see more options but already received a good paragraph.</h5>
+      <hr> 
       <h3 class="text-center" style="color:black">ChatGPT Generated Paragraphs:</h3>
       <div class="row p-3">
         <div class="col-md-4">

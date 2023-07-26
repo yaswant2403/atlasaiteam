@@ -224,11 +224,17 @@ async function getUserAndAttempts(net_id) {
   user_seq_format.dataValues.Roles.forEach(role => {
     roles.push(role.dataValues.role)
   });
+  let attempts = 0;
+  if (user_seq_format.attempts.length > 0) { // if the user is only an Admin, they won't have any attempts
+    attempts = user_seq_format.attempts[0].spotlight_attempts;
+  } else {
+    attempts = 0;
+  }
   const user = {
     'net_id': user_seq_format.net_id,
     'name': user_seq_format.name,
     'roles': roles,
-    'attempts': user_seq_format.attempts[0].spotlight_attempts
+    'attempts': attempts
   }
   return user;
 }

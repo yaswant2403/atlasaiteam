@@ -67,14 +67,14 @@ const verifyNetID = async (net_id) => {
 
 router.post('/all-interns', ensureAuthenticated, async(req, res) => {
     try {
-        var response = [];
-        var interns = await User.findAll({
-        include: [{
+      var response = [];
+      var interns = await User.findAll({
+      include: [{
             model: Action,
             as: 'attempts',
             attributes: ['spotlight_attempts'] 
-            },
-            {
+          },
+          {
             model: Role,
             attributes: ['role'],
             where: {
@@ -83,58 +83,58 @@ router.post('/all-interns', ensureAuthenticated, async(req, res) => {
             through: {
                 attributes: []
             }
-            }
-        ]
-        });
-        if (interns.length > 0) {
-          for (const intern of interns) {
-              const user_id = intern.user_id;
-              var term = "";
-              var additional_roles = await UserRole.findAll({
-                attributes: ['role'],
-                where: {
-                    'user_id': user_id,
-                    'role': {
-                      [Op.ne]: 'Intern'
-                    }
-                },
-                raw: true
-              });
-              var roles = ["Intern"];
-              additional_roles.forEach((role) => {
-              roles.push(Object.values(role)[0]);
-              })
-              if (intern.term.endsWith("5")) {
-              term = "SU" + intern.term.substring(1,5);
-              } else if (intern.term.endsWith("8")) {
-              term = "FA" + intern.term.substring(1,5);
-              } else {
-              term = "SP" + intern.term.substring(1,5);
-              }
-              var updatedBy = "";
-              var updatedDate;
-              if (intern.last_modified_by == null) {
-                updatedBy = intern.created_by;
-                updatedDate = intern.created_date;
-              } else {
-                updatedBy = intern.last_modified_by;
-                updatedDate = intern.last_modified_date;
-              }
-              response.push ({
-                net_id: intern.net_id,
-                name: intern.name,
-                term: term,
-                attempts: intern.attempts[0].spotlight_attempts,
-                updatedBy: updatedBy,
-                updatedDate: updatedDate,
-                roles: roles
-              });
           }
-        } else {
-          response.push({net_id: null}); // no interns found in database
+      ]
+      });
+      if (interns.length > 0) {
+        for (const intern of interns) {
+            const user_id = intern.user_id;
+            var term = "";
+            var additional_roles = await UserRole.findAll({
+              attributes: ['role'],
+              where: {
+                  'user_id': user_id,
+                  'role': {
+                    [Op.ne]: 'Intern'
+                  }
+              },
+              raw: true
+            });
+            var roles = ["Intern"];
+            additional_roles.forEach((role) => {
+            roles.push(Object.values(role)[0]);
+            })
+            if (intern.term.endsWith("5")) {
+            term = "SU" + intern.term.substring(1,5);
+            } else if (intern.term.endsWith("8")) {
+            term = "FA" + intern.term.substring(1,5);
+            } else {
+            term = "SP" + intern.term.substring(1,5);
+            }
+            var updatedBy = "";
+            var updatedDate;
+            if (intern.last_modified_by == null) {
+              updatedBy = intern.created_by;
+              updatedDate = intern.created_date;
+            } else {
+              updatedBy = intern.last_modified_by;
+              updatedDate = intern.last_modified_date;
+            }
+            response.push ({
+              net_id: intern.net_id,
+              name: intern.name,
+              term: term,
+              attempts: intern.attempts[0].spotlight_attempts,
+              updatedBy: updatedBy,
+              updatedDate: updatedDate,
+              roles: roles
+            });
         }
-        // console.log(interns);
-        res.status(200).send(response);
+      } else {
+        response.push({net_id: null}); // no interns found in database
+      }
+      // console.log(interns);
+      res.status(200).send(response);
     } catch (error) {
         console.log(error);
         return res.status(500).send({
@@ -924,6 +924,34 @@ router.post('/add-paragraph', ensureAuthenticated, async(req, res) => {
     } catch (error) {
       return res.status(500).send({message: "There was an error checking if you exist in our database! Please try again."});
     }
+})
+
+router.post('/update-attempts', ensureAuthenticated, async(req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        net_id: req.body.net_id,
+      },
+      attributes: ['user_id']
+    });
+    if (user) {
+      await Action.update({
+        spotlight_attempts: req.body.attempts,
+        message_attempts: 3,
+        last_modified_by: req.body.net_id,
+        last_modified_date: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      {
+          where: { user_id: user.user_id } 
+      });
+      return res.status(200).send({message: "valid"});
+    } else {
+      // user doesn't exist
+      return res.status(500).send({message: "User doesn't exist!"});
+    }
+  } catch(err) {
+    return res.status(500).send({message: "There was an error updating your attempts! Please refresh the page."});
+  }
 })
 
 module.exports = router;

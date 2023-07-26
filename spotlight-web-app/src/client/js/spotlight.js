@@ -1,3 +1,5 @@
+// keeping track of how many times form has been submitted
+
 // Grabbing Form and Response
 const form = document.getElementById('spotlight-details');
 const response1 = document.querySelector('#chat-response1');
@@ -22,6 +24,7 @@ refSelect.addEventListener('change', function () {
   }
 });
 
+let submit = 0;
 /**
  * Displaying New Input Fields when Add More is Clicked
  */
@@ -109,6 +112,12 @@ function createPrompt() {
   return prompt;
 }
 
+const selectButton = `
+<div style="text-align: right;">
+  <button type="submit" class="btn btn-primary mb-2">Select</button> 
+</div>
+`;
+
 /**
  * Defines an asynchronous process that occurs when user submits form
  * Returns Promise Object
@@ -127,63 +136,91 @@ const handleSubmit = async (e) => {
     document.querySelectorAll('.loader').forEach((loader) => {
       loader.style.display = null;
     })
-    response1.innerText = "";
-    response2.innerText = "";
-    response3.innerText = "";
-    const prompt = createPrompt();
-    // Sending prompt to server
-    const chatResponse = await fetch('/spotlight',{ // from server
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        message_prompt: prompt,
-      }) 
-    })
-    const data = await chatResponse.json();
-    if (chatResponse.ok) {
-      // Make loading animations invisible
-      document.querySelectorAll('.loader').forEach((loader) => {
-        loader.style.display = 'none';
+    response1.style.opacity = 0;
+    response2.style.opacity = 0;
+    response3.style.opacity = 0;
+    // if the user has attempts left
+    if (current_user.attempts > 0) {
+      const prompt = createPrompt();
+      // Sending prompt to server
+      const chatResponse = await fetch('/spotlight',{ // from server
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          message_prompt: prompt,
+        }) 
       })
-      // if violation by OpenAI
-      if (data.error) {
+      const data = await chatResponse.json();
+      if (chatResponse.ok) {
+        // Make loading animations invisible and our boxes visible
+        document.querySelectorAll('.loader').forEach((loader) => {
+          loader.style.display = 'none';
+        })
+        // if violation by OpenAI
+        if (data.error) {
+          // don't dock user of attempt
+          response2.style.opacity = 1;
+          response2.innerText = data.error.trim();
+        } else {
+          // continue as normal and dock user of attempt
+          const paragraph1 = data.paragraphs[0];
+          const paragraph2 = data.paragraphs[1];
+          const paragraph3 = data.paragraphs[2];
+          // make paragraphs visible and editable
+          response1.style.opacity = 1;
+          response1.innerText = paragraph1;
+          response1.setAttribute("contenteditable", true);
+          response2.style.opacity = 1;
+          response2.innerText = paragraph2;
+          response2.setAttribute("contenteditable", true);
+          response3.style.opacity = 1;
+          response3.innerText = paragraph3;
+          response3.setAttribute("contenteditable", true);
+          // adding the select button
+          var parentColumn1 = response1.parentElement;
+          var parentColumn2 = response2.parentElement;
+          var parentColumn3 = response3.parentElement;
+          parentColumn1.insertAdjacentHTML('afterbegin', selectButton);
+          parentColumn2.insertAdjacentHTML('afterbegin', selectButton);
+          parentColumn3.insertAdjacentHTML('afterbegin', selectButton);
+          // updating user attempts
+          current_user.attempts--;
+          const updateAttempts = await fetch('/update-attempts',{ // from server
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              net_id: current_user.net_id,
+              attempts: current_user.attempts
+            }) 
+          })
+          const update = await updateAttempts.json();
+          if (updateAttempts.ok) { // if update attempts is successful, update the heading and footer with the current attempts
+            document.querySelector('#header-attempts').textContent = `${current_user.attempts} attempts`;
+            document.querySelector('#footer-attempts').textContent = `${current_user.attempts}`;
+          } else { // TODO: better error handling 
+            console.log(update.message);
+          }
+        }
+      } else {  // Means ChatGPT is down or API Key has run out of credits
+        // dont dock user of an attempt
+        document.querySelectorAll('.loader').forEach((loader) => {
+          loader.style.display = 'none';
+        })
+        response2.style.opacity = 1;
         response2.innerText = data.error.trim();
-      } else {
-        // continue as normal and dock user of attempt
-        const paragraph1 = data.paragraphs[0];
-        const paragraph2 = data.paragraphs[1];
-        const paragraph3 = data.paragraphs[2];
-        response1.innerText = paragraph1;
-        response2.innerText = paragraph2;
-        response3.innerText = paragraph3;
-        var parentColumn1 = response1.parentElement;
-        var parentColumn2 = response2.parentElement;
-        var parentColumn3 = response3.parentElement;
-        parentColumn1.insertAdjacentHTML('afterbegin', `
-          <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary mb-2">Select</button> 
-          </div>
-        `)
-        parentColumn2.insertAdjacentHTML('afterbegin', `
-          <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary mb-2">Select</button> 
-          </div>
-        `)
-        parentColumn3.insertAdjacentHTML('afterbegin', `
-          <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary mb-2">Select</button> 
-          </div>
-        `)
       }
-    } else {  // Means ChatGPT is down or API Key has run out of credits
-      // dont dock user of an attempt
+    } else {
       document.querySelectorAll('.loader').forEach((loader) => {
         loader.style.display = 'none';
       })
-      response2.innerText = data.error.trim();
+      response2.style.opacity = 1;
+      response2.innerText = "You have NO ATTEMPTS REMAINING!!";
     }
   }
 }

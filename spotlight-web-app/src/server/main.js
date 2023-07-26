@@ -157,7 +157,11 @@ app.get("/message", ensureAuthenticated, (req, res) => {
 });
 app.get("/spotlight", ensureAuthenticated, async (req, res) => {
   const current_user = await getUserAndAttempts(req.session.passport.user);
-  res.render("spotlight", { user: current_user });
+  if (current_user.roles.includes('Intern')) {
+    res.render("spotlight", { user: current_user });
+  } else {
+    res.render("spotlight");
+  }
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.render("about");
@@ -343,9 +347,9 @@ app.post('/main', ensureAuthenticated, async(req, res) => {
 */
 app.post('/spotlight', ensureAuthenticated, async(req,res) => {
   const violation= "Your inputs have been classified as content that violates OpenAI's usage policies. Please enter\
-  new inputs to generate a new message or image.";
+  new inputs to generate a new paragraph";
   const limiting = "ChatGPT may be limiting your usage. Please wait 30 seconds and try again.\
-  If you still receive this error, contact the staff on the About Section!";
+  If you still receive this error, please contact the staff!";
   const system_message = "You are are an AI Large Language Model that is an expert at writing paragraph summaries for students in the ATLAS Internship program.\
   Reference: You are helping the ATLAS internship program at UIUC to write paragraph summaries for all the interns in the program.\
   Objective: These paragraphs for each intern are called \"spotlights\" and your goal is to write the best possible and professional spotlight for each intern to help their future job placement.\
@@ -373,28 +377,28 @@ app.post('/spotlight', ensureAuthenticated, async(req,res) => {
               error: violation,
           })
       } else { // creating message with ChatGPT because not flagged as harmful content
-          const paragraph1 = await openai.createChatCompletion({
-              model: "gpt-3.5-turbo",
-              messages: p_messages,
-              temperature: 0.1,
-          });
-          const paragraph2 = await openai.createChatCompletion({
-              model: "gpt-3.5-turbo",
-              messages: p_messages,
-              temperature: 0.5,
-          });
-          const paragraph3 = await openai.createChatCompletion({
-              model: "gpt-3.5-turbo",
-              messages: p_messages,
-              temperature: 0.9,
-          });
-          // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
-          // sending the message to frontend as JSON response
-          return res.status(200).send({
-              paragraphs: [ paragraph1.data.choices[0].message.content,
-                            paragraph2.data.choices[0].message.content,
-                            paragraph3.data.choices[0].message.content ]
-          })
+        const paragraph1 = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: p_messages,
+            temperature: 0.25,
+        });
+        const paragraph2 = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: p_messages,
+            temperature: 0.5,
+        });
+        const paragraph3 = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: p_messages,
+            temperature: 0.9,
+        });
+        // console.log("This is the message from the backend: "+ response.data.choices[0].message.content);
+        // sending the message to frontend as JSON response
+        return res.status(200).send({
+            paragraphs: [ paragraph1.data.choices[0].message.content,
+                        paragraph2.data.choices[0].message.content,
+                        paragraph3.data.choices[0].message.content ]
+        })
       }
   } catch (error) { // error with response
       console.log("This is error: " + error)
