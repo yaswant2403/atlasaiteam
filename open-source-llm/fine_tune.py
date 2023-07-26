@@ -5,10 +5,11 @@ import transformers
 from transformers import LlamaTokenizer, LlamaForCausalLM
 import datasets
 import os
+import argparse
 
-##--------------------------------------------------
+##----------------------------------------------------------------------------------
 #This part is not used in the final implementation, it is kept in case of future use
-##--------------------------------------------------
+##----------------------------------------------------------------------------------
 
 # class InstDataset(Dataset):
 #   def __init__(self, inst, output):
@@ -41,13 +42,57 @@ import os
 #   output = tokenizer(output, truncation = True, padding = True, return_tensors = 'pt', max_length = 400)
 
 #   return InstDataset(instruct, output)
+##----------------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+##----------------------------------------------------------------------------------------------------
+#Disclaimer: Since in the summer session the Openai api key and the server for training is not set up, 
+# this pipeline is not fully tested.
+##----------------------------------------------------------------------------------------------------
 
 ## The code is adapted from https://www.mlexpert.io/machine-learning/tutorials/alpaca-fine-tuning
-## TODO: Implement other pre-trained model (MPT-7B);
-##       Implement parsers and CML functions
+## TODO: Implement other pre-trained model (MPT-7B)
 
+
+
+
+# The training arguments to be parsed
+# {"training_dir": the directory of the dataset used to train the model
+#  "output_dir": the directory to store the model parameters
+#  "train_epoch": train epoches
+#  "batch": training batch size
+#  "warmup": warmup steps
+#  "weight_decay": weight decay
+# }
+
+
+
+def parse_option():
+    parser = argparse.ArgumentParser('argument for training')
+    parser.add_argument("--training_dir", type=str, help="the directory of the dataset used to train the model")
+    parser.add_argument("--output_dir", type=str, help="the directory to store the model parameters")
+    parser.add_argument("--train_epoch", type=int, default= 10, help = " train epoches")
+    parser.add_argument("--batch", type=int, default = 100, help="training batch size")
+    parser.add_argument("--warmup", type=int, default=0, help="warmup steps")
+    parser.add_argument("--weight_decay", type = float, default=0.0001, help="weight decay")
+    parser.add_argument("--tokenizer", type=str, default="llama_tokenizer", help="choose the appropriate tokenizer for you model")
+    parser.add_argument("--model", type=str, default="llama", help="the mode to fine-tune")
+
+    opt = parser.parse_args()
+    assert opt.training_dir is not None, "No training directory"
+    assert opt.output_dir is not None, "No ouput directory"
+
+    return opt
+
+
+
+#Create the prompt to be fed into the model
 def generate_prompt(data_point):
       return f"""Below is a description of an intern in ATLAS internship program. Generate a spotlight paragraph using the description.  # noqa: E501
   ### Instruction:
@@ -56,9 +101,14 @@ def generate_prompt(data_point):
   {data_point["output"]}"""
  
  
-def tokenize(prompt, length = 500, add_eos_token = False):
-    tokenizer =  LlamaTokenizer.from_pretrained('openlm-research/open_llama_7b_v2')
-    tokenizer.pad_token = tokenizer.eos_token
+def tokenize(prompt, length = 500):
+    opt = parse_option()
+    if opt.tokenizer == "llana_tokenizer":
+      tokenizer =  LlamaTokenizer.from_pretrained('openlm-research/open_llama_7b_v2')
+      tokenizer.pad_token = tokenizer.eos_token
+    else:
+        raise RuntimeError("tokenizer not implemented")
+    
     result = tokenizer(
         prompt,
         truncation=True,
@@ -69,7 +119,6 @@ def tokenize(prompt, length = 500, add_eos_token = False):
     if (
         result["input_ids"][-1] != tokenizer.eos_token_id
         and len(result["input_ids"]) < length
-        and add_eos_token
     ):
         result["input_ids"].append(tokenizer.eos_token_id)
         result["attention_mask"].append(1)
@@ -78,6 +127,7 @@ def tokenize(prompt, length = 500, add_eos_token = False):
  
     return result
  
+
 def generate_and_tokenize_prompt(data_point):
     
     full_prompt = generate_prompt(data_point)
@@ -85,17 +135,27 @@ def generate_and_tokenize_prompt(data_point):
     return tokenized_full_prompt
 
 
-def train(model, args, tokenizer):
+def train(args):
+    if(args.model == "llama" and args.tokenizer == "llama_tokenizer"):
+        model_path = 'openlm-research/open_llama_7b_v2'
+        tokenizer = LlamaTokenizer.from_pretrained(model_path)
+        tokenizer.pad_token = tokenizer.eos_token
+        model = LlamaForCausalLM.from_pretrained(
+          model_path, torch_dtype=torch.float16, device_map='auto',
+        )
+    else:
+        raise RuntimeError("Model not implemented")
+    
     train_args = transformers.TrainingArguments(
-      output_dir= args["output_dir"],          
-      num_train_epochs=args["train_epoch"],              
-      per_device_train_batch_size= args["batch"],  
-      warmup_steps=args["warmup"],                
-      weight_decay=args["weight_decay"],  
+      output_dir= args.output_dir,          
+      num_train_epochs= args.train_epoch,              
+      per_device_train_batch_size= args.batch,  
+      warmup_steps= args.warmup,                
+      weight_decay= args.weight_decay,  
       report_to= None            
     )
 
-    data = datasets.load_dataset("json", data_files = args["training_dir"])
+    data = datasets.load_dataset("json", data_files = args.training_dir)
 
     train_data = (data["train"].map(generate_and_tokenize_prompt))
     train_data.remove_columns("instruction")
@@ -104,7 +164,7 @@ def train(model, args, tokenizer):
 
     data_collator = transformers.DataCollatorForSeq2Seq(
       tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
-  )
+    )
 
     trainer = transformers.Trainer(
       model = model,
@@ -116,23 +176,12 @@ def train(model, args, tokenizer):
 
 
 def main_():
-    model_path = 'openlm-research/open_llama_7b_v2'
-    tokenizer = LlamaTokenizer.from_pretrained(model_path)
-    tokenizer.pad_token = tokenizer.eos_token
-    model = LlamaForCausalLM.from_pretrained(
-        model_path, torch_dtype=torch.float16, device_map='auto',
-    )
+    opt = parse_option()
+    train(opt)
 
-    args = {
-      "training_dir": "regen.json",
-      "output_dir": "ckpt.pt",
-      "train_epoch": 10,
-      "batch": 32,
-      "warmup": 100,
-      "weight_decay":0.001
-    }
+if __name__ == "__main__":
+    main_()
 
-    train(model, args, tokenizer)
 
 
 
