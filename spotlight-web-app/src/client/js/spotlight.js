@@ -121,6 +121,9 @@ const selectButton = `
 
 $(document).ready(function() {
     // when user clicks on select button we are grabbing the corresponding paragraph
+    // we have to do document on click instead of $('.mb-2').click because we are dynamically adding the select button later
+    // and because jquery runs its functions immediately when the page loads, 
+    // $('.mb-2').click is only an event listener when the page first loads     
     $(document).on('click', '.mb-2', async function() {
     console.log("goes here!")
     const warning_message = "For " + current_user.name + ", are you sure you want to send this paragraph for review? Once selected, it can no longer be edited by you. You will be able to select other paragraphs or generate new ones if you have attempts.";
