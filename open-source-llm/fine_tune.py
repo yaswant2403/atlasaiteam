@@ -69,6 +69,8 @@ import argparse
 #  "batch": training batch size
 #  "warmup": warmup steps
 #  "weight_decay": weight decay
+#  "tokenizer": tokenizer's name
+#  "model": model name
 # }
 
 
@@ -82,7 +84,7 @@ def parse_option():
     parser.add_argument("--warmup", type=int, default=0, help="warmup steps")
     parser.add_argument("--weight_decay", type = float, default=0.0001, help="weight decay")
     parser.add_argument("--tokenizer", type=str, default="llama_tokenizer", help="choose the appropriate tokenizer for you model")
-    parser.add_argument("--model", type=str, default="llama", help="the mode to fine-tune")
+    parser.add_argument("--model", type=str, default="llama", help="the model to fine-tune")
 
     opt = parser.parse_args()
     assert opt.training_dir is not None, "No training directory"
@@ -173,6 +175,7 @@ def train(args):
       data_collator=data_collator
     )
     trainer.train()
+    model.save_pretrained(args.output_dir)
 
 
 def main_():

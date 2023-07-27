@@ -46,13 +46,11 @@ def post_process_gpt3_response(num_prompt_instructions, response):
     raw_instructions = re.split("###", raw_instructions)
     instructions = []
     for idx, inst in enumerate(raw_instructions):
-        # if the decoding stops due to length, the last example is likely truncated so we discard it
-        # if idx == len(raw_instructions) - 1 and response["finish_reason"] == "length":
-        #     continue
         idx += num_prompt_instructions + 1
         splitted_data = re.split(f"{idx}\.\s+(Instruction|input|Output):", inst)
-        print(splitted_data)
-        print(len(splitted_data))
+
+        # Hard coded conditions based on the output of gpt responses
+        # Due to the random nature of the gpt response, there might still be error occuring during training
         if len(splitted_data) != 5 and len(splitted_data) != 3:
             continue
         if len(splitted_data) == 5:
@@ -62,7 +60,6 @@ def post_process_gpt3_response(num_prompt_instructions, response):
             temp = re.split("\noutput",splitted_data[2])
             if len(temp) == 1:
               temp = re.split("\nOutput", temp[0])
-            print(temp)
             inst = temp[0]
             output = temp[1]
         # filter out too short or too long instructions
@@ -162,7 +159,7 @@ def generate_instruction_following_data(
             most_similar_instructions = {
                 all_output[i]: rouge_scores[i] for i in np.argsort(rouge_scores)[-10:][::-1]
             }
-            if max(rouge_scores) > 0.7:
+            if max(rouge_scores) > 0.7 or np.mean(rouge_scores) <= 0.16:
                 continue
             else:
                 keep += 1
@@ -178,7 +175,8 @@ def generate_instruction_following_data(
         utils.jdump(machine_instruction_data, os.path.join(output_dir, "regen.json"))
 
 
-
+if __name__ == "__main__":
+    generate_instruction_following_data()
 
 
 
