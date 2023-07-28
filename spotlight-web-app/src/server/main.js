@@ -82,8 +82,8 @@ app.use(expressSession({
   store: sessionStore,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 5, // expiration data of cookie (will delete itself from our database) after 5 days
-    secure: false // set to true if using https
-  }
+    secure: false, // set to true if using https
+  },
 }))
 
 // Initializing Passport with our Express App
@@ -157,11 +157,7 @@ app.get("/message", ensureAuthenticated, (req, res) => {
 });
 app.get("/spotlight", ensureAuthenticated, async (req, res) => {
   const current_user = await getUserAndAttempts(req.session.passport.user);
-  if (current_user.roles.includes('Intern')) {
-    res.render("spotlight", { user: current_user });
-  } else {
-    res.render("spotlight");
-  }
+  res.render("spotlight", { user: current_user });
 });
 app.get("/about", ensureAuthenticated, (req, res) => {
   res.render("about");

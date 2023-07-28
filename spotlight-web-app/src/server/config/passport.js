@@ -72,6 +72,7 @@ var OIDC_Configs = {
     validateIssuer: true,
     passReqToCallback: false,
     scope: ['openid', 'profile', 'email'],
+    cookieSameSite: true,
     loggingLevel: 'info',
 };
 
@@ -116,15 +117,15 @@ passport.use(strategy);
 // After user clicks on login, we send them to a /auth/openid page
 router.get("/auth/openid", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
   (req, res) => {
+    console.log(req.headers);
     console.log("User is authenticated! We received a return from AzureAD");
     res.redirect('/spotlight');
-    console.log(oid)
   }
 );
 
 // `passport.authenticate` will try to authenticate the content returned in
 // query (such as authorization code). If authentication fails, user will be
-// redirected to '/login-error'; otherwise, it redirects them to the /message.
+// redirected to '/login-error'; otherwise, it redirects them to the /spotlight.
 router.post("/auth/openid/return", passport.authenticate('azuread-openidconnect', {failureRedirect: '/login-error'}), 
   (req, res) => {
     console.log("User is authenticated! We received a return from AzureAD AGAIN!");
