@@ -18,7 +18,7 @@ npm -v
 # Then, clone the repository by doing 
 git clone https://github.com/yaswant2403/atlasaiteam
 ```
-Make a new `.env` file with the contents of the `.env.dummy.file` and set OPEN_API_KEY to the key you receive from [OpenAI].(https://platform.openai.com/account/api-keys)
+Make a new `.env` file with the contents of the `.env.dummy.file` and set OPEN_API_KEY to the key you receive from [OpenAI](https://platform.openai.com/account/api-keys).
 
 ### Running the App
 ```bash
