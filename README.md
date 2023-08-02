@@ -1,5 +1,9 @@
 # QuikScribe - Message and Image Generator
-## Done by ATLAS AI Team of Spring 2023 and Summer 2023
+## By ATLAS AI Team of Spring 2023
+
+This branch contains an archived page of the website that generates messages and images based on user's inputs. 
+Specifically, the `Create Message` page was made during Spring 2023, and this repo contains how the code was structured from
+that semester. As such, it doesn't include authentication, or any database connections. 
 
 After cloning repo locally, you will need to add an .env file similar to the dummy env file with your details. If you have a mySQL database set up, you'll need to edit the password and database name accordingly. In the future, we won't be creating our database. It will be made on cPanel and we will only query it for the admin page.
 #### Launch the App

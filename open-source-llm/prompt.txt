@@ -1,4 +1,0 @@
-You will be given some information of students working in the ATLAS internship program and the corresponding spotlights generated for their work. Help me fake 3 of these pairs. Here are some requirements:
-1. Try to be more diverse in the fields of study
-2. Try to describe their roles as detailed as possible 
-3. When writing the spotlight, try to cover all the information mentioned in the instruction
