@@ -1,7 +1,7 @@
 /******************************************************************************
  * Module dependencies for our database.
  *****************************************************************************/
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 const mysql = require("mysql2");
 
 // for logging
