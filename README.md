@@ -55,6 +55,7 @@ You can access our **[presentation](https://docs.google.com/presentation/d/1Dgfx
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Tech Stack
+<div>
 <p style="font-size: 16px; font-weight: bold; text-decoration: underline;">Frontend</p>
 
 * [![HTML][HTML.com]][HTML-url]
@@ -70,11 +71,23 @@ You can access our **[presentation](https://docs.google.com/presentation/d/1Dgfx
 * [![ExpressJS][ExpressJS.com]][ExpressJS-url]
 * [![SQL][SQL.com]][SQL-url]
 * [![Sequelize][Sequelize.com]][Sequelize-url]
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+<!-- GETTING STARTED -->
+## Getting Started
 
+There are two main ways to get started developing. One way is to start developing without authentication or 
+
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
 
 After cloning repo locally, you will need to add an .env file similar to the dummy env file with your details. If you have a mySQL database set up, you'll need to edit the password and database name accordingly. In the future, we won't be creating our database. It will be made on cPanel and we will only query it for the admin page.
 #### Launch the App
