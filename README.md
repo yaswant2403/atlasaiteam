@@ -55,46 +55,21 @@ You can access our **[presentation](https://docs.google.com/presentation/d/1Dgfx
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Tech Stack
-<!-- Applying CSS styling inside README from: https://pragmaticpineapple.com/adding-custom-html-and-css-to-github-readme/ -->
-<svg fill="none" viewBox="0 0 600 300" width="600" height="300" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-    <style>
-    .container {
-      display: flex;
-    }
-    .tech-heading {
-      font-size: 16px; 
-      font-weight: bold; 
-    }
-    #backend {
-      font-size: 16px; 
-      font-weight: bold; 
-    }
-  </style>
+> **Frontend**
 
-  <div class="container">
-  <p class="tech-heading">Frontend:</p>
-  
   * [![HTML][HTML.com]][HTML-url]
   * [![JavaScript][JavaScript.com]][JavaScript-url]
   * [![JQuery][JQuery.com]][JQuery-url]
   * [![CSS][CSS.com]][CSS-url]
   * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 
-  <p class="tech-heading">Backend:</p>
-  
-  * [![NodeJS][NodeJS.com]][NodeJS-url] + [![NPM][NPM.com]][NPM-url] 
-  * [![JQuery][Vite.com]][Vite-url]
-  * [![ExpressJS][ExpressJS.com]][ExpressJS-url]
-  * [![SQL][SQL.com]][SQL-url]
-  * [![Sequelize][Sequelize.com]][Sequelize-url]
+> **Backend**
 
-  </div>
-</div>
-</foreignObject>
-</svg>
-
+* [![NodeJS][NodeJS.com]][NodeJS-url] + [![NPM][NPM.com]][NPM-url] 
+* [![JQuery][Vite.com]][Vite-url]
+* [![ExpressJS][ExpressJS.com]][ExpressJS-url]
+* [![SQL][SQL.com]][SQL-url]
+* [![Sequelize][Sequelize.com]][Sequelize-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -102,29 +77,96 @@ You can access our **[presentation](https://docs.google.com/presentation/d/1Dgfx
 <!-- GETTING STARTED -->
 ## Getting Started
 
-There are two main ways to get started developing. One way is to start developing without authentication or 
+There are two methods to start developing. 
+  
+  1. **[Highly Recommended]** Have an MySQL server setup. Once your server is setup, you would create a database using the `dump.sql` file giving you a local copy of the database on cPanel. This gives you access to the **full functionality** and features of the application.
+
+  2. If you only want to interact with the **frontend** (changing styling or HTML) of the application, then you may opt-in with this version where there doesn't exist any authentication or database connections. However, this does **NOT include the ACCOUNT** page and only has a semifunctional Spotlight page. 
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
+For both methods, you will need:
+
+* node + npm
+  ```bash
+  # Checking if they exist
+  node -v
+  npm -v  
+  ```
+  * If your system doesn't have them yet, you can install them at [NodeJS + NPM Download](https://nodejs.org/en/download)
+* API Key at [OpenAI](https://platform.openai.com/account/api-keys)
+
+For **Method 1**, you will need to install MySQL into your system. 
+* [Windows Installation](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html)
+* [Mac Installation](https://dev.mysql.com/doc/mysql-macos-excerpt/8.0/en/macos-installation.html)
+* [Ubuntu-22.04 Installation](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04)
+
+  Once installed, ensure that you can create databases, create tables, insert, delete, etc. Here's a cheatsheet for different queries: [MySQL Cheatsheet](https://www.mysqltutorial.org/mysql-create-database/).
+
+For **Method 2**, there's nothing to be done. 
+
+### Installation
+
+**BOTH Methods**
+
+1. Clone the repo
+   ```bash
+   git clone https://github.com/yaswant2403/atlasaiteam.git
+   ```
+2. Install NPM packages
+   ```bash
+   cd spotlight-web-app
+   npm ci
+   ```
+3. Make a copy of `spotlight-web-app/.env.dummy.file` and rename it `.env`. Open the `.env` file and change
+   ```bash
+   OPEN_API_KEY = "Your OpenAI API Key you created"
+   ```
+**Method 1** 
+
+  4. Create the database. With whichever client you choose, import/run the `dump.sql` file. I'll show how you can do it from the mysql command line
+  ```bash
+  source path-to-folder/atlasaiteam/spotlight-web-app/dump.sql 
+  ```
+  This will create the database with all of the tables and all of the relationships between the tables. 
+  
+  5. Now, let's create a new user for MySQL. Execute the following queries:
+  ```sql
+  CREATE USER 'user'@'localhost' IDENTIFIED BY 'any-password-you-want';
+
+  GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, PROCESS, REFERENCES, INDEX, ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, EVENT, TRIGGER ON *.* TO 'user'@'localhost' WITH GRANT OPTION;
+  ```
+  This helps fix this [access denied issue][sql-user-issue] and matches up with the existing configuration.
+  
+  6. Open the `.env` file and change
+   ```bash
+   PASSWORD = "The password that you gave user@localhost"
+   ```
+  
+  7. Get a new Client Secret from [![JQuery][Azure.com]][Azure-url]. You can follow this [tutorial](https://learn.microsoft.com/en-us/answers/questions/834401/hi-i-want-my-client-id-and-client-secret-key) to obtain a new client secret. However, if you don't see `Certificates and Secrets`, you might not have permission. Please contact msommers@illinois.edu to give you permission. Once you have copied the secret, open the `.env` file and change
+  ```bash
+  CLIENT_SECRET = "The Client Secret you just made"
   ```
 
-After cloning repo locally, you will need to add an .env file similar to the dummy env file with your details. If you have a mySQL database set up, you'll need to edit the password and database name accordingly. In the future, we won't be creating our database. It will be made on cPanel and we will only query it for the admin page.
-#### Launch the App
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Running App
+To run the application,
+
+**Method 1 (With MySQL Database)** 
 ```bash
 cd spotlight-web-app
-npm ci
 npm run dev
 ```
+and wait until MySQL Store is ready. Then, you can go to http://localhost:3000/ to see the website. Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes. You can stop running with `CTRL or CMD C`.
+ 
+**Method 2 (Without MySQL Database)** 
+```bash
+cd spotlight-web-app
+npm run dev-frontend
+```
+Then, you can go to http://localhost:3000/ to see the website.Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes.  You can stop running with `CTRL or CMD C`.
 
-Go to http://localhost:3000/ to see the website!
-
-### IGNORE THE BELOW FOR NOW! It is outdated information.
-
-This project is a full-stack web appliction that uses OpenAI's gpt-3.5-turbo API along with NodeJS, HTML and CSS. The user enters information about the type of message they would like, and using those inputs, we send ChatGPT a prompt that generates a response which we display to the user on the frontend. Along with the message, we use ChatGPT to generate a DALL-E prompt, and send that prompt to DALL-E to create an image corresponding with the message.
 
 ### File Structure
 
@@ -140,39 +182,6 @@ This project is a full-stack web appliction that uses OpenAI's gpt-3.5-turbo API
 
 In the `client/` folder, we have the code for the frontend of the website with `main.js` fetching the response and handling form submits while `index.html` is the main page for the application. The `server/` folder contains the backend of the application with `server.js` calling OpenAI's API and sending the response back to the frontend. It should also contain the .env file with the OPEN_API_KEY set to the key you receive from [OpenAI].(https://platform.openai.com/account/api-keys)
 
-## Running Guide
-
-This project uses Vanilla JS as its programming language and NodeJS (16.17.1) for its backend server. Vite (4.2.0) is used to run the frontend and server locally. You can access this website at [atlasaiteam.web.illinois.edu](atlasaiteam.web.illinois.edu). If you'd like to run it locally, the following setup process has been tested on Windows 10. Below are the console/terminal/shell commands:
-
-### Environment Setup for Windows (Using WSL2 in VSCode)
-
-```bash
-# Ensure you have Node and NPM installed
-node -v
-npm -v
-
-# Install the Necessary Packages
-npm i vite
-npm i cors dotenv express nodemon openai
-```
-#### Launch the Frontend
-```bash
-cd client
-npm install
-npm run dev
-// You should see something like this:
-```
-![Application Running](https://user-images.githubusercontent.com/51063116/232668794-88e9b4bd-a108-4e43-ae91-ac7f2002f0a0.png)
-
-Click on the localhost link to see the frontend of the website!
-
-#### Launching the Backend
-```bash
-// Open a new terminal
-cd server
-npm run server
-```
-At this point, the environment setup is complete. You have both the frontend and the backend running locally, and you should be able to generate responses based on different user inputs.
 
 ## Acknowledgements
 
@@ -244,11 +253,12 @@ https://www.youtube.com/watch?v=dXsZp39L2Jk
 [Sequelize.com]: https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=Sequelize&logoColor=white
 [Sequelize-url]: https://sequelize.org/
 
+[sql-user-issue]: https://stackoverflow.com/questions/40477625/nodejs-mysql-er-access-denied-error-access-denied-for-user-rootlocalhost?page=1&tab=scoredesc#tab-top
 
 [MDNWebDocs.com]: 	https://img.shields.io/badge/MDN_Web_Docs-black?style=for-the-badge&logo=mdnwebdocs&logoColor=white
 [MDNWebDocs-url]: https://developer.mozilla.org/en-US/docs/Web
 [Azure.com]: https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white
-[Azure-url]: https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Authentication/appId/0ee72bd2-5571-417d-a595-f83f13b2a45f/isMSAApp~/false
+[Azure-url]: https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/0ee72bd2-5571-417d-a595-f83f13b2a45f/isMSAApp~/false
 [VSCode.com]: https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white
 [VSCode-url]: https://code.visualstudio.com/
 
