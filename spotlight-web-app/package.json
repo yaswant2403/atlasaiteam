@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "nodemon src/server/main.js -w src/server",
+    "dev-frontend": "nodemon src/server/main-client.js -w src/server",
     "start": "NODE_ENV=production node src/server/main.js",
     "build": "vite build"
   },
