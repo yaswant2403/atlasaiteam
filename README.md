@@ -148,8 +148,6 @@ For **Method 2**, there's nothing to be done.
   CLIENT_SECRET = "The Client Secret you just made"
   ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Running App
 To run the application,
 
@@ -167,6 +165,8 @@ npm run dev-frontend
 ```
 Then, you can go to http://localhost:3000/ to see the website.Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes.  You can stop running with `CTRL or CMD C`.
 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### File Structure
 
