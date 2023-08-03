@@ -55,23 +55,46 @@ You can access our **[presentation](https://docs.google.com/presentation/d/1Dgfx
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Tech Stack
-<div>
-<p style="font-size: 16px; font-weight: bold; text-decoration: underline;">Frontend</p>
+<!-- Applying CSS styling inside README from: https://pragmaticpineapple.com/adding-custom-html-and-css-to-github-readme/ -->
+<svg fill="none" viewBox="0 0 600 300" width="600" height="300" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+    <style>
+    .container {
+      display: flex;
+    }
+    .tech-heading {
+      font-size: 16px; 
+      font-weight: bold; 
+    }
+    #backend {
+      font-size: 16px; 
+      font-weight: bold; 
+    }
+  </style>
 
-* [![HTML][HTML.com]][HTML-url]
-* [![JavaScript][JavaScript.com]][JavaScript-url]
-* [![JQuery][JQuery.com]][JQuery-url]
-* [![CSS][CSS.com]][CSS-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
+  <div class="container">
+  <p class="tech-heading">Frontend:</p>
+  
+  * [![HTML][HTML.com]][HTML-url]
+  * [![JavaScript][JavaScript.com]][JavaScript-url]
+  * [![JQuery][JQuery.com]][JQuery-url]
+  * [![CSS][CSS.com]][CSS-url]
+  * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 
-<p style="font-size: 16px; font-weight: bold; text-decoration: underline;">Backend</p>
+  <p class="tech-heading">Backend:</p>
+  
+  * [![NodeJS][NodeJS.com]][NodeJS-url] + [![NPM][NPM.com]][NPM-url] 
+  * [![JQuery][Vite.com]][Vite-url]
+  * [![ExpressJS][ExpressJS.com]][ExpressJS-url]
+  * [![SQL][SQL.com]][SQL-url]
+  * [![Sequelize][Sequelize.com]][Sequelize-url]
 
-* [![NodeJS][NodeJS.com]][NodeJS-url] + [![NPM][NPM.com]][NPM-url] 
-* [![JQuery][Vite.com]][Vite-url]
-* [![ExpressJS][ExpressJS.com]][ExpressJS-url]
-* [![SQL][SQL.com]][SQL-url]
-* [![Sequelize][Sequelize.com]][Sequelize-url]
+  </div>
 </div>
+</foreignObject>
+</svg>
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
