@@ -35,12 +35,18 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#running-the-app">Running the App</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li>
+      <a href="">How Does It Work?</a>
+      <ul>
+        <li><a href="#file-structure">File Structure</a></li>
+        <li><a href="#detailed-walkthrough">Detailed Walkthrough</a></li>
+      </ul>
+    </li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
+    <li><a href="#contributors">contributors</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -81,7 +87,7 @@ There are two methods to start developing.
   
   1. **[Highly Recommended]** Have an MySQL server setup. Once your server is setup, you would create a database using the `dump.sql` file giving you a local copy of the database on cPanel. This gives you access to the **full functionality** and features of the application.
 
-  2. If you only want to interact with the **frontend** (changing styling or HTML) of the application, then you may opt-in with this version where there doesn't exist any authentication or database connections. However, this does **NOT include the ACCOUNT** page and only has a semifunctional Spotlight page. 
+  2. If you only want to interact with the **frontend** (changing styling or HTML) of the application, then you may choose to go with this version where there doesn't exist any authentication or database connections. However, this does **NOT include the ACCOUNT** page and only has a semifunctional Spotlight page. 
 
 ### Prerequisites
 
@@ -94,7 +100,7 @@ For both methods, you will need:
   npm -v  
   ```
   * If your system doesn't have them yet, you can install them at [NodeJS + NPM Download](https://nodejs.org/en/download)
-* API Key at [OpenAI](https://platform.openai.com/account/api-keys)
+* API Key by going to [OpenAI](https://platform.openai.com/account/api-keys)
 
 For **Method 1**, you will need to install MySQL into your system. 
 * [Windows Installation](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html)
@@ -102,8 +108,6 @@ For **Method 1**, you will need to install MySQL into your system.
 * [Ubuntu-22.04 Installation](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04)
 
   Once installed, ensure that you can create databases, create tables, insert, delete, etc. Here's a cheatsheet for different queries: [MySQL Cheatsheet](https://www.mysqltutorial.org/mysql-create-database/).
-
-For **Method 2**, there's nothing to be done. 
 
 ### Installation
 
@@ -126,7 +130,7 @@ For **Method 2**, there's nothing to be done.
 
   4. Create the database. With whichever client you choose, import/run the `dump.sql` file. I'll show how you can do it from the mysql command line
   ```bash
-  source path-to-folder/atlasaiteam/spotlight-web-app/dump.sql 
+  mysql> source path-to-folder/atlasaiteam/spotlight-web-app/dump.sql 
   ```
   This will create the database with all of the tables and all of the relationships between the tables. 
   
@@ -148,7 +152,7 @@ For **Method 2**, there's nothing to be done.
   CLIENT_SECRET = "The Client Secret you just made"
   ```
 
-### Running App
+### Running the App
 To run the application,
 
 **Method 1 (With MySQL Database)** 
@@ -163,24 +167,41 @@ and wait until MySQL Store is ready. Then, you can go to http://localhost:3000/ 
 cd spotlight-web-app
 npm run dev-frontend
 ```
-Then, you can go to http://localhost:3000/ to see the website.Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes.  You can stop running with `CTRL or CMD C`.
+Then, you can go to http://localhost:3000/ to see the website. Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes.  You can stop running with `CTRL or CMD C`.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- Breaking down how it works -->
+## How Does It Work?
+
 ### File Structure
 
 ```bash
-├───client
-│   ├───assets
-│   ├───index.html
-│   ├───main.js
-│   ├───style.css
-├───server
-│   └───server.js
+├── open-source-llm
+|── spotlight-web-app
+│   ├── index.html
+│   └── src
+│       ├── client
+│       │   ├── assets/
+│       │   ├── css/
+│       │   ├── html/
+│       │   └── js/
+│       └── server
+│           ├── config/
+│           ├── db_models/
+│           ├── main-client.js
+│           ├── main.js
+└───────────└── routes/
 ```
 
-In the `client/` folder, we have the code for the frontend of the website with `main.js` fetching the response and handling form submits while `index.html` is the main page for the application. The `server/` folder contains the backend of the application with `server.js` calling OpenAI's API and sending the response back to the frontend. It should also contain the .env file with the OPEN_API_KEY set to the key you receive from [OpenAI].(https://platform.openai.com/account/api-keys)
+The entrypoint to the application is through `src/server/main.js` and `index.html`. 
+
+`src/client` folder contains all the code for the frontend of the website. Specifically, it has all the EJS files, CSS, and JS files that handle form submissions, and fetch responses from the backend. 
+
+`src/server` folder contains the backend of the application with `server.js` calling OpenAI's API and sending the response back to the frontend. It should also contain the .env file with the OPEN_API_KEY set to the key you receive from [OpenAI].(https://platform.openai.com/account/api-keys)
+
+### Detailed Walkthrough
 
 
 ## Acknowledgements
