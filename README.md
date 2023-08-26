@@ -147,7 +147,15 @@ For **Method 1**, you will need to install MySQL into your system.
    PASSWORD = "The password that you gave user@localhost"
    ```
   
-  7. Get a new Client Secret from [![JQuery][Azure.com]][Azure-url]. You can follow this [tutorial](https://learn.microsoft.com/en-us/answers/questions/834401/hi-i-want-my-client-id-and-client-secret-key) to obtain a new client secret. However, if you don't see `Certificates and Secrets`, you might not have permission. Please contact msommers@illinois.edu to give you permission. Once you have copied the secret, open the `.env` file and change
+  7. Now, we will need to add you as an user with the proper roles. To do, execute the following queries:
+  ```sql
+  INSERT INTO atlas_users (net_id, name, term, created_by) VALUES('your_netid', 'your_full_name', '120238', 'your_netid')
+  SELECT user_id FROM atlas_users WHERE net_id='your_netid'; # you'll get an id number that you'll need for the next query
+  INSERT INTO user_roles (user_id, role, created_by) VALUES('id_from_last_query', 'Intern', 'your_netid')
+  INSERT INTO user_roles (user_id, role, created_by) VALUES('id_from_last_query', 'Staff', 'your_netid')
+  ```
+
+  8. Get a new Client Secret from [![JQuery][Azure.com]][Azure-url]. You can follow this [tutorial](https://learn.microsoft.com/en-us/answers/questions/834401/hi-i-want-my-client-id-and-client-secret-key) to obtain a new client secret. However, if you don't see `Certificates and Secrets`, you might not have permission. Please contact msommers@illinois.edu to give you permission. Once you have copied the secret, open the `.env` file and change
   ```bash
   CLIENT_SECRET = "The Client Secret you just made"
   ```
@@ -160,7 +168,7 @@ To run the application,
 cd spotlight-web-app
 npm run dev
 ```
-and wait until MySQL Store is ready. Then, you can go to http://localhost:3000/ to see the website. Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes. You can stop running with `CTRL or CMD C`.
+and wait until MySQL Store is ready. Then, you can go to http://localhost:3000/ to see the website. Any change you make in `src/server/` will automatically refresh the whole server. However, if you make a change in `src/client`, you will have to manually refresh the page to see your changes. You should now be able to see yourself on the Staff Page on the Account Page. You can stop running with `CTRL or CMD C`.
  
 **Method 2 (Without MySQL Database)** 
 ```bash
@@ -195,14 +203,38 @@ Then, you can go to http://localhost:3000/ to see the website. Any change you ma
 └───────────└── routes/
 ```
 
-The entrypoint to the application is through `src/server/main.js` and `index.html`. 
+The entrypoint to the application is through `server/main.js` and `index.html`.
 
-`src/client` folder contains all the code for the frontend of the website. Specifically, it has all the EJS files, CSS, and JS files that handle form submissions, and fetch responses from the backend. 
+`client` folder contains all the code for the frontend of the website. Specifically, it has all the EJS files, CSS, and JS files that handle form submissions, and fetch responses from the backend. 
 
-`src/server` folder contains the backend of the application with `server.js` calling OpenAI's API and sending the response back to the frontend. It should also contain the .env file with the OPEN_API_KEY set to the key you receive from [OpenAI].(https://platform.openai.com/account/api-keys)
+`server` folder contains all the code for the backend of the website. 
+* `config/` contains `passport.js` which handles all the authentication using OpenID Connect with Azure Directory. 
+
+* `db_models/` contains all the different Sequelize Models that are mapped to their respective tables in the `atlasaiteam_accounts` database. 
+
+* `routes/` contains the `assetsRouter, cssRouter, jsRouter` which handles any assets, CSS, or JavaScript that any page of the application requires. Additionally, it has `crudRouter` which handles all the POST requests from the ACCOUNT page. 
+
+Finally, `main.js` handles all the GET routes to the pages of the website, configures a session-store to store a user's current session, the OpenAIApi object and handles the POST request of the form submission on the Spotlight page.
 
 ### Detailed Walkthrough
 
+In this section, I'll go over how the entire web application actually functions and for even more details, you can look through the files themselves as they all have comments. 
+
+I'll start with `main.js` as that's the main entrypoint of the application. 
+
+With Vite, you can easily bootstrap your project and just start working without figuring everything out. That's great for front-end apps, but when you want to include server-side into the mix, things get quite complicated. 
+
+With **Vite-Express**, we can write full-stack apps with only a couple of lines as it takes care of 
+* injecting necessary middleware to serve static files from your express server
+* managing unhandled routes to make client-side routing possible
+
+The website uses OpenID Connect authentication with Azure Active Directory. From Microsoft Docs,
+> This is an authentication protocol based on the OAuth2 protocol (which is used for authorization). OIDC uses the standardized message flows from OAuth2 to provide identity services. OIDC lets developers authenticate their users across websites and apps without having to own and manage password files. ![Alt text](image.png)
+
+So in our case, we make users sign in with their Illinois Microsoft Outlook Account. In our application, **Step 8 (Valid Access Token)** is done by grabbing the user's NetID from their email that comes along with the tokens and checking if they exist in our `atlas_users` database. If they don't, they get sent to a `login_error` page. Since we're using NodeJS + Express, we use PassportJS as our authentication middleware. All of the authentication routes and passport configuration can be found in `passport.js`.
+
+Once a user signs in, we store their **session**.  A session stores unique information about the current user of our application such that if they close the tab, they're able to access the website again without having to log in. 
+Passport is authentication middleware for Node.js
 
 ## Acknowledgements
 
