@@ -172,6 +172,7 @@ function ensureAuthenticated(req, res, next) {
   return res.redirect('/login');
 }
 
+// Returns user's name and roles from database with matching net_id to req's net_id
 async function getUser(net_id) {
   const user_seq_format = await User.findOne({
     attributes: ['net_id', 'name'],
@@ -183,14 +184,14 @@ async function getUser(net_id) {
           model: Role,
           attributes: ['role'],
           through: {
-              attributes: []
+            attributes: []
           }
         }
       ]
     })
-  let roles = [];
-  user_seq_format.dataValues.Roles.forEach(role => {
-    roles.push(role.dataValues.role)
+    let roles = [];
+    user_seq_format.dataValues.Roles.forEach(role => {
+      roles.push(role.dataValues.role)
   });
   const user = {
     'net_id': user_seq_format.dataValues.net_id,
@@ -200,6 +201,7 @@ async function getUser(net_id) {
   return user;
 }
 
+// Returns user's net_id, name, roles, spotlight attempts from database with matching net_id to req's net_id
 async function getUserAndAttempts(net_id) {
   const user_seq_format = await User.findOne({
     attributes: ['net_id', 'name'],

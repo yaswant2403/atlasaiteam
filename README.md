@@ -42,12 +42,13 @@
       <a href="">How Does It Work?</a>
       <ul>
         <li><a href="#file-structure">File Structure</a></li>
+        <li><a href="#database-structure-and-table-relationships">Database Structure and Relationships</a></li>
         <li><a href="#detailed-walkthrough">Detailed Walkthrough</a></li>
       </ul>
     </li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributors">contributors</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#known-bugs">Known Bugs</a></li>
+    <li><a href="#future-features">Future Features</a></li>
+    <li><a href="#contributors-and-resources">Contributors and Resources</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -202,6 +203,7 @@ Then, you can go to http://localhost:3000/ to see the website. Any change you ma
 │           ├── main.js
 └───────────└── routes/
 ```
+> Drawn with MS-DOS tree using a [StackOverflow Tutorial](https://stackoverflow.com/questions/347551/what-tool-to-use-to-draw-file-tree-diagram)
 
 The entrypoint to the application is through `server/main.js` and `index.html`.
 
@@ -216,11 +218,53 @@ The entrypoint to the application is through `server/main.js` and `index.html`.
 
 Finally, `main.js` handles all the GET routes to the pages of the website, configures a session-store to store a user's current session, the OpenAIApi object and handles the POST request of the form submission on the Spotlight page.
 
+### Database Structure and Table Relationships
+
+As mentioned before, we are using a MySQL Database in cPanel called `atlasaiteam_accounts`. Here's a high-level overview of the database:
+![Tables and their Relationships](database.png)
+
+You can see every single table has 
+- created_by 
+- created_date
+- last_modified_by
+- last_modified_date
+
+to ensure we have a comprehensive audit trail. Additionally, we also have audit tables for all our tables: 
+![Audit Tables](database_aud.png)
+
+These tables get entries inserted through triggers when the original table gets its entries updated or deleted.
+
+`atlas_users` contains all the users of our application with the following columns:
+
+- user_id (Unique auto-incremented id for each user since NetID can be changed)
+- net_id (User's NetID)
+- name (Full Name)
+- term (120235 means Summer 2023, 120238 means Fall 2023, etc)
+
+`atlas_users` has many relationships to the other tables:
+
+* One-To-Many with `user_actions` as users can have multiple different actions. Currently, they only have _spotlight_attempts_ but in the future, we could generate resumes in which case you can just create another column called _resume_attempts_
+  * Foreign Key: user_id
+* One-To-Many with `intern_paragraphs` as users can have multiple paragraphs from different terms
+  * Foreign Key: user_id
+* Many-To-Many between users and roles since users can have various roles and roles can be assigned to many users. However, relational database systems usually don't allow you to implement a direct many-to-many relationship between two tables. Thus, the easiest way is to do it through a **junction table** (`user_roles`).
+  * `user_roles_lkup` has a One-To-Many with `user_roles` as roles can be assigned to many users
+    * Foreign Key: role
+  * `atlas_users` has a One-To-Many with `user_roles` as users can have many roles 
+    * Foreign Key: user_id
+  * As such, `user_roles` allows us to uniquely identify every user and all their assigned roles
+
+To convert these existing tables into Sequelize Models, I used [Sequelize-Auto](https://github.com/sequelize/sequelize-auto) with the additional option of `timestamps: false` which created all the models in `db_models/`. I had to slightly modify `init-models.js` in order to get the Many-To-Many relationship to work properly. 
+
+Finally, we have the sessions table which is explained more in [Detailed Walkthrough](#detailed-walkthrough):
+
+![Sessions Table](session-table.png)
+
 ### Detailed Walkthrough
 
 In this section, I'll go over how the entire web application actually functions and for even more details, you can look through the files themselves as they all have comments. 
 
-I'll start with `main.js` as that's the main entrypoint of the application. 
+#### I'll start with `main.js` as that's the main entrypoint of the application. 
 
 With Vite, you can easily bootstrap your project and just start working without figuring everything out. That's great for front-end apps, but when you want to include server-side into the mix, things get quite complicated. 
 
@@ -229,42 +273,106 @@ With **Vite-Express**, we can write full-stack apps with only a couple of lines 
 * managing unhandled routes to make client-side routing possible
 
 The website uses OpenID Connect authentication with Azure Active Directory. From Microsoft Docs,
-> This is an authentication protocol based on the OAuth2 protocol (which is used for authorization). OIDC uses the standardized message flows from OAuth2 to provide identity services. OIDC lets developers authenticate their users across websites and apps without having to own and manage password files. ![Alt text](image.png)
+> This is an authentication protocol based on the OAuth2 protocol (which is used for authorization). OIDC uses the standardized message flows from OAuth2 to provide identity services. OIDC lets developers authenticate their users across websites and apps without having to own and manage password files. ![Alt text](OpenIDConnect-Flow.png)
 
 So in our case, we make users sign in with their Illinois Microsoft Outlook Account. In our application, **Step 8 (Valid Access Token)** is done by grabbing the user's NetID from their email that comes along with the tokens and checking if they exist in our `atlas_users` database. If they don't, they get sent to a `login_error` page. Since we're using NodeJS + Express, we use PassportJS as our authentication middleware. All of the authentication routes and passport configuration can be found in `passport.js`.
 
-Once a user signs in, we store their **session**.  A session stores unique information about the current user of our application such that if they close the tab, they're able to access the website again without having to log in. 
-Passport is authentication middleware for Node.js
+Once a user signs in, we store their **session**.  A session stores unique information about the current user of our application such that if they close the tab, they're able to access the website again without having to log in. We are using [MySQL session store for express.js](https://www.npmjs.com/package/express-mysql-session), which is compatible with express-session. This stores every session in a `sessions` table with a unique session id set to expire after 5 days. We also use PassportJS' middleware ( `passport.session()` ) that will restore that login state from a session. From PassportJS Docs,
+> Web applications typically use sessions to maintain login state between requests. For example, a user will authenticate by entering credentials into a form which is submitted to the server. If the credentials are valid, a login session is established by setting a cookie containing a session identifier in the user's web browser. The web browser will send this cookie in subsequent requests to the server, allowing a session to be maintained. 
+>> If sessions are being utilized, and a login session has been established, this middleware will populate req.user with the current user.
 
-## Acknowledgements
+In order to access any page of the website, we use an `ensureAuthenticated()` middleware that ensures the user is authenticated by checking if they exist in our database or not. 
 
-[MAIN INSPIRATION](https://www.youtube.com/watch?v=2FeymQoKvrk)
+To serve all the assets, JS and CSS for each page, we make the use of routers. Additionally, to dynamically update pages based on a user's roles, we use **Embedded JavaScript (EJS)**. `Account` page utilizes the most of this functionality with its three cases:
 
-ChatGPT for Bootstrap
+1) Intern user can only see _View Paragraphs_
+2) Staff user can see everything Intern can and _Manage Interns_
+3) Admin user can see everything Staff can and _Manage Admin_ 
 
-OpenAPI Documentation:
-https://platform.openai.com/docs/guides/chat/introduction
-https://platform.openai.com/tokenizer
-https://platform.openai.com/docs/api-reference/chat/create
+`Spotlight` page also changes based on a user's roles where all interns are able to generate paragraphs with their number of attempts displayed whereas all non-interns are unable to submit or generate any paragraphs. 
 
-JS Issues:
-https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
-https://stackoverflow.com/questions/48248832/stylesheet-not-loaded-because-of-mime-type
-https://webpack.js.org/guides/getting-started/
-https://browserify.org/
-https://stackoverflow.com/questions/71844271/vite-is-not-recognized-on-npm-run-dev
+Finally, `main.js` handles the POST requests sent by the `Spotlight` page for paragraph generations.
 
-Managing multiple JS Files:
-https://stackoverflow.com/questions/5697061/how-to-manage-multiple-js-files-server-side-with-node-js
-https://stackoverflow.com/questions/21377892/using-node-js-modules-in-html
-https://levelup.gitconnected.com/building-multi-file-node-js-applications-with-bazel-9d631b667c8d
-https://www.digitalocean.com/community/tutorials/how-to-create-a-node-js-module
-https://www.youtube.com/watch?v=OFOCxrhHUOs
+#### Next, I'll discuss `routes/crudRouter.js` which is crucial to the Account subpages.
 
-Creating a ChatBot:
-https://philna.sh/blog/2023/03/13/create-a-cli-chatbot-with-chatgpt-api-and-node-js/
+This contains all of the GET and POST requests from the Account subpages (_View Paragraph, Manage Interns/Staff/Admin_). This allows the user to perform all 4 operations (Create, Read, Update, Delete) on user data. Each request is handled by invoking one of Sequelize's built-in methods such as `findOne, findAll, create, update` that interacts with the tables in our database. Here's how all the different subpages operate:
 
-https://www.youtube.com/watch?v=dXsZp39L2Jk
+* View Paragraph
+  * Interns can only view their paragraph
+  * Staff + Admin can view and edit all intern paragraphs
+* Manage Interns
+  * Staff + Admin can view, add, edit and delete interns such as full name, roles, term, spotlight attempts
+* Manage Staff
+  * Admin can view, add, edit and delete all staff
+* Manage Admin
+  * Admin can view and edit all admin
+
+In order to add an Admin, you will have to do so manually through MySQL.
+
+#### Finally, I'll discuss the Spotlight page.
+
+Given the user is an intern, they will see the number of attempts available and clear instructions explaining to them how the form works. Here are the instructions:
+>  When you click Generate, ChatGPT will generate 3 different paragraphs and you will LOSE 1 ATTEMPT. <br> Generated paragraphs are EDITABLE, and once you're satisfied with the paragraph, you can click SELECT and this will submit your paragraph for review! Submissions are NOT EDITABLE so choose wisely! If you'd like to generate more paragraphs, you can click Generate again BUT you will LOSE ANOTHER ATTEMPT and DELETE the previously generated paragraphs. Attempts DO NOT RESET back to 3 until the current academic term is over.
+
+So, how did we actually do this? As soon as the user fills out the form and clicks _Generate_, `client/js/spotlight.js` verifies that the user has enough attempts and fetches a GET request from `server/main.js` which uses OpenAI's gpt-3.5-turbo model to generate three different paragraphs. After the paragraphs are generated, we decrease the number of attempts by 1, update the user's number of attempts in our database, and modify the page to reflect that change. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Known Bugs
+
+### Authentication 
+
+When a user logs in, the session that gets stored in our `sessions` table is expected to look like: 
+![Data column of expected session](session.png)
+with the `passport` value being the user that exists in the `atlas_users` table. So, whenever the user closes the tab and reopens it, Passport serializes and deserializes using this data. 
+
+However, sometimes, the session is stored in this format:
+![Data column of bad session](bad-session.png)
+where the passport attribute doesn't even exist. When the session is stored like this, PassportJS doesn't know who the current user is, and it's unable to redirect to any of our pages. As a result, the user continually gets sent to the `login-error` page because that's what our `failureRedirect` is set to.
+
+As far as I can tell, this occurs randomly and sometimes the session gets stored properly and sometimes it doesn't. Here are some resources that could potentially help resolve this issue:
+
+* [StackOverflow - Passport Always Redirected to failure redirect](https://stackoverflow.com/questions/61907280/passport-azure-ad-always-redirect-to-failureredirect-but-no-error-shown-nodejs)
+* [GitHub Issues - Passport req.user is undefined](https://github.com/AzureAD/passport-azure-ad/issues/457)
+* [GitHub Issues - Passport is empty in session](https://github.com/jaredhanson/passport/issues/452)
+* [StackOverflow - Passport auth service not working](https://stackoverflow.com/questions/71686115/nodejs-api-on-azure-app-service-passport-auth-not-working)
+
+## Future Features
+
+* Store all generated paragraphs and allow user to choose and compare all 9 paragraphs
+* Migrate application to cPanel and ensure that the MySQL connection works with the cPanel database
+* Rebuild application using React + NextJS for better functionality and scalability
+* Implement our open-source LLM rather than relying on OpenAI's models
+
+## Contributors and Resources
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/yaswant2403"><img src="https://avatars.githubusercontent.com/u/51063116?v=4" width="100px;" alt="Yash Ejjagiri"/><br /><sub><b>Yash Ejjagiri</b></sub></a><br /><a href="#" title="Code">💻</a><a href="#about-the-project" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nickgong1"><img src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png" width="100px;" alt="Nick Gong"/><br /><sub><b>Nick Gong</b></sub></a><br /><a href="#" title="Code">💻</a><a href="#about-the-project" title="Documentation">📖</a>
+      <a href="#" title="Tools">🔧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mandoovi"><img src="https://media.licdn.com/dms/image/D4D03AQGu7Avw8cl7kQ/profile-displayphoto-shrink_400_400/0/1683057655472?e=1698883200&v=beta&t=3DVNMfSkutRN6DZcPdnSlVkHr6HbzZ2sk2lNsDdrvR0" width="100px;" alt="Yash Mandavia"/><br /><sub><b>Yash Mandavia</b></sub></a><br /><a href="#" title="Code">💻</a><a href="#" title="Design">🎨</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/michael-sommers-b5612b21/"><img src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png" width="100px;" alt="Michael Sommers"/><br /><sub><b>Michael Sommers</b></sub></a><br /><a href="#" title="Design">🎨</a><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a>Mentor
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/mrome/"><img src="https://media.licdn.com/dms/image/C5603AQGimERisfwk8A/profile-displayphoto-shrink_400_400/0/1516320810867?e=1698883200&v=beta&t=BvMYTOMosxTj90xLEQdKvnq4ECTClhsf0SZvV0too-0" width="100px;" alt="Michelle Rome"/><br /><sub><b>Michelle Rome</b></sub></a><br /><a href="#" title="Design">🎨</a><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a>Mentor</td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/priscilla-geerdes-33bba8255"><img src="priscilla_pfp.png" width="100px;" alt="Priscilla Geerdes"/><br /><sub><b>Priscilla Geerdes</b></sub></a><br /><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a> Coordinator</td>
+      <td align="center" valign="top" width="14.28%" height="130px"><a href="https://math.illinois.edu/directory/profile/rmccrthy"><img src="https://math.illinois.edu/sites/default/files/styles/directory_profile/public/profile-photos/rmccrthy.png.jpg?itok=hMsexiXO" width="100px;" alt="Randy McCarthy"/><br /><sub><b>Randy McCarthy</b></sub></a><br /><a href="#" title="Design">🎨</a><a href="#" title="Answering Questions">💬</a><a href="#" title="Tools">🔧</a>Client</td>
+    </tr>
+  </tbody>
+</table>
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+### Resources Used
+Thank you to our amazing team of mentors for all their help thoroughout the project.
+All of the resources we used can be found here: [Resources - Google Docs](https://docs.google.com/document/d/1Yvs7tJFcdjcbIhXztb_aJP1fVm7Gsq9j5ODua-Bkxc0/edit?usp=sharing)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -315,27 +423,3 @@ https://www.youtube.com/watch?v=dXsZp39L2Jk
 [VSCode.com]: https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white
 [VSCode-url]: https://code.visualstudio.com/
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://kentcdodds.com"><img src="https://avatars.githubusercontent.com/u/1500684?v=3?s=100" width="100px;" alt="Kent C. Dodds"/><br /><sub><b>Kent C. Dodds</b></sub></a><br /><a href="#question-kentcdodds" title="Answering Questions">💬</a> <a href="https://github.com/all-contributors/all-contributors/commits?author=kentcdodds" title="Documentation">📖</a> <a href="https://github.com/all-contributors/all-contributors/pulls?q=is%3Apr+reviewed-by%3Akentcdodds" title="Reviewed Pull Requests">👀</a> <a href="#talk-kentcdodds" title="Talks">📢</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jfmengels"><img src="https://avatars.githubusercontent.com/u/3869412?v=3?s=100" width="100px;" alt="Jeroen Engels"/><br /><sub><b>Jeroen Engels</b></sub></a><br /><a href="https://github.com/all-contributors/all-contributors/commits?author=jfmengels" title="Documentation">📖</a> <a href="https://github.com/all-contributors/all-contributors/pulls?q=is%3Apr+reviewed-by%3Ajfmengels" title="Reviewed Pull Requests">👀</a> <a href="#tool-jfmengels" title="Tools">🔧</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://jakebolam.com"><img src="https://avatars2.githubusercontent.com/u/3534236?v=4?s=100" width="100px;" alt="Jake Bolam"/><br /><sub><b>Jake Bolam</b></sub></a><br /><a href="https://github.com/all-contributors/all-contributors/commits?author=jakebolam" title="Documentation">📖</a> <a href="#tool-jakebolam" title="Tools">🔧</a> <a href="#infra-jakebolam" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-jakebolam" title="Maintenance">🚧</a> <a href="https://github.com/all-contributors/all-contributors/pulls?q=is%3Apr+reviewed-by%3Ajakebolam" title="Reviewed Pull Requests">👀</a> <a href="#question-jakebolam" title="Answering Questions">💬</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tbenning"><img src="https://avatars2.githubusercontent.com/u/7265547?v=4?s=100" width="100px;" alt="Tyler Benning"/><br /><sub><b>Tyler Benning</b></sub></a><br /><a href="#maintenance-tbenning" title="Maintenance">🚧</a> <a href="https://github.com/all-contributors/all-contributors/commits?author=tbenning" title="Code">💻</a> <a href="#design-tbenning" title="Design">🎨</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/fhemberger"><img src="https://avatars.githubusercontent.com/u/153481?v=3?s=100" width="100px;" alt="F. Hemberger"/><br /><sub><b>F. Hemberger</b></sub></a><br /><a href="https://github.com/all-contributors/all-contributors/commits?author=fhemberger" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/frigginglorious"><img src="https://avatars.githubusercontent.com/u/3982200?v=3?s=100" width="100px;" alt="Daniel Kraft"/><br /><sub><b>Daniel Kraft</b></sub></a><br /><a href="https://github.com/all-contributors/all-contributors/commits?author=frigginglorious" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mbad0la"><img src="https://avatars.githubusercontent.com/u/8503331?v=3?s=100" width="100px;" alt="Mayank Badola"/><br /><sub><b>Mayank Badola</b></sub></a><br /><a href="https://github.com/all-contributors/all-contributors/commits?author=mbad0la" title="Documentation">📖</a> <a href="#tool-mbad0la" title="Tools">🔧</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.marcobiedermann.com"><img src="https://avatars.githubusercontent.com/u/5244986?v=3?s=100" width="100px;" alt="Marco Biedermann"/><br /><sub><b>Marco Biedermann</b></sub></a><br /><a href="#design-marcobiedermann" title="Design">🎨</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
