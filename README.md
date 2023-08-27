@@ -49,7 +49,6 @@
     <li><a href="#known-bugs">Known Bugs</a></li>
     <li><a href="#future-features">Future Features</a></li>
     <li><a href="#contributors-and-resources">Contributors and Resources</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -221,7 +220,7 @@ Finally, `main.js` handles all the GET routes to the pages of the website, confi
 ### Database Structure and Table Relationships
 
 As mentioned before, we are using a MySQL Database in cPanel called `atlasaiteam_accounts`. Here's a high-level overview of the database:
-![Tables and their Relationships](database.png)
+![Tables and their Relationships](readme-images/database.png)
 
 You can see every single table has 
 - created_by 
@@ -230,7 +229,7 @@ You can see every single table has
 - last_modified_date
 
 to ensure we have a comprehensive audit trail. Additionally, we also have audit tables for all our tables: 
-![Audit Tables](database_aud.png)
+![Audit Tables](readme-images/database_aud.png)
 
 These tables get entries inserted through triggers when the original table gets its entries updated or deleted.
 
@@ -258,7 +257,7 @@ To convert these existing tables into Sequelize Models, I used [Sequelize-Auto](
 
 Finally, we have the sessions table which is explained more in [Detailed Walkthrough](#detailed-walkthrough):
 
-![Sessions Table](session-table.png)
+![Sessions Table](readme-images/session-table.png)
 
 ### Detailed Walkthrough
 
@@ -273,7 +272,7 @@ With **Vite-Express**, we can write full-stack apps with only a couple of lines 
 * managing unhandled routes to make client-side routing possible
 
 The website uses OpenID Connect authentication with Azure Active Directory. From Microsoft Docs,
-> This is an authentication protocol based on the OAuth2 protocol (which is used for authorization). OIDC uses the standardized message flows from OAuth2 to provide identity services. OIDC lets developers authenticate their users across websites and apps without having to own and manage password files. ![Alt text](OpenIDConnect-Flow.png)
+> This is an authentication protocol based on the OAuth2 protocol (which is used for authorization). OIDC uses the standardized message flows from OAuth2 to provide identity services. OIDC lets developers authenticate their users across websites and apps without having to own and manage password files. ![Alt text](readme-images/OpenIDConnect-Flow.png)
 
 So in our case, we make users sign in with their Illinois Microsoft Outlook Account. In our application, **Step 8 (Valid Access Token)** is done by grabbing the user's NetID from their email that comes along with the tokens and checking if they exist in our `atlas_users` database. If they don't, they get sent to a `login_error` page. Since we're using NodeJS + Express, we use PassportJS as our authentication middleware. All of the authentication routes and passport configuration can be found in `passport.js`.
 
@@ -323,11 +322,11 @@ So, how did we actually do this? As soon as the user fills out the form and clic
 ### Authentication 
 
 When a user logs in, the session that gets stored in our `sessions` table is expected to look like: 
-![Data column of expected session](session.png)
+![Data column of expected session](readme-images/session.png)
 with the `passport` value being the user that exists in the `atlas_users` table. So, whenever the user closes the tab and reopens it, Passport serializes and deserializes using this data. 
 
 However, sometimes, the session is stored in this format:
-![Data column of bad session](bad-session.png)
+![Data column of bad session](readme-images/bad-session.png)
 where the passport attribute doesn't even exist. When the session is stored like this, PassportJS doesn't know who the current user is, and it's unable to redirect to any of our pages. As a result, the user continually gets sent to the `login-error` page because that's what our `failureRedirect` is set to.
 
 As far as I can tell, this occurs randomly and sometimes the session gets stored properly and sometimes it doesn't. Here are some resources that could potentially help resolve this issue:
@@ -360,7 +359,7 @@ As far as I can tell, this occurs randomly and sometimes the session gets stored
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/mrome/"><img src="https://media.licdn.com/dms/image/C5603AQGimERisfwk8A/profile-displayphoto-shrink_400_400/0/1516320810867?e=1698883200&v=beta&t=BvMYTOMosxTj90xLEQdKvnq4ECTClhsf0SZvV0too-0" width="100px;" alt="Michelle Rome"/><br /><sub><b>Michelle Rome</b></sub></a><br /><a href="#" title="Design">🎨</a><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a>Mentor</td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/priscilla-geerdes-33bba8255"><img src="priscilla_pfp.png" width="100px;" alt="Priscilla Geerdes"/><br /><sub><b>Priscilla Geerdes</b></sub></a><br /><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a> Coordinator</td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/priscilla-geerdes-33bba8255"><img src="readme-images/priscilla_pfp.png" width="100px;" alt="Priscilla Geerdes"/><br /><sub><b>Priscilla Geerdes</b></sub></a><br /><a href="#" title="Answering Questions">💬</a> <a href="#" title="Maintenance">🚧</a> Coordinator</td>
       <td align="center" valign="top" width="14.28%" height="130px"><a href="https://math.illinois.edu/directory/profile/rmccrthy"><img src="https://math.illinois.edu/sites/default/files/styles/directory_profile/public/profile-photos/rmccrthy.png.jpg?itok=hMsexiXO" width="100px;" alt="Randy McCarthy"/><br /><sub><b>Randy McCarthy</b></sub></a><br /><a href="#" title="Design">🎨</a><a href="#" title="Answering Questions">💬</a><a href="#" title="Tools">🔧</a>Client</td>
     </tr>
   </tbody>
@@ -373,6 +372,8 @@ As far as I can tell, this occurs randomly and sometimes the session gets stored
 ### Resources Used
 Thank you to our amazing team of mentors for all their help thoroughout the project.
 All of the resources we used can be found here: [Resources - Google Docs](https://docs.google.com/document/d/1Yvs7tJFcdjcbIhXztb_aJP1fVm7Gsq9j5ODua-Bkxc0/edit?usp=sharing)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
