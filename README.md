@@ -336,12 +336,16 @@ As far as I can tell, this occurs randomly and sometimes the session gets stored
 * [GitHub Issues - Passport is empty in session](https://github.com/jaredhanson/passport/issues/452)
 * [StackOverflow - Passport auth service not working](https://stackoverflow.com/questions/71686115/nodejs-api-on-azure-app-service-passport-auth-not-working)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Future Features
 
 * Store all generated paragraphs and allow user to choose and compare all 9 paragraphs
 * Migrate application to cPanel and ensure that the MySQL connection works with the cPanel database
 * Rebuild application using React + NextJS for better functionality and scalability
 * Implement our open-source LLM rather than relying on OpenAI's models
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributors and Resources
 
